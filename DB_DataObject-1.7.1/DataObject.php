@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.282 2004/08/07 02:28:10 alan_k Exp $
+ * $Id: DataObject.php,v 1.284 2004/08/08 04:49:56 alan_k Exp $
  */
 
 /* =========================================================================== 
@@ -2182,7 +2182,9 @@ class DB_DataObject extends DB_DataObject_Overload
         if (empty($_DB_DATAOBJECT['CONFIG'])) {
             DB_DataObject::_loadConfig();
         }
-        $class = $_DB_DATAOBJECT['CONFIG']['class_prefix'] . preg_replace('/[^A-Z0-9]/i','_',ucfirst($table));
+        $p = isset($_DB_DATAOBJECT['CONFIG']['class_prefix']) ?
+            $_DB_DATAOBJECT['CONFIG']['class_prefix'] : '';
+        $class = $p . preg_replace('/[^A-Z0-9]/i','_',ucfirst($table));
         $class = (class_exists($class)) ? $class  : DB_DataObject::_autoloadClass($class);
         return $class;
     }
@@ -2212,7 +2214,10 @@ class DB_DataObject extends DB_DataObject_Overload
         if (empty($_DB_DATAOBJECT['CONFIG'])) {
             DB_DataObject::_loadConfig();
         }
-        $class = $_DB_DATAOBJECT['CONFIG']['class_prefix'] . preg_replace('/[^A-Z0-9]/i','_',ucfirst($table));
+        
+        $p = isset($_DB_DATAOBJECT['CONFIG']['class_prefix']) ?
+            $_DB_DATAOBJECT['CONFIG']['class_prefix'] : '';
+        $class = $p . preg_replace('/[^A-Z0-9]/i','_',ucfirst($table));
         
         $class = (class_exists($class)) ? $class  : DB_DataObject::_autoloadClass($class);
         
@@ -3357,7 +3362,7 @@ class DB_DataObject extends DB_DataObject_Overload
         }
         // this is a bit flaky due to php's wonderfull class passing around crap..
         // but it's about as good as it gets..
-        $class = (isset($this) && is_a($this,__CLASS__)) ? get_class($this) : __CLASS__;
+        $class = (isset($this) && is_a($this,'DB_DataObject')) ? get_class($this) : 'DB_DataObject';
         
         if (!is_string($message)) {
             $message = print_r($message,true);

@@ -19,11 +19,41 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>1.7.0</version>
-    <date>2004-06-03</date>
+    <version>1.7.1</version>
+    <date>2004-08-09</date>
     <license>PHP License</license>
     <state>stable</state>
-    <notes>Major bug fix release, Minor features added.  
+    <notes>Minor bug fix release
+  
+  
+Bug Fixes:
+  #2088 - class_prefix may be left out.
+  #------ php4.2 compatibility should work as advertised in last realease
+  #------ Generator didnt have DB loaded due to lazy load changes.</notes>
+    <deps>
+      <dep type="php" rel="ge" version="4.2"/>
+      <dep type="pkg" rel="ge" version="1.6">DB</dep>
+      <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
+      <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
+    </deps>
+    <filelist>
+      <file role="php" baseinstalldir="DB" md5sum="c9de0a0925181a8b32bbfafcd2c571f0" name="DataObject.php">
+        <replace from="@version@" to="version" type="package-info"/>
+      </file>
+      <file role="php" baseinstalldir="DB" md5sum="f3faa3383d83fd95f90454ef3de23d49" name="DataObject/Cast.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="806f3c8f7ce60eb4aa306bf0373eb961" name="DataObject/Generator.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="388d35c593ffa8543646ed12abb01152" name="DataObject/createTables.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="af02e7575c22b9503d69c4447a4eb0ab" name="DataObject/Error.php"/>
+      <file role="doc" baseinstalldir="DB" md5sum="47d7d7f2b2d49572b9db4d56c7cb4010" name="docs/example.ini"/>
+      <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
+    </filelist>
+  </release>
+  <changelog>
+    <release>
+      <version>1.7.0</version>
+      <date>2004-06-03</date>
+      <state>stable</state>
+      <notes>Major bug fix release, Minor features added.  
   
   
 Bug Fixes:
@@ -50,26 +80,10 @@ Changes:
   * free() method added, to clean up memory instantly, if you are doing alot of queries.
       = Cleans Result Fields, Result Object, NumRows returned in Connection object.
   * include path is used to do file hunting if factory fails to find file.
-  * DB is lazy loaded on connection.b</notes>
-    <deps>
-      <dep type="php" rel="ge" version="4.2"/>
-      <dep type="pkg" rel="ge" version="1.6">DB</dep>
-      <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
-      <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
-    </deps>
-    <filelist>
-      <file role="php" baseinstalldir="DB" md5sum="445d989ddb1a41569a490ae8186d1918" name="DataObject.php">
-        <replace from="@version@" to="version" type="package-info"/>
-      </file>
-      <file role="php" baseinstalldir="DB" md5sum="f3faa3383d83fd95f90454ef3de23d49" name="DataObject/Cast.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="aec7343a51e0434765ea601bf1637e78" name="DataObject/Generator.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="388d35c593ffa8543646ed12abb01152" name="DataObject/createTables.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="af02e7575c22b9503d69c4447a4eb0ab" name="DataObject/Error.php"/>
-      <file role="doc" baseinstalldir="DB" md5sum="47d7d7f2b2d49572b9db4d56c7cb4010" name="docs/example.ini"/>
-      <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
-    </filelist>
-  </release>
-  <changelog>
+  * DB is lazy loaded on connection.b
+
+</notes>
+    </release>
     <release>
       <version>1.6.1</version>
       <date>2004-06-03</date>

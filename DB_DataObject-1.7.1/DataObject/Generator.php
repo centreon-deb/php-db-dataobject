@@ -14,10 +14,10 @@
 // +----------------------------------------------------------------------+
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
-// $Id: Generator.php,v 1.68 2004/08/07 01:51:51 alan_k Exp $
+// $Id: Generator.php,v 1.70 2004/08/09 00:34:42 alan_k Exp $
 
 /**
- * Generation tools for DB_DataObjectp
+ * Generation tools for DB_DataObject
  *
  * Config _$ptions
  * [DB_DataObject_Generator]
@@ -107,6 +107,7 @@ class DB_DataObject_Generator extends DB_DataObject
         }
 
         if (@$options['database']) {
+            require_once 'DB.php';
             $dsn = DB::parseDSN($options['database']);
             if (!isset($database[$dsn['database']])) {
                 $databases[$dsn['database']] = $options['database'];
