@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.112 2003/07/16 03:13:05 alan_k Exp $
+ * $Id: DataObject.php,v 1.114 2003/07/18 08:32:06 alan_k Exp $
  */
 
 /**
@@ -400,9 +400,10 @@ Class DB_DataObject
             $this->$kk = $array[$k];
         }
         if (!empty($this->_data_select)) {
-            foreach(array('_data_select','_join','_group_by','_order_by', '_having', '_limit','_condition') as $k) {
+            foreach(array('_join','_group_by','_order_by', '_having', '_limit','_condition') as $k) {
                 $this->$k = '';
             }
+            $this->_data_select = '*';
         }
         // set link flag
         $this->_link_loaded=false;
@@ -826,6 +827,7 @@ Class DB_DataObject
             /* special values ... at least null is handled...*/
             if (strtolower($this->$k) === 'null') {
                 $settings .= "$k = NULL";
+                continue;
             }
 
             if ($v & DB_DATAOBJECT_STR) {
