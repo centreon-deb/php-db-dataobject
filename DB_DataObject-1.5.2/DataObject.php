@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.198 2004/01/22 02:45:33 alan_k Exp $
+ * $Id: DataObject.php,v 1.205 2004/01/24 08:41:53 alan_k Exp $
  */
 
 /* =====================================================================================
@@ -28,7 +28,8 @@
 *        !!!!!!!!!!!!!               W A R N I N G                !!!!!!!!!!!
 *
 *     THIS MAY SEGFAULT PHP IF YOU ARE USING THE ZEND OPTIMIZER (to fix it, just add 
-*     "define('DB_DATAOBJECT_NO_OVERLOAD');" before you include this file.
+*     "define('DB_DATAOBJECT_NO_OVERLOAD',true);" before you include this file.
+*     reducing the optimization level may also solve the segfault.
 *  =====================================================================================
 */
 
@@ -477,7 +478,7 @@ Class DB_DataObject extends DB_DataObject_Overload
         if (@$_DB_DATAOBJECT['CONFIG']['debug']) {
             $this->debug("{$this->__table} DONE", "fetchrow",2);
         }
-        if (isset($this->_query)) {
+        if (isset($this->_query) && !@$_DB_DATAOBJECT['CONFIG']['keep_query_after_fetch']) {
             unset($this->_query);
         }
         return true;
@@ -1378,13 +1379,13 @@ Class DB_DataObject extends DB_DataObject_Overload
      * It should append to the table structure array 
      *
      *     
-     * @param optional string  name of database to assign
+     * @param optional string  name of database to assign / read
      * @param optional array   structure of database, and keys
      * @param optional array  table links
      *
      * @access public
-     * @static
      * @return true or PEAR:error on wrong paramenters.. or false if no file exists..
+     *              or the array(tablename => array(column_name=>type)) if called with 1 argument.. (databasename)
      */
     function databaseStructure()
     {
@@ -1396,22 +1397,31 @@ Class DB_DataObject extends DB_DataObject_Overload
         if ($args = func_get_args()) {
         
             if (count($args) == 1) {
-                // this an error condition!!!
-                return DB_DataObject::raiseError(
-                    "DB_DataObjects::databaseStructure() takes 2 or 3 arguments \n".
-                    "string databasename, array structure, array links.\n",
-                    DB_DATAOBJECT_ERROR_INVALIDARGS, PEAR_ERROR_DIE);
                 
-            }
+                // this returns all the tables and their structure..
+                
+                $x = new DB_DataObject;
+                $x->_database = $args[0];
+                $DB  = $x->getDatabaseConnection();
+                $tables = $DB->getListOf('tables');
+                require_once 'DB/DataObject/Generator.php';
+                foreach($tables as $table) {
+                    $y = new DB_DataObject_Generator;
+                    $y->fillTableSchema($x->_database,$table);
+                }
+                return $_DB_DATAOBJECT['INI'][$x->_database];            
+            } else {
         
-            $_DB_DATAOBJECT['INI'][$args[0]] = isset($_DB_DATAOBJECT['INI'][$args[0]]) ?
-                $_DB_DATAOBJECT['INI'][$args[0]] + $args[1] : $args[1];
-            
-            if (isset($args[1])) {
-                $_DB_DATAOBJECT['LINKS'][$args[0]] = isset($_DB_DATAOBJECT['LINKS'][$args[0]]) ?
-                    $_DB_DATAOBJECT['LINKS'][$args[0]] + $args[2] : $args[2];
+                $_DB_DATAOBJECT['INI'][$args[0]] = isset($_DB_DATAOBJECT['INI'][$args[0]]) ?
+                    $_DB_DATAOBJECT['INI'][$args[0]] + $args[1] : $args[1];
+                
+                if (isset($args[1])) {
+                    $_DB_DATAOBJECT['LINKS'][$args[0]] = isset($_DB_DATAOBJECT['LINKS'][$args[0]]) ?
+                        $_DB_DATAOBJECT['LINKS'][$args[0]] + $args[2] : $args[2];
+                }
+                return true;
             }
-            return true;
+          
         }
         
         
@@ -1717,7 +1727,7 @@ Class DB_DataObject extends DB_DataObject_Overload
      *  c) session based storage.
      *
      * @access private
-     * @return void
+     * @return true | PEAR::error
      */
     function _connect()
     {
@@ -1730,17 +1740,17 @@ Class DB_DataObject extends DB_DataObject_Overload
 
         if ($this->_database_dsn_md5 && @$_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]) {
             if (PEAR::isError($_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5])) {
-                DB_DataObject::raiseError(
+                return DB_DataObject::raiseError(
                         $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->message,
                         $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->code, PEAR_ERROR_DIE
                 );
-                return;
+                 
             }
 
             if (!$this->_database) {
                 $this->_database = $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->dsn['database'];
             }
-            return;
+            
         }
 
         // it's not currently connected!
@@ -1769,7 +1779,7 @@ Class DB_DataObject extends DB_DataObject_Overload
             if (!$this->_database) {
                 $this->_database = $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->dsn["database"];
             }
-            return;
+            return true;
         }
         if (@$_DB_DATAOBJECT['CONFIG']['debug']) {
             $this->debug("NEW CONNECTION", "CONNECT",3);
@@ -1783,7 +1793,7 @@ Class DB_DataObject extends DB_DataObject_Overload
             $this->debug(serialize($_DB_DATAOBJECT['CONNECTIONS']), "CONNECT",5);
         }
         if (PEAR::isError($_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5])) {
-            DB_DataObject::raiseError(
+            return DB_DataObject::raiseError(
                         $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->message,
                         $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->code, PEAR_ERROR_DIE
             );
@@ -2158,6 +2168,7 @@ Class DB_DataObject extends DB_DataObject_Overload
         if ($this->_link_loaded) {
             return true;
         }
+        $this->_link_loaded = false;
         $cols  = $this->table();
         if (!isset($_DB_DATAOBJECT['LINKS'][$this->_database])) {
             return false;
@@ -2179,7 +2190,9 @@ Class DB_DataObject extends DB_DataObject_Overload
                 }
                 
                 $this->$k = $this->getLink($key, $table, $link);
-                $loaded[] = $k;
+                if (is_object($this->$k)) {
+                    $loaded[] = $k; 
+                }
             }
             $this->_link_loaded = $loaded;
             return true;
@@ -2191,7 +2204,9 @@ Class DB_DataObject extends DB_DataObject_Overload
             // does the table exist.
             $k =sprintf($format, $key);
             $this->$k = $this->getLink($key);
-            $loaded[] = $k;
+            if (is_object($this->$k)) {
+                $loaded[] = $k; 
+            }
         }
         $this->_link_loaded = $loaded;
         return true;
@@ -2790,7 +2805,9 @@ Class DB_DataObject extends DB_DataObject_Overload
     {
         global $_DB_DATAOBJECT;
 
-        $this->_connect();
+        if (($e = $this->_connect()) !== true) {
+            return $e;
+        }
         if (!isset($_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5])) {
             return  false;
         }
@@ -2805,10 +2822,6 @@ Class DB_DataObject extends DB_DataObject_Overload
      * @access public
      * @return object The DB result object
      */
-     
-   
-     
-     
      
     function &getDatabaseResult()
     {
@@ -2912,9 +2925,11 @@ Class DB_DataObject extends DB_DataObject_Overload
     * normally called from __call..  
     *
     * Current supports
-    *   date      = using strtotime + pear::date 
+    *   date      = using (standard time format, or unixtimestamp).... so you could create a method :
+    *               function setLastread($string) { $this->fromValue('lastread',strtotime($string)); }
+    *
     *   time      = using strtotime 
-    *   datetime  = using strtotime (if fails = use raw..)
+    *   datetime  = using  same as date - accepts iso standard or unixtimestamp.
     *   string    = typecast only..
     * 
     * TODO: add formater:: eg. d/m/Y for date! ???
@@ -2951,10 +2966,9 @@ Class DB_DataObject extends DB_DataObject_Overload
                 return false;
         
             case (($cols[$col] & DB_DATAOBJECT_DATE) &&  ($cols[$col] & DB_DATAOBJECT_TIME)):
-                $guess = strtotime($value);
                 
-                if ($guess != -1) {
-                    $this->$col = date('Y-m-d H:i:s', $guess);
+                if (is_numeric($value)) {
+                    $this->$col = date('Y-m-d H:i:s', $value);
                     return true;
                 }
               
@@ -2963,9 +2977,8 @@ Class DB_DataObject extends DB_DataObject_Overload
                 return true;
             
             case ($cols[$col] & DB_DATAOBJECT_DATE):
-                $guess = strtotime($value);
-                if ($guess != -1) {
-                    $this->$col = date('Y-m-d',$guess);
+                if (is_numeric($value)) {
+                    $this->$col = date('Y-m-d',$value);
                     return true;
                 }
                 // try date!!!!
@@ -3006,6 +3019,8 @@ Class DB_DataObject extends DB_DataObject_Overload
     * supported formaters:  
     *   date/time : %d/%m/%Y (eg. php strftime) or pear::Date 
     *   numbers   : %02d (eg. sprintf)
+    *  NOTE you will get unexpected results with times like 0000-00-00 !!!
+    *
     *
     * 
     * @param   string       column of database
