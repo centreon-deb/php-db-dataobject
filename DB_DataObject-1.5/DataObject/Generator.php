@@ -14,7 +14,7 @@
 // +----------------------------------------------------------------------+
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
-// $Id: Generator.php,v 1.39 2003/12/16 09:28:45 alan_k Exp $
+// $Id: Generator.php,v 1.47 2004/01/18 02:54:42 alan_k Exp $
 
 /**
  * Generation tools for DB_DataObject
@@ -188,10 +188,15 @@ class DB_DataObject_Generator extends DB_DataObject
 
         //$this->_newConfig = new Config('IniFile');
         $this->_newConfig = '';
-        foreach($this->tables as $this->table)
+        foreach($this->tables as $this->table) {
             $this->_generateDefinitionsTable();
+        }
         $this->_connect();
-
+        // dont generate a schema if location is not set
+        // it's created on the fly!
+        if (!@$options['schema_location']) {
+            return;
+        }
         $base =  $options['schema_location'];
         $file = "{$base}/{$this->_database}.ini";
         if (!file_exists($base))
@@ -213,7 +218,7 @@ class DB_DataObject_Generator extends DB_DataObject
      * The table geneation part
      *
      * @access  private
-     * @return  none
+     * @return  tabledef and keys array.
      */
     function _generateDefinitionsTable()
     {
@@ -224,12 +229,22 @@ class DB_DataObject_Generator extends DB_DataObject
         $keys_out =  "\n[{$this->table}__keys]\n";
         $keys_out_primary = '';
         $keys_out_secondary = '';
-        if (@$_DB_DATAOBJECT['CONFIG']['debug']) {
+        if (@$_DB_DATAOBJECT['CONFIG']['debug'] > 2) {
             echo "TABLE STRUCTURE FOR {$this->table}\n";
             print_r($defs);
         }
         $DB = $this->getDatabaseConnection();
         $dbtype = $DB->phptype;
+        
+        $ret = array(
+                'table' => array(),
+                'keys' => array(),
+            );
+            
+        $ret_keys_primary = array();
+        $ret_keys_secondary = array();
+        
+        
         
         foreach($defs as $t) {
              
@@ -286,20 +301,20 @@ class DB_DataObject_Generator extends DB_DataObject
                 case 'TIMESTAMPTZ': // postgres
                 case 'BPCHAR':      // postgres
                 case 'INTERVAL':    // postgres (eg. '12 days')
-                    $type=DB_DATAOBJECT_STR;
+                    $type = DB_DATAOBJECT_STR;
                     break;
                     
                 case 'DATE':    
-                    $type=DB_DATAOBJECT_STR + DB_DATAOBJECT_DATE;
+                    $type = DB_DATAOBJECT_STR + DB_DATAOBJECT_DATE;
                     break;
                     
                 case 'TIME':    
-                    $type=DB_DATAOBJECT_STR + DB_DATAOBJECT_TIME;
+                    $type = DB_DATAOBJECT_STR + DB_DATAOBJECT_TIME;
                     break;    
                     
                 case 'TIMESTAMP':
                 case 'DATETIME':    
-                    $type=DB_DATAOBJECT_STR + DB_DATAOBJECT_DATE + DB_DATAOBJECT_TIME;
+                    $type = DB_DATAOBJECT_STR + DB_DATAOBJECT_DATE + DB_DATAOBJECT_TIME;
                     break;    
                     
                 case 'TINYBLOB':
@@ -307,30 +322,51 @@ class DB_DataObject_Generator extends DB_DataObject
                 case 'MEDIUMBLOB':
                 case 'LONGBLOB':
                 case 'BYTEA':   // postgres blob support..
-                    $type=DB_DATAOBJECT_STR + DB_DATAOBJECT_BLOB;
+                    $type = DB_DATAOBJECT_STR + DB_DATAOBJECT_BLOB;
                     break;
                     
                     
             }
+            
+            
             if (!strlen(trim($t->name))) {
                 continue;
             }
+            
+            if (preg_match('/not_null/i',$t->flags)) {
+                $type += DB_DATAOBJECT_NOTNULL;
+            }
+            
             $this->_newConfig .= "{$t->name} = $type\n";
-
+            $ret['table'][$t->name] = $type;
             // i've no idea if this will work well on other databases?
             // only use primary key or nextval(), cause the setFrom blocks you setting all key items...
             // if no keys exist fall back to using unique
-
-            if (preg_match("/(primary|nextval\()/i",$t->flags)) {
-                $keys_out_primary .= "{$t->name} = $type\n";
-            } else if (preg_match("/\sunique\s/i",$t->flags)) {
-                $keys_out_secondary .= "{$t->name} = $type\n";
+            //echo "\n{$t->name} => {$t->flags}\n";
+            if (preg_match("/(auto_increment|nextval\()/i",$t->flags)) {
+                // native sequences = 2
+                $keys_out_primary .= "{$t->name} = N\n";
+                $ret_keys_primary[$t->name] = 'N';
+            } else if (preg_match("/(primary|unique)/i",$t->flags)) {
+                // keys.. = 1
+                $keys_out_secondary .= "{$t->name} = K\n";
+                $ret_keys_secondary[$t->name] = 'K';
             }
+            
+            
+            
 
         }
         
         $this->_newConfig .= $keys_out . (empty($keys_out_primary) ? $keys_out_secondary : $keys_out_primary);
-
+        $ret['keys'] = empty($keys_out_primary) ? $ret_keys_secondary : $ret_keys_primary;
+        
+        
+        //print_r(array("dump for {$this->table}", $ret));
+        
+        return $ret;
+        
+        
     }
 
     /*
@@ -339,7 +375,7 @@ class DB_DataObject_Generator extends DB_DataObject
      */
     function generateClasses()
     {
-        echo "Generating Class files:        \n";
+        //echo "Generating Class files:        \n";
         $options = &PEAR::getStaticProperty('DB_DataObject','options');
         $base = $options['class_location'];
         if (!file_exists($base))
@@ -351,14 +387,14 @@ class DB_DataObject_Generator extends DB_DataObject
         }
 
         foreach($this->tables as $this->table) {
-            $this->_classInclude = str_replace('_','/',$class_prefix)."/" .ucfirst($this->table);
-            $this->classname = $class_prefix.ucfirst($this->table);
+            $this->table = trim($this->table);
+            $this->classname = $class_prefix.preg_replace('/[^A-Z]/i','_',ucfirst($this->table));
             $i = '';
-            $outfilename = "{$base}/".ucfirst($this->table).".php";
+            $outfilename = "{$base}/".preg_replace('/[^A-Z]/i','_',ucfirst($this->table)).".php";
             if (file_exists($outfilename))
                 $i = implode('',file($outfilename));
             $out = $this->_generateClassTable($i);
-            echo "writing $this->classname\n";
+            //echo "writing $this->classname\n";
             $fh = fopen($outfilename, "w");
             fputs($fh,$out);
             fclose($fh);
@@ -531,4 +567,91 @@ class DB_DataObject_Generator extends DB_DataObject
         // It MUST NOT be changed here!!!
         return "";
     }
+
+
+    /**
+    * getProxyFull - create a class definition on the fly and instantate it..
+    *
+    * similar to generated files - but also evals the class definitoin code.
+    * 
+    * 
+    * @param   string database name
+    * @param   string  table   name of table to create proxy for.
+    * 
+    *
+    * @return   object    Instance of class. or PEAR Error
+    * @access   public
+    */
+    function getProxyFull($database,$table) {
+        
+        if ($err = $this->fillTableSchema($database,$table)) {
+            return $err;
+        }
+        
+        
+        $options = &PEAR::getStaticProperty('DB_DataObject','options');
+        $class_prefix  = $options['class_prefix'];
+        
+        if ($extends = @$options['extends']) {
+            $this->_extends = $extends;
+            $this->_extendsFile = $options['extends_location'];
+        }
+
+        
+        $classname = $this->classname = $class_prefix.preg_replace('/[^A-Z]/i','_',ucfirst(trim($this->table)));
+
+        $out = $this->_generateClassTable();
+        //echo $out;
+        eval('?>'.$out);
+        return new $classname;
+        
+    }
+    
+     /**
+    * fillTableSchema - set the database schema on the fly
+    *
+    * 
+    * 
+    * @param   string database name
+    * @param   string  table   name of table to create schema info for
+    *
+    * @return   none | PEAR::error()
+    * @access   public
+    */
+    function fillTableSchema($database,$table) {
+        global $_DB_DATAOBJECT;
+        $this->_database  = $database; 
+        $this->_connect();
+        $table = trim($table);
+        
+        $__DB= &$GLOBALS['_DB_DATAOBJECT']['CONNECTIONS'][$this->_database_dsn_md5];
+        
+        $defs =  $__DB->tableInfo($table);
+        if (PEAR::isError($defs)) {
+            return $defs;
+        }
+        if (@$_DB_DATAOBJECT['CONFIG']['debug'] > 2) {
+            $this->debug("getting def for $database/$table",'fillTable');
+            $this->debug(print_r($defs,true),'defs');
+        }
+        // cast all definitions to objects - as we deal with that better.
+        
+            
+        foreach($defs as $def) {
+            if (is_array($def)) {
+                $this->_definitions[$table][] = (object) $def;
+            }
+        }
+
+        $this->table = trim($table);
+        $ret = $this->_generateDefinitionsTable();
+        
+        $_DB_DATAOBJECT['INI'][$database][$table] = $ret['table'];
+        $_DB_DATAOBJECT['INI'][$database][$table.'__keys'] = $ret['keys'];
+        return false;
+        
+    }
+    
+
+
 }
