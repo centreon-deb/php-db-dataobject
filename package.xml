@@ -17,13 +17,17 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.13</version>
-    <date>2003-01-23</date>
+    <version>0.14</version>
+    <date>2003-02-06</date>
     <license>PHP License</license>
     <state>stable</state>
-    <notes>- bug fix release - debug_ignore_updates worked in reverse.. (Alexander Mazurov)</notes>
+    <notes>- added get affected rows to update/insert/delete
+  they will return false if no data is affected and set 
+  the Objects lastError value.
+  Note: databases that do not support affectedRows(), will always 
+  return false.</notes>
     <filelist>
-      <file role="php" baseinstalldir="DB" md5sum="3f688c740d3c3593da08f8d7df88c07c" name="DataObject.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="5b43a5e040c42ba8ad222b97f2a2b4b3" name="DataObject.php"/>
       <file role="php" baseinstalldir="DB" md5sum="976bae790ee24a7a8378b9b9b041b97f" name="DataObject/Generator.php"/>
       <file role="php" baseinstalldir="DB" md5sum="92802927e5cfd951ca06927a48f1d807" name="DataObject/createTables.php"/>
       <file role="php" baseinstalldir="DB" md5sum="c44f9854ec109f99b88d300231b3a08d" name="DataObject/example.ini"/>

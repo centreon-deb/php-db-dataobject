@@ -15,7 +15,7 @@
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
 //
-// $Id: DataObject.php,v 1.55 2003/01/23 10:42:46 alan_k Exp $
+// $Id: DataObject.php,v 1.59 2003/02/06 12:20:37 alan_k Exp $
 //
 // Object Based Database Query Builder and data store
 //
@@ -44,6 +44,13 @@ define('DB_DATAOBJECT_ERROR_INVALIDARGS',   -1);  // wrong args to function
 define('DB_DATAOBJECT_ERROR_NODATA',        -2);  // no data available
 define('DB_DATAOBJECT_ERROR_INVALIDCONFIG', -3);  // something wrong with the config
 define('DB_DATAOBJECT_ERROR_NOCLASS',       -4);  // no class exists
+define('DB_DATAOBJECT_ERROR_NOAFFECTEDROWS',-5);  // no rows where affected by update/insert/delete
+
+/**
+ * Used in methods like delete() and count() to specify that the method should
+ * build the condition only out of the whereAdd's and not the object parameters.
+ */
+define('DB_DATAOBJECT_WHEREADD_ONLY', true);
 
 /*
  *
@@ -57,11 +64,13 @@ define('DB_DATAOBJECT_ERROR_NOCLASS',       -4);  // no class exists
  *   - results     = [id] => map to pear db object
  *   - ini         = mapping of database to ini file results
  *   - links       = mapping of database to links file
+ *   - lasterror   = pear error objects for last error event.
 */
 $GLOBALS['_DB_DATAOBJECT']['RESULTS'] = array();
 $GLOBALS['_DB_DATAOBJECT']['CONNECTIONS'] = array();
 $GLOBALS['_DB_DATAOBJECT']['INI'] = array();
 $GLOBALS['_DB_DATAOBJECT']['LINKS'] = array();
+$GLOBALS['_DB_DATAOBJECT']['LASTERROR'] = null;
 
 /**
  * The main "DB_DataObject" class is really a base class for your own tables classes
@@ -555,6 +564,12 @@ Class DB_DataObject
                 $rightq .= ', ';
             }
             $leftq .= "$k ";
+            
+            if ($this->$k === null) {
+                $rightq .= " NULL ";
+                continue;
+            }
+            
             if ($v & DB_DATAOBJECT_STR) {
                 $rightq .= $__DB->quote($this->$k) . " ";
                 continue;
@@ -572,6 +587,10 @@ Class DB_DataObject
             $r = $this->_query("INSERT INTO {$this->__table} ($leftq) VALUES ($rightq) ");
             if (PEAR::isError($r)) {
                 DB_DataObject::raiseError($r);
+                return false;
+            }
+            if ($r < 1) {
+                DB_DataObject::raiseError('No Data Affected By insert',DB_DATAOBJECT_ERROR_NOAFFECTEDROWS);
                 return false;
             }
             
@@ -633,6 +652,11 @@ Class DB_DataObject
             if ($settings)  {
                 $settings .= ', ';
             }
+            /* special values ... at least null is handled...*/
+            if ($this->$k === null) {
+                $settings .= "$k = NULL";
+            }
+            
             if ($v & DB_DATAOBJECT_STR) {
                 $settings .= $k .' = '. $__DB->quote($this->$k) . ' ';
                 continue;
@@ -655,8 +679,14 @@ Class DB_DataObject
         if ($settings && $this->_condition) {
             $r = $this->_query("UPDATE  {$this->__table}  SET {$settings} {$this->_condition} ");
             if (PEAR::isError($r)) {
+                $this->raiseError($r);
                 return false;
             }
+            if ($r < 1) {
+                DB_DataObject::raiseError('No Data Affected By update',DB_DATAOBJECT_ERROR_NOAFFECTEDROWS);
+                return false;
+            }
+            
             $this->_clear_cache();
             return true;
         }
@@ -680,33 +710,42 @@ Class DB_DataObject
      * $object->whereAdd('age > 12');
      * $object->delete(true); // use the condition
      *
+     * @param bool $useWhere (optional) If DB_DATAOBJECT_WHEREADD_ONLY is passed in then
+     *             we will build the condition only using the whereAdd's.  Default is to
+     *             build the condition only using the object parameters. 
+     *
      * @access public
-     * @param  boolean $use_where  use the whereAdd conditions (default = no - use current values.)
-     * @return boolean true on success
+     * @return bool True on success
      */
-    function delete($use_where = false)
+    function delete($useWhere = false)
     {
-        $keys = $this->_get_keys();
-        if (!$use_where) {
-            $this->_condition=""; // default behaviour not to use where condition
+        if (!$useWhere) {
+            $keys = $this->_get_keys();
+            $this->_condition = ''; // default behaviour not to use where condition
+            $this->_build_condition($keys);
+            // if primary keys are not set then use data from rest of object.
+            if (!$this->_condition) {
+                $this->_build_condition($this->_get_table(),array(),$keys);
+            }
         }
 
-        $this->_build_condition($keys);
-        // if primary keys are not set then use data from rest of object.
-        if (!$use_where && !$this->_condition) {
-            $this->_build_condition($this->_get_table(),array(),$keys);
-        }
-
+        // don't delete without a condition
         if ($this->_condition) {
             $r = $this->_query("DELETE FROM {$this->__table} {$this->_condition}");
             if (PEAR::isError($r)) {
+                $this->raiseError($r);
+                return false;
+            }
+            if ($r < 1) {
+                DB_DataObject::raiseError('No Data Affected By delete',DB_DATAOBJECT_ERROR_NOAFFECTEDROWS);
                 return false;
             }
             $this->_clear_cache();
             return true;
+        } else {
+            DB_DataObject::raiseError("delete: No condition specifed for query", DB_DATAOBJECT_ERROR_NODATA);
+            return false;
         }
-        DB_DataObject::raiseError("delete: No Data specifed for query {$this->_condition}", DB_DATAOBJECT_ERROR_NODATA);
-        return false;
     }
 
     /**
@@ -764,7 +803,7 @@ Class DB_DataObject
     }
 
     /**
-     * find the number of results from a simple query
+     * Find the number of results from a simple query
      *
      * for example
      *
@@ -772,39 +811,41 @@ Class DB_DataObject
      * $object->name = "fred";
      * echo $object->count();
      *
+     * @param bool $whereAddOnly (optional) If DB_DATAOBJECT_WHEREADD_ONLY is passed in then
+     *             we will build the condition only using the whereAdd's.  Default is to
+     *             build the condition using the object parameters as well.
+     *
      * @access public
      * @return int
      */
-    function count()
+    function count($whereAddOnly = false)
     {
         $items   = $this->_get_table();
         $tmpcond = $this->_condition;
-        $this->_connect();
-        
-        $__DB  = &$GLOBALS['_DB_DATAOBJECT']['CONNECTIONS'][$this->_database_dsn_md5];
+        $__DB    = $this->getDatabaseConnection(); 
      
-        if ($items)  {
-            while (list ($k, $v) = each($items)) {
-                if (isset($this->$k))  {
-                    $this->whereAdd($k. ' = ' . $__DB->quote($this->$k) . ' ');
+        if (!$whereAddOnly && $items)  {
+            foreach ($items as $key => $val) {
+                if (isset($this->$key))  {
+                    $this->whereAdd($key . ' = ' . $__DB->quote($this->$key));
                 }
             }
         }
         $keys = $this->_get_keys();
 
         if (!$keys[0]) {
-            echo "CAN NOT COUNT WITHOUT PRIMARY KEYS ";
+            echo 'CAN NOT COUNT WITHOUT PRIMARY KEYS';
             exit;
         }
 
-        $r = $this->_query("SELECT count({$keys[0]}) as num FROM {$this->__table} {$this->_condition}");
+        $r = $this->_query("SELECT count({$keys[0]}) as __num FROM {$this->__table} {$this->_condition}");
         if (PEAR::isError($r)) {
             return false;
         }
         $this->_condition = $tmpcond;
         $result  = &$GLOBALS['_DB_DATAOBJECT']['RESULTS'][$this->_DB_resultid];
         $l = $result->fetchRow(DB_FETCHMODE_ASSOC,0);
-        return $l["num"];
+        return $l['__num'];
     }
 
     /**
@@ -899,8 +940,8 @@ Class DB_DataObject
      * @var     integer
      */
     var $_DB_resultid; // database result object
-
-
+    
+    
     /* =========================================================== */
     /*  Major Private Methods - the core part!*/
     /* =========================================================== */
@@ -1125,7 +1166,7 @@ Class DB_DataObject
             case 'update':
             case 'delete':
                 unset($GLOBALS['_DB_DATAOBJECT']['RESULTS'][$this->_DB_resultid]);
-                return;
+                return $__DB->affectedRows();;
         }
         $this->N = 0;
         if (!$GLOBALS['_DB_DATAOBJECT_PRODUCTION']) {
@@ -1716,11 +1757,16 @@ Class DB_DataObject
         } else {
             $error = PEAR::raiseError($message, $type, $behaviour);
         }
-        if (is_object($this)) {
+        // this will never work totally with PHP's object model.
+        // as this is passed on static calls (like staticGet in our case)
+        
+        if (@is_object($this) && is_subclass_of($this,'db_dataobject')) {
             $this->_lastError = $error;
         }
-        $last_error = &PEAR::getStaticProperty('DB_DataObject','lastError');
-        $last_error = $error;
+        
+        $GLOBALS['_DB_DATAOBJECT']['LASTERROR'] = $error;
+        
+        // no checks for production here?.......
         DB_DataObject::debug($message,"ERROR",1);
         return $error;
     }
