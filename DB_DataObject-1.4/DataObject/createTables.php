@@ -16,7 +16,7 @@
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
 //
-// $Id: createTables.php,v 1.16 2003/01/04 11:54:52 mj Exp $
+// $Id: createTables.php,v 1.17 2003/11/17 06:11:23 alan_k Exp $
 //
 
 require_once 'DB/DataObject/Generator.php';
@@ -40,7 +40,7 @@ if (!$options) {
     PEAR::raiseError("\nERROR: could not read ini file\n\n", null, PEAR_ERROR_DIE);
     exit;
 }
-//DB_DataObject::debugLevel(5);
+DB_DataObject::debugLevel(5);
 $generator = new DB_DataObject_Generator;
 $generator->start();
-?>
+ 
