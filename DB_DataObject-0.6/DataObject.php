@@ -15,7 +15,7 @@
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
 //
-// $Id: DataObject.php,v 1.25 2002/09/03 06:52:19 alan_k Exp $
+// $Id: DataObject.php,v 1.26 2002/09/10 04:34:06 alan_k Exp $
 //
 // Object Based Database Query Builder and data store
 //
@@ -516,7 +516,7 @@ Class DB_DataObject {
         if (($key = @$keys[0]) && ($dbtype != 'mysql')) {
             $this->$key = $__DB->nextId();
         }
-
+         
         foreach($items as $k=>$v) {
             if (!isset($this->$k)) {
                 continue;
@@ -525,7 +525,7 @@ Class DB_DataObject {
                 $leftq .= ", ";
                 $rightq .=", ";
             }
-            $leftq = "$k ";
+            $leftq .= "$k ";
             if ($v & DB_DATAOBJECT_STR) {
                 $rightq .="'".addslashes($this->$k)."' ";
                 continue;

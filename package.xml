@@ -17,22 +17,26 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.5</version>
-    <date>2002-09-07</date>
+    <version>0.6</version>
+    <date>2002-09-10</date>
     <license>PHP License</license>
     <state>beta</state>
-    <notes>- fixed database.links.ini file loading in wrong location (Jens Fischer)
-- fixed type on extends (Jens Fischer)
-- added __clone() support to pre- php5 classes
-- added multiple linked table support</notes>
+    <notes>- bug fix release on insert (broke due to compatibility fixes)</notes>
     <filelist>
-      <file role="php" baseinstalldir="DB" md5sum="f9582fb03cb7a5181c6781d496e08ef9" name="DataObject.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="0015b81ae8daac6e4d6b96c4042cf223" name="DataObject.php"/>
       <file role="php" baseinstalldir="DB" md5sum="30d063831b86a377274976e761c0efac" name="DataObject/Generator.php"/>
       <file role="php" baseinstalldir="DB" md5sum="3c2a0964bfea8b1cc444c3ea8e726930" name="DataObject/createTables.php"/>
       <file role="php" baseinstalldir="DB" md5sum="3a5ce1c17e1ac0d9684f1fa886b384de" name="DataObject/example.ini"/>
     </filelist>
   </release>
   <changelog>
+    <release>
+      <version>0.6</version>
+      <date>2002-09-10</date>
+      <state>beta</state>
+      <notes>- bug fix release on insert (broke due to compatibility fixes)
+</notes>
+    </release>
     <release>
       <version>0.5</version>
       <date>2002-09-07</date>
