@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.337 2005/03/12 11:32:25 alan_k Exp $
+ * $Id: DataObject.php,v 1.339 2005/03/16 01:45:05 alan_k Exp $
  */
 
 /* =========================================================================== 
@@ -2845,11 +2845,21 @@ class DB_DataObject extends DB_DataObject_Overload
                 $DB->quoteIdentifier($obj->__table) : 
                  $obj->__table ;
                 
-        // add database prefix if they are different databases
-        if ($database_prefix && ($obj->_database != $this->_database) && strlen($obj->_database )) {
-            // ojbjTable is already quoted????
-            $objTable = ($quoteIdentifiers ? $DB->quoteIdentifier($obj->_database) : $obj->_database) . '.' . $objTable;
+         
+         // as far as we know only mysql supports database prefixes..
+        if (    
+                in_array($DB->dsn['phptype'],array('mysql','mysqli')) &&
+                ($obj->_database != $this->_database) &&
+                strlen($obj->_database)
+            ) 
+        {
+            // prefix database (quoted if neccessary..)
+            $objTable = ($quoteIdentifiers
+                         ? $DB->quoteIdentifier($obj->_database)
+                         : $obj->_database)
+                    . '.' . $objTable;
         }
+         
         
         
         
@@ -2876,27 +2886,20 @@ class DB_DataObject extends DB_DataObject_Overload
             $tfield   = $DB->quoteIdentifier($tfield);    
         }
         // add database prefix if they are different databases
-        // as far as we know only mysql supports database prefixes..
-        if (    
-                in_array($DB->dsn['phptype'],array('mysql','mysqli')) &&
-                ($obj->_database != $this->_database) &&
-                strlen($obj->_database)
-            ) 
-        {
-            // prefix database (quoted if neccessary..)
-            $objTable = ($quoteIdentifiers
-                         ? $DB->quoteIdentifier($obj->_database)
-                         : $obj->_database)
-                    . '.' . $objTable;
-        }
-         
+       
         
         $fullJoinAs = '';
         $addJoinAs  = ($quoteIdentifiers ? $DB->quoteIdentifier($obj->__table) : $obj->__table) != $joinAs;
         if ($addJoinAs) {
             $fullJoinAs = "AS {$joinAs}";
         } else {
-            if ($database_prefix && ($obj->_database != $this->_database) && strlen($this->_database )) {
+            // if 
+            if (
+                    in_array($DB->dsn['phptype'],array('mysql','mysqli')) &&
+                    ($obj->_database != $this->_database) &&
+                    strlen($this->_database)
+                ) 
+            {
                 $joinAs = ($quoteIdentifiers ? $DB->quoteIdentifier($obj->_database) : $obj->_database) . '.' . $joinAs;
             }
         }
