@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.331 2005/03/05 01:51:18 alan_k Exp $
+ * $Id: DataObject.php,v 1.333 2005/03/07 04:58:45 alan_k Exp $
  */
 
 /* =========================================================================== 
@@ -2833,18 +2833,19 @@ class DB_DataObject extends DB_DataObject_Overload
         
         $quoteIdentifiers = !empty($_DB_DATAOBJECT['CONFIG']['quote_identifiers']);
         
-        $database_prefix = in_array($DB->type,array('mysql','mysqli')) ?
+        $database_prefix = in_array($DB->dsn["phptype"],array('mysql','mysqli')) ?
             $obj->_database . '.' : '';
         
         // not sure  how portable adding database prefixes is..
         $objTable = $quoteIdentifiers ? 
                 $DB->quoteIdentifier($database_prefix  . '.' . $obj->__table) : 
-                $database_prefix  . '.' . $obj->__table ;
+                $database_prefix  .   $obj->__table ;
                 
         // add database prefix if they are different databases
         if ($database_prefix && ($obj->_database != $this->_database) && strlen($obj->_database )) {
             // ojbjTable is already quoted????
-            $objTable = ($quoteIdentifiers ? $DB->quoteIdentifier($obj->_database) : $obj->_database) . '.' . $objTable;
+            $objTable = ($quoteIdentifiers ? 
+                $DB->quoteIdentifier($obj->_database) : $obj->_database) . '.' . $objTable;
         }
         
         
