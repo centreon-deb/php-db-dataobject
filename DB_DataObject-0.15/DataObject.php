@@ -15,7 +15,7 @@
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
 //
-// $Id: DataObject.php,v 1.59 2003/02/06 12:20:37 alan_k Exp $
+// $Id: DataObject.php,v 1.63 2003/02/25 04:11:59 alan_k Exp $
 //
 // Object Based Database Query Builder and data store
 //
@@ -306,7 +306,7 @@ Class DB_DataObject
             if (!$GLOBALS['_DB_DATAOBJECT_PRODUCTION']) {
                 $this->debug("ABOUT TO AUTOFETCH", "__find", 1);
             }
-            $this->fetchRow(0) ;
+            $this->fetch() ;
         }
         if (!$GLOBALS['_DB_DATAOBJECT_PRODUCTION']) {
             $this->debug("DONE", "__find", 1);
@@ -720,9 +720,10 @@ Class DB_DataObject
     function delete($useWhere = false)
     {
         if (!$useWhere) {
+            
             $keys = $this->_get_keys();
             $this->_condition = ''; // default behaviour not to use where condition
-            $this->_build_condition($keys);
+            $this->_build_condition($this->_get_table(),$keys);
             // if primary keys are not set then use data from rest of object.
             if (!$this->_condition) {
                 $this->_build_condition($this->_get_table(),array(),$keys);
@@ -862,6 +863,24 @@ Class DB_DataObject
         return $this->_query($string);
     }
 
+
+    /**
+     * an escape wrapper around quote .. 
+     * can be used when adding manual queries =
+     * eg. 
+     * $object->query("select * from xyz where abc like '". $object->quote($_GET['name']) . "'");
+     * 
+     * @param  string  $string  SQL Query
+     * @access public
+     * @return none or PEAR_Error
+     */
+    function escape($string) 
+    {
+        $this->_connect();
+         
+        $__DB  = &$GLOBALS['_DB_DATAOBJECT']['CONNECTIONS'][$this->_database_dsn_md5];
+        return substr($__DB->quote($string),1,-1);
+    }
 
     /* ==================================================== */
     /*        Major Private Vars                            */
@@ -1191,9 +1210,9 @@ Class DB_DataObject
         $this->_connect();
         
         $__DB  = &$GLOBALS['_DB_DATAOBJECT']['CONNECTIONS'][$this->_database_dsn_md5];
-     
+
         foreach($keys as $k => $v) {
-        
+            // index keys is an indexed array
             /* these filter checks are a bit suspicious.. 
                 - need to check that update really wants to work this way */
                 
