@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.79 2003/04/17 04:19:54 alan_k Exp $
+ * $Id: DataObject.php,v 1.95 2003/05/20 12:56:25 alan_k Exp $
  */
 
 /**
@@ -53,6 +53,7 @@ define('DB_DATAOBJECT_ERROR_INVALIDCONFIG', -3);  // something wrong with the co
 define('DB_DATAOBJECT_ERROR_NOCLASS',       -4);  // no class exists
 define('DB_DATAOBJECT_ERROR_NOAFFECTEDROWS',-5);  // no rows where affected by update/insert/delete
 define('DB_DATAOBJECT_ERROR_NOTSUPPORTED'  ,-6);  // limit queries on unsuppored databases
+define('DB_DATAOBJECT_ERROR_INVALID_CALL'  ,-7);  // overlad getter/setter failure
 
 /**
  * Used in methods like delete() and count() to specify that the method should
@@ -74,6 +75,7 @@ define('DB_DATAOBJECT_WHEREADD_ONLY', true);
  *   - links       = mapping of database to links file
  *   - lasterror   = pear error objects for last error event.
  *   - config      = aliased view of PEAR::getStaticPropery('DB_DataObject','options') * done for performance.
+ *   - array of loaded classes by autoload method - to stop it doing file access request over and over again!
  */
 $GLOBALS['_DB_DATAOBJECT']['RESULTS'] = array();
 $GLOBALS['_DB_DATAOBJECT']['CONNECTIONS'] = array();
@@ -82,7 +84,8 @@ $GLOBALS['_DB_DATAOBJECT']['LINKS'] = array();
 $GLOBALS['_DB_DATAOBJECT']['LASTERROR'] = null;
 $GLOBALS['_DB_DATAOBJECT']['CONFIG'] = array();
 $GLOBALS['_DB_DATAOBJECT']['CACHE'] = array();
-
+$GLOBALS['_DB_DATAOBJECT']['LOADED'] = array();
+$GLOBALS['_DB_DATAOBJECT']['OVERLOADED'] = false;
 /**
  * The main "DB_DataObject" class is really a base class for your own tables classes
  *
@@ -243,7 +246,7 @@ Class DB_DataObject
             DB_DataObject::_loadConfig();
         }
 
-        $cache = &PEAR::getStaticProperty('DB_DataObject','cache');
+        
 
         $key = "$k:$v";
         if ($v === NULL) {
@@ -252,8 +255,8 @@ Class DB_DataObject
         if (@$_DB_DATAOBJECT['CONFIG']['debug']) {
             DB_DataObject::debug("$class $key","STATIC GET");
         }
-        if (@$cache[$class][$key]) {
-            return $cache[$class][$key];
+        if (@$_DB_DATAOBJECT['CACHE'][$class][$key]) {
+            return $_DB_DATAOBJECT['CACHE'][$class][$key];
         }
         if (@$_DB_DATAOBJECT['CONFIG']['debug']) {
             DB_DataObject::debug("$class $key","STATIC GET");
@@ -270,15 +273,15 @@ Class DB_DataObject
             return false;
         }
 
-        if (!@$cache[$class]) {
-            $cache[$class] = array();
+        if (!@$_DB_DATAOBJECT['CACHE'][$class]) {
+            $_DB_DATAOBJECT['CACHE'][$class] = array();
         }
         if (!$obj->get($k,$v)) {
             DB_DataObject::raiseError("No Data return from get $k $v", DB_DATAOBJECT_ERROR_NODATA);
             return false;
         }
-        $cache[$class][$key] = $obj;
-        return $cache[$class][$key];
+        $_DB_DATAOBJECT['CACHE'][$class][$key] = $obj;
+        return $_DB_DATAOBJECT['CACHE'][$class][$key];
     }
 
     /**
@@ -497,7 +500,7 @@ Class DB_DataObject
      * @access public
      * @return void
      */
-    function limit($a = NULL, $b = NULL)
+    function limit($a = null, $b = null)
     {
         if ($a === NULL) {
            $this->_limit = '';
@@ -516,7 +519,7 @@ Class DB_DataObject
             $this->_limit = $db->modifyLimitQuery('',$a,$b);
             
         } else {
-            PEAR::raiseError(
+            DB_DataObject::raiseError(
                 "DB_DataObjects only supports mysql and postgres limit queries at present, \n".
                 "Refer to your Database manual to find out how to do limit queries manually.\n",
                 DB_DATAOBJECT_ERROR_NOTSUPPORTED, PEAR_ERROR_DIE);
@@ -535,7 +538,7 @@ Class DB_DataObject
      * @access public
      * @return void
      */
-    function selectAdd($k = NULL)
+    function selectAdd($k = null)
     {
         if ($k === NULL) {
             $this->_data_select = '';
@@ -545,7 +548,42 @@ Class DB_DataObject
             $this->_data_select .= ', ';
         $this->_data_select .= " $k ";
     }
-
+    /**
+     * Adds multiple Columns or objects to select with formating.
+     *
+     * $object->selectAs(null); // adds "table.colnameA as colnameA,table.colnameB as colnameB,......"
+     *                      // note with null it will also clear the '*' default select
+     * $object->selectAs(array('a','b'),'%s_x'); // adds "a as a_x, b as b_x"
+     * $object->selectAdd($object,'prefix_%s'); // calls $object->get_table and adds it all as
+     *                  objectTableName.colnameA as prefix_colnameA
+     *
+     * @param  array|object|null the array or object to take column names from.
+     * @param  string           format in sprintf format (use %s for the colname)
+     * @param  string           table name eg. if you have joinAdd'd or send $from as an array.
+     * @access public
+     * @return void
+     */
+    function selectAs($from = null,$format = '%s',$tableName=false)
+    {
+        if ($from === null) {
+            // blank the '*' 
+            $this->selectAdd();
+            $from = $this;
+        }
+        
+        
+        $table = $this->__table;
+        if (is_object($from)) {
+            $table = $from->__table;
+            if ($tableName !== false) {
+                $table = $tableName;
+            }
+            $from = array_keys($from->_get_table());
+        }
+        foreach ($from as $k) {
+            $this->selectAdd(sprintf("%s.%s as {$format}",$table,$k,$k));
+        }
+    }
     /**
      * Insert the current objects variables into the database
      *
@@ -1092,12 +1130,13 @@ Class DB_DataObject
      * @access private
      * @return array (associative)
      */
-    function &_get_table()
+    function _get_table()
     {
         global $_DB_DATAOBJECT;
         if (!@$this->_database) {
             $this->_connect();
         }
+        
         $this->_loadDefinitions();
 
 
@@ -1105,6 +1144,7 @@ Class DB_DataObject
         if (isset($_DB_DATAOBJECT['INI'][$this->_database][$this->__table])) {
             $ret =  $_DB_DATAOBJECT['INI'][$this->_database][$this->__table];
         }
+        
         return $ret;
     }
 
@@ -1116,7 +1156,7 @@ Class DB_DataObject
      * @access private
      * @return array
      */
-    function &_get_keys()
+    function _get_keys()
     {
         global $_DB_DATAOBJECT;
         if (!@$this->_database) {
@@ -1138,10 +1178,11 @@ Class DB_DataObject
      */
     function _clear_cache()
     {
-        $cache = &PEAR::getStaticProperty('DB_DataObject','cache');
+        global $_DB_DATAOBJECT;
+        
         $class = get_class($this);
-        if (@$cache[$class]) {
-            unset($cache[$class]);
+        if (@$_DB_DATAOBJECT['CACHE'][$class]) {
+            unset($_DB_DATAOBJECT['CACHE'][$class]);
         }
     }
 
@@ -1202,7 +1243,7 @@ Class DB_DataObject
 
         if (@$_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]) {
             if (@$_DB_DATAOBJECT['CONFIG']['debug']) {
-                $this->debug("USING CACHE", "CONNECT",3);
+                $this->debug("USING CACHED CONNECTION", "CONNECT",3);
             }
             if (!$this->_database) {
                 $this->_database = $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->dsn["database"];
@@ -1264,9 +1305,11 @@ Class DB_DataObject
             return DB_DataObject::raiseError("Disabling Update as you are in debug mode", NULL) ;
 
         }
-        $this->_DB_resultid = count($_DB_DATAOBJECT['RESULTS']); // add to the results stuff...
-        $_DB_DATAOBJECT['RESULTS'][$this->_DB_resultid] = $__DB->query($string);
-        $result = &$_DB_DATAOBJECT['RESULTS'][$this->_DB_resultid];
+        
+        
+         
+        $result = $__DB->query($string);
+
         if (DB::isError($result)) {
             if (@$_DB_DATAOBJECT['CONFIG']['debug']) {
                 DB_DataObject::debug($string, "SENT");
@@ -1280,9 +1323,13 @@ Class DB_DataObject
             case 'insert':
             case 'update':
             case 'delete':
-                unset($_DB_DATAOBJECT['RESULTS'][$this->_DB_resultid]);
                 return $__DB->affectedRows();;
         }
+        // lets hope that copying the result object is OK!
+        $_DB_resultid  = count($_DB_DATAOBJECT['RESULTS']); // add to the results stuff...
+        $_DB_DATAOBJECT['RESULTS'][$_DB_resultid] = $result; 
+        $this->_DB_resultid = $_DB_resultid;
+        
         $this->N = 0;
         if (@$_DB_DATAOBJECT['CONFIG']['debug']) {
             $this->debug(serialize($result), 'RESULT',5);
@@ -1373,12 +1420,14 @@ Class DB_DataObject
         $table   = substr($class,strlen($_DB_DATAOBJECT['CONFIG']['class_prefix']));
 
         // only include the file if it exists - and barf badly if it has parse errors :)
-         
-        if ($fh = @fopen($_DB_DATAOBJECT['CONFIG']['require_prefix'].ucfirst($table).".php",'r',1)) {
+        
+        $file = $_DB_DATAOBJECT['CONFIG']['require_prefix'].ucfirst($table).'.php';
+        if (!isset($_DB_DATAOBJECT['LOADED'][$file]) && $fh = @fopen($file,'r',1)) {
             fclose($fh);
             include_once $_DB_DATAOBJECT['CONFIG']['require_prefix'].ucfirst($table).".php";
         }
         
+        $_DB_DATAOBJECT['LOADED'][$file] = true;
         
         if (!class_exists($class)) {
             DB_DataObject::raiseError("autoload:Could not autoload {$class}", DB_DATAOBJECT_ERROR_INVALIDCONFIG);
@@ -1613,11 +1662,17 @@ Class DB_DataObject
      *
      *
      * @param    optional $obj    object      the joining object (no value resets the join)
+     * @param    optional $joinType    string  'LEFT'|'INNER'|'RIGHT'|'' Inner is default, '' indicates 
+     *                                  just select ... from a,b,c with no join and 
+     *                                      links are added as where items.
+     * @param    optional $joinAs    string   if you want to select the table as anther name
+     *                                      usefull when you want to select multiple columsn
+     *                                      from a secondary table.
      * @return   none
      * @access   public
      * @author   Stijn de Reede      <sjr@gmx.co.uk>
      */
-    function joinAdd($obj = false)
+    function joinAdd($obj = false,$joinType='INNER',$joinAs=false)
     {
         global $_DB_DATAOBJECT;
         if ($obj === false) {
@@ -1627,7 +1682,7 @@ Class DB_DataObject
         if (!is_object($obj)) {
             DB_DataObject::raiseError("joinAdd: called without an object", DB_DATAOBJECT_ERROR_NODATA,PEAR_ERROR_DIE);
         }
-
+        
         $this->_connect(); /*  make sure $this->_database is set.  */
 
         $this->_get_table(); /* make sure the links are loaded */
@@ -1670,17 +1725,30 @@ Class DB_DataObject
                 }
             }
         }
-
+        
         /* did I find a conneciton between them? */
 
         if ($ofield === false) {
             DB_DataObject::raiseError("joinAdd: {$obj->__table} has no link with {$this->__table}", DB_DATAOBJECT_ERROR_NODATA);
             return false;
         }
-
-        $this->_join .= "INNER JOIN {$obj->__table} ON {$obj->__table}.{$ofield}={$this->__table}.{$tfield} ";
-
-
+        $joinType = strtoupper($joinType);
+        if ($joinAs === false) {
+            $joinAs = $obj->__table;
+        }
+        
+        switch ($joinType) {
+            case 'INNER':
+            case 'LEFT': 
+            case 'RIGHT': // others??? .. cross, left outer, right outer, natural..?
+                $this->_join .= "\n {$joinType} JOIN {$obj->__table} AS {$joinAs}".
+                                " ON {$joinAs}.{$ofield}={$this->__table}.{$tfield} ";
+                break;
+            case '': // this is just a standard multitable select..
+                $this->_join .= "\n , {$obj->__table} AS {$joinAs} ";
+                $this->whereAdd("{$joinAs}.{$ofield}={$this->__table}.{$tfield}");
+        }
+         
         /* now add where conditions for anything that is set in the object */
 
         $items = $obj->_get_table();
@@ -1694,15 +1762,15 @@ Class DB_DataObject
                 continue;
             }
             if ($v & DB_DATAOBJECT_STR) {
-                $this->whereAdd("{$obj->__table}.{$k} = " . $__DB->quote($obj->$k));
+                $this->whereAdd("{$joinAs}.{$k} = " . $__DB->quote($obj->$k));
                 continue;
             }
             if (is_numeric($obj->$k)) {
-                $this->whereAdd("{$obj->__table}.{$k} = {$obj->$k}");
+                $this->whereAdd("{$joinAs}.{$k} = {$obj->$k}");
                 continue;
             }
             /* this is probably an error condition! */
-            $this->whereAdd("{$obj->__table}.{$k} = 0");
+            $this->whereAdd("{$joinAs}.{$k} = 0");
         }
 
 
@@ -1715,17 +1783,20 @@ Class DB_DataObject
      *
      *
      * @param    array | object  $from
+     * @param    string  $format eg. map xxxx_name to $object->name using 'xxxx_%s' (defaults to %s - eg. name -> $object->name
      * @access   public
-     * @return   boolean , true on success
+     * @return   true on success or array of key=>setValue error message
      */
-    function setFrom(&$from)
+    function setFrom(&$from, $format = '%s')
     {
+        global $_DB_DATAOBJECT;
         $keys  = $this->_get_keys();
         $items = $this->_get_table();
         if (!$items) {
             DB_DataObject::raiseError("setFrom:Could not find table definition for {$this->__table}", DB_DATAOBJECT_ERROR_INVALIDCONFIG);
             return;
         }
+        $overload_return = array();
         foreach (array_keys($items) as $k) {
             if (in_array($k,$keys)) {
                 continue; // dont overwrite keys
@@ -1733,20 +1804,44 @@ Class DB_DataObject
             if (!$k) {
                 continue; // ignore empty keys!!! what
             }
-            if (is_object($from) && @isset($from->$k)) {
-                $this->$k = $from->$k;
+            if (is_object($from) && isset($from->{sprintf($format,$k)})) {
+                if ($_DB_DATAOBJECT['OVERLOADED'] ) {
+                    $kk = (strtolower($k) == 'from') ? '_from' : $k;
+                    $ret = $this->{'set'.$kk}($from->{sprintf($format,$k)});
+                    if (is_string($ret)) {
+                        $overload_return[$k] = $ret;
+                    }
+                    continue;
+                }
+                $this->$k = $from->{sprintf($format,$k)};
                 continue;
             }
-            if (!@isset($from[$k])) {
+            
+            if (is_object($from)) {
                 continue;
             }
-            if (is_object($from[$k])) {
+            
+            if (!isset($from[sprintf($format,$k)])) {
                 continue;
             }
-            if (is_array($from[$k])) {
+            if (is_object($from[sprintf($format,$k)])) {
                 continue;
             }
-            $this->$k = $from[$k];
+            if (is_array($from[sprintf($format,$k)])) {
+                continue;
+            }
+            if ($_DB_DATAOBJECT['OVERLOADED']) {
+                $kk = (strtolower($k) == 'from') ? '_from' : $k;
+                $ret =  $this->{'set'.$kk}($from[sprintf($format,$k)]);
+                if (is_string($ret)) {
+                    $overload_return[$k] = $ret;
+                }
+                continue;
+            }
+            $this->$k = $from[sprintf($format,$k)];
+        }
+        if ($overload_return) {
+            return $overload_return;
         }
         return true;
     }
@@ -1767,10 +1862,18 @@ Class DB_DataObject
 
     function toArray($format = '%s')
     {
+        global $_DB_DATAOBJECT;
         $ret = array();
+ 
         foreach($this->_get_table() as $k=>$v) {
+             
             if (!isset($this->$k)) {
                 $ret[sprintf($format,$k)] = '';
+                continue;
+            }
+            // call the overloaded getXXXX() method.
+            if ($_DB_DATAOBJECT['OVERLOADED']) {
+                $ret[sprintf($format,$k)] = $this->{'get'.$k}();
                 continue;
             }
             $ret[sprintf($format,$k)] = $this->$k;
@@ -1796,12 +1899,21 @@ Class DB_DataObject
         $ret   = array();
 
         foreach($table as $key => $val) {
-            if (!isset($this->$key)) continue;
+            // ignore things that are not set. ?
+            if (!isset($this->$key)) {
+                continue;
+            }
+            // call user defined validation
             $method = "Validate" . ucfirst($key);
             if (method_exists($this, $method)) {
                 $ret[$key] = $this->$method();
                 continue;
             }
+            // if the string is empty.. assume it is ok..
+            if (!strlen($this->$key)) {
+                continue;
+            }
+            
             switch ($val) {
                 case  DB_DATAOBJECT_STR:
                     $ret[$key] = Validate::string($this->$key, VALIDATE_PUNCTUATION . VALIDATE_NAME);
@@ -1851,6 +1963,87 @@ Class DB_DataObject
         }
         return $_DB_DATAOBJECT['RESULTS'][$this->_DB_resultid];
     }
+
+    /**
+     * Overload Extension support
+     *  - enables setCOLNAME/getCOLNAME
+     *  if you define a set/get method for the item it will be called.
+     * otherwise it will just return/set the value.
+     * NOTE this currently means that a few Names are NO-NO's 
+     * eg. links,link,linksarray, from, Databaseconnection,databaseresult
+     *
+     * note 
+     *  - set is automatically called by setFrom.
+     *   - get is automatically called by toArray()
+     *  
+     * setters return true on success. = strings on failure
+     * getters return the value!
+     *
+     * this fires off trigger_error - if any problems.. pear_error, 
+     * has problems with 4.3.2RC2 here
+     *
+     * @access public
+     * @return true?
+     * @see overload
+     */
+
+    
+    function __call($method,$params,&$return) {
+         
+        // ignore constructors : - mm
+        if ($method == get_class($this)) {
+            return true;
+        }
+        $type = strtolower(substr($method,0,3));
+        $class = get_class($this);
+        if (($type != 'set') && ($type != 'get')) {
+            return false;
+        }
+         
+        
+        
+        // deal with naming conflick of setFrom = this is messy ATM!
+        
+        if (strtolower($method) == 'set_from') {
+            $this->from = $params[0];
+            return $return = true;
+        }
+        
+        $element = substr($method,3);
+        if ($element{0} == '_') {
+            return false;
+        }
+         
+        
+        // dont you just love php's case insensitivity!!!!
+        
+        $array =  array_keys(get_class_vars($class));
+        
+        if (!in_array($element,$array)) {
+            // munge case
+            foreach($array as $k) {
+                $case[strtolower($k)] = $k;
+            }
+            // does it really exist?
+            if (!isset($case[$element])) {
+                return false;            
+            }
+            // use the mundged case
+            $element = $case[$element]; // real case !
+        }
+        
+        
+        if ($type == 'get') {
+            $return = $this->$element;
+            return true;
+        }
+        $this->$element = $params[0];
+        return $return = true;
+    }
+        
+    
+    
+
 
     /* ----------------------- Debugger ------------------ */
 
@@ -1926,6 +2119,11 @@ Class DB_DataObject
     function raiseError($message, $type = NULL, $behaviour = NULL)
     {
         global $_DB_DATAOBJECT;
+        
+        if ($behaviour == PEAR_ERROR_DIE && @$_DB_DATAOBJECT['CONFIG']['dont_die']) {
+            $behaviour = NULL;
+        }
+        
         if (PEAR::isError($message)) {
             $error = $message;
         } else {
@@ -1965,4 +2163,10 @@ Class DB_DataObject
 
     }
 }
+// technially 4.3.2RC1 was broken!!
+if ((phpversion() != '4.3.2-RC1') && (version_compare( phpversion(), "4.3.1") > 0)) {
+   overload('DB_DataObject');
+   $GLOBALS['_DB_DATAOBJECT']['OVERLOADED'] = true;
+}
+
 ?>
