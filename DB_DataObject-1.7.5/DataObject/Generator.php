@@ -14,7 +14,7 @@
 // +----------------------------------------------------------------------+
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
-// $Id: Generator.php,v 1.71 2004/08/11 06:52:35 alan_k Exp $
+// $Id: Generator.php,v 1.87 2005/02/24 09:59:11 alan_k Exp $
 
 /**
  * Generation tools for DB_DataObject
@@ -25,22 +25,6 @@
  * extends_location =
  * ; optional default = DB_DataObject
  * extends =
- * ; leave blank to not generate template stuff.
- * make_template = display,list,edit
- *
- * ; options for Template Generation (using FlexyTemplate
- * [DB_DataObject_Generator_Template_Flexy]
- * templateDir = /home/xxx/templates
- * compileDir = /home/xxx/compiled",
- * filters   = php,simpletags,bodyonly
- * forceCompile = 0
- *
- * ; fileds to flags as hidden for template generation(preg_match format)
- * hideFields = password
- * ; fields to flag as read only.. (preg_match format)
- * readOnlyFields = created|person_created|modified|person_modified
- * ; fields to flag as links (from lists->edit/view) (preg_match formate)
- * linkFields = id|username|name
  * ; alter the extends field when updating a class (defaults to only replacing DB_DataObject)
  * generator_class_rewrite = ANY|specific_name   // default is DB_DataObject
  *
@@ -164,7 +148,16 @@ class DB_DataObject_Generator extends DB_DataObject
         }
         // build views as well if asked to.
         if (!empty($options['build_views'])) {
-            $this->tables = array_merge ($this->tables, $__DB->getListOf('views'));
+            $views = $__DB->getListOf('views');
+            if (is_a($views,'PEAR_Error')) {
+                return PEAR::raiseError(
+                    'Error getting Views (check the PEAR bug database for the fix to DB), ' .
+                    $views->toString(), 
+                    null, 
+                    PEAR_ERROR_DIE
+                );
+            }
+            $this->tables = array_merge ($this->tables, $views);
         }
         
         
@@ -317,6 +310,7 @@ class DB_DataObject_Generator extends DB_DataObject
                 case 'FLOAT8': // double precision (postgres)
                 case 'DECIMAL':
                 case 'NUMERIC':
+                case 'NUMBER': // oci8 
                     $type = DB_DATAOBJECT_INT; // should really by FLOAT!!! / MONEY...
                     break;
                     
@@ -340,9 +334,7 @@ class DB_DataObject_Generator extends DB_DataObject
                 case 'VARCHAR':
                 case 'VARCHAR2':
                 case 'TINYTEXT':
-                case 'TEXT':
-                case 'MEDIUMTEXT':
-                case 'LONGTEXT':
+                
                 case 'ENUM':
                 case 'SET':         // not really but oh well
                 case 'TIMESTAMPTZ': // postgres
@@ -356,7 +348,15 @@ class DB_DataObject_Generator extends DB_DataObject
                 
                     $type = DB_DATAOBJECT_STR;
                     break;
+                
+                case 'TEXT':
+                case 'MEDIUMTEXT':
+                case 'LONGTEXT':
                     
+                    $type = DB_DATAOBJECT_STR + DB_DATAOBJECT_TXT;
+                    break;
+                
+                
                 case 'DATE':    
                     $type = DB_DATAOBJECT_STR + DB_DATAOBJECT_DATE;
                     break;
@@ -398,8 +398,20 @@ class DB_DataObject_Generator extends DB_DataObject
             if (preg_match('/not_null/i',$t->flags)) {
                 $type += DB_DATAOBJECT_NOTNULL;
             }
+           
+            $write_ini = true;
+            if (in_array($t->name,array('null','yes','no','true','false'))) {
+                echo "*****************************************************************\n".
+                     "**                             WARNING                         **\n".
+                     "** Found column '{$t->name}', which is invalid in an .ini file **\n".
+                     "** This line will not be writen to the file - you will have    **\n".
+                     "** define the keys()/method manually.                          **\n".
+                     "*****************************************************************\n";
+                $write_ini = false;
+            } else {
+                $this->_newConfig .= "{$t->name} = $type\n";
+            }
             
-            $this->_newConfig .= "{$t->name} = $type\n";
             $ret['table'][$t->name] = $type;
             // i've no idea if this will work well on other databases?
             // only use primary key or nextval(), cause the setFrom blocks you setting all key items...
@@ -407,17 +419,20 @@ class DB_DataObject_Generator extends DB_DataObject
             //echo "\n{$t->name} => {$t->flags}\n";
             if (preg_match("/(auto_increment|nextval\()/i",rawurldecode($t->flags))) {
                 // native sequences = 2
-                $keys_out_primary .= "{$t->name} = N\n";
+                if ($write_ini) {
+                    $keys_out_primary .= "{$t->name} = N\n";
+                }
                 $ret_keys_primary[$t->name] = 'N';
+            
             } else if (preg_match("/(primary|unique)/i",$t->flags)) {
                 // keys.. = 1
-                $keys_out_secondary .= "{$t->name} = K\n";
+                if ($write_ini) {
+                    $keys_out_secondary .= "{$t->name} = K\n";
+                }
                 $ret_keys_secondary[$t->name] = 'K';
             }
             
-            
-            
-
+        
         }
         
         $this->_newConfig .= $keys_out . (empty($keys_out_primary) ? $keys_out_secondary : $keys_out_primary);
@@ -441,6 +456,11 @@ class DB_DataObject_Generator extends DB_DataObject
         //echo "Generating Class files:        \n";
         $options = &PEAR::getStaticProperty('DB_DataObject','options');
         $base = $options['class_location'];
+        if (strpos($base,'%s') !== false) {
+            $base = dirname($base);
+        } 
+        
+        
         if (!file_exists($base)) {
             require_once 'System.php';
             System::mkdir(array('-p',$base));
@@ -455,10 +475,17 @@ class DB_DataObject_Generator extends DB_DataObject
             $this->table = trim($this->table);
             $this->classname = $class_prefix.preg_replace('/[^A-Z0-9]/i','_',ucfirst($this->table));
             $i = '';
-            $outfilename = "{$base}/".preg_replace('/[^A-Z0-9]/i','_',ucfirst($this->table)).".php";
-            if (file_exists($outfilename))
-                $i = implode('',file($outfilename));
-            $out = $this->_generateClassTable($i);
+            
+            if (strpos($options['class_location'],'%s') !== false) {
+                $outfilename   = sprintf($options['class_location'], preg_replace('/[^A-Z0-9]/i','_',ucfirst($this->table)));
+            } else { 
+                $outfilename = "{$base}/".preg_replace('/[^A-Z0-9]/i','_',ucfirst($this->table)).".php";
+            }
+            if (file_exists($outfilename)) {
+                // file_get_contents???
+                $oldcontents = implode('',file($outfilename));
+            }
+            $out = $this->_generateClassTable($oldcontents);
             $this->debug( "writing $this->classname\n");
             $fh = fopen($outfilename, "w");
             fputs($fh,$out);
@@ -514,19 +541,26 @@ class DB_DataObject_Generator extends DB_DataObject
         $padding = (30 - strlen($this->table));
         if ($padding < 2) $padding =2;
         $p =  str_repeat(' ',$padding) ;
-        $body .= "    var \$__table = '{$this->table}';  {$p}// table name\n";
         
+        $options = &PEAR::getStaticProperty('DB_DataObject','options');
+        
+        
+        $var = (substr(phpversion(),0,1) > 4) ? 'public' : 'var';
+        $body .= "    {$var} \$__table = '{$this->table}';  {$p}// table name\n";
+    
         
         // if we are using the option database_{databasename} = dsn
         // then we should add var $_database = here
         // as database names may not always match.. 
-        $options = &PEAR::getStaticProperty('DB_DataObject','options');
+        
         if (isset($options["database_{$this->_database}"])) {
-            $body .= "    var \$_database = '{$this->_database}';  {$p}// database name (used with database_{*} config)\n";
+            $body .= "    {$var} \$_database = '{$this->_database}';  {$p}// database name (used with database_{*} config)\n";
         }
         
-        
-        
+        $var = (substr(phpversion(),0,1) > 4) ? 'public' : 'var';
+        if (!empty($options['generator_novars'])) {
+            $var = '//'.$var;
+        }
         
         $defs = $this->_definitions[$this->table];
 
@@ -540,7 +574,9 @@ class DB_DataObject_Generator extends DB_DataObject
             $padding = (30 - strlen($t->name));
             if ($padding < 2) $padding =2;
             $p =  str_repeat(' ',$padding) ;
-            $body .="    var \${$t->name};  {$p}// {$t->type}({$t->len})  {$t->flags}\n";
+           
+            $body .="    {$var} \${$t->name};  {$p}// {$t->type}({$t->len})  {$t->flags}\n";
+             
             // can not do set as PEAR::DB table info doesnt support it.
             //if (substr($t->Type,0,3) == "set")
             //    $sets[$t->Field] = "array".substr($t->Type,3);
@@ -563,7 +599,11 @@ class DB_DataObject_Generator extends DB_DataObject
         $body .= "\n";
         $body .= "    /* Static get */\n";
         $body .= "    function staticGet(\$k,\$v=NULL) { return DB_DataObject::staticGet('{$this->classname}',\$k,\$v); }\n";
-
+        
+        // generate getter and setter methods
+        $body .= $this->_generateGetters($input);
+        $body .= $this->_generateSetters($input);
+        
         /*
         theoretically there is scope here to introduce 'list' methods
         based up 'xxxx_up' column!!! for heiracitcal trees..
@@ -578,6 +618,26 @@ class DB_DataObject_Generator extends DB_DataObject
 
         $body .= "\n    /* the code above is auto generated do not remove the tag below */";
         $body .= "\n    ###END_AUTOCODE\n";
+
+
+        // stubs..
+        
+        if (!empty($options['generator_add_validate_stubs'])) {
+            foreach($defs as $t) {
+                if (!strlen(trim($t->name))) {
+                    continue;
+                }
+                $validate_fname = 'validate' . ucfirst(strtolower($t->name));
+                // dont re-add it..
+                if (preg_match('/\s+function\s+' . $validate_fname . '\s*\(/i', $input)) {
+                    continue;
+                }
+                $body .= "\n    function {$validate_fname}()\n    {\n        return false;\n    }\n";
+            }
+        }
+
+
+
 
         $foot .= "}\n";
         $full = $head . $body . $foot;
@@ -733,6 +793,106 @@ class DB_DataObject_Generator extends DB_DataObject
         
     }
     
+    /**
+    * Generate getter methods for class definition
+    *
+    * @param    string  $input  Existing class contents
+    * @return   string
+    * @access   public
+    */
+    function _generateGetters($input) {
 
+        $options = &PEAR::getStaticProperty('DB_DataObject','options');
+        $getters = '';
+
+        // only generate if option is set to true
+        if  (empty($options['generate_getters'])) {
+            return '';
+        }
+
+        // remove auto-generated code from input to be able to check if the method exists outside of the auto-code
+        $input = preg_replace('/(\n|\r\n)\s*###START_AUTOCODE(\n|\r\n).*(\n|\r\n)\s*###END_AUTOCODE(\n|\r\n)/s', '', $input);
+
+        $getters .= "\n\n";
+        $defs     = $this->_definitions[$this->table];
+
+        // loop through properties and create getter methods
+        foreach ($defs = $defs as $t) {
+
+            // build mehtod name
+            $methodName = 'get' . ucfirst($t->name);
+
+            if (!strlen(trim($t->name)) || preg_match("/function[\s]+[&]?$methodName\(/i", $input)) {
+                continue;
+            }
+
+            $getters .= "   /**\n";
+            $getters .= "    * Getter for \${$t->name}\n";
+            $getters .= "    *\n";
+            $getters .= (stristr($t->flags, 'multiple_key')) ? "    * @return   object\n"
+                                                             : "    * @return   {$t->type}\n";
+            $getters .= "    * @access   public\n";
+            $getters .= "    */\n";
+            $getters .= (substr(phpversion(),0,1) > 4) ? '    public '
+                                                       : '    ';
+            $getters .= "function $methodName() {\n";
+            $getters .= "        return \$this->{$t->name};\n";
+            $getters .= "    }\n\n";
+        }
+   
+
+        return $getters;
+    }
+
+
+   /**
+    * Generate setter methods for class definition
+    *
+    * @param    string  Existing class contents
+    * @return   string
+    * @access   public
+    */
+    function _generateSetters($input) {
+
+        $options = &PEAR::getStaticProperty('DB_DataObject','options');
+        $setters = '';
+
+        // only generate if option is set to true
+        if  (empty($options['generate_setters'])) {
+            return '';
+        }
+
+        // remove auto-generated code from input to be able to check if the method exists outside of the auto-code
+        $input = preg_replace('/(\n|\r\n)\s*###START_AUTOCODE(\n|\r\n).*(\n|\r\n)\s*###END_AUTOCODE(\n|\r\n)/s', '', $input);
+
+        $setters .= "\n";
+        $defs     = $this->_definitions[$this->table];
+
+        // loop through properties and create setter methods
+        foreach ($defs = $defs as $t) {
+
+            // build mehtod name
+            $methodName = 'set' . ucfirst($t->name);
+
+            if (!strlen(trim($t->name)) || preg_match("/function[\s]+[&]?$methodName\(/i", $input)) {
+                continue;
+            }
+
+            $setters .= "   /**\n";
+            $setters .= "    * Setter for \${$t->name}\n";
+            $setters .= "    *\n";
+            $setters .= "    * @param    mixed   input value\n";
+            $setters .= "    * @access   public\n";
+            $setters .= "    */\n";
+            $setters .= (substr(phpversion(),0,1) > 4) ? '    public '
+                                                       : '    ';
+            $setters .= "function $methodName(\$value) {\n";
+            $setters .= "        \$this->{$t->name} = \$value;\n";
+            $setters .= "    }\n\n";
+        }
+        
+
+        return $setters;
+    }
 
 }
