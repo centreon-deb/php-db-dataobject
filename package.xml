@@ -19,11 +19,37 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>1.6.0</version>
-    <date>2004-04-24</date>
+    <version>1.6.1</version>
+    <date>2004-06-03</date>
     <license>PHP License</license>
     <state>stable</state>
-    <notes>Minor Feature Release and many bug fixes..
+    <notes>Minor Bug Fix
+
+* fixed count() breaks when countWhat used.</notes>
+    <deps>
+      <dep type="php" rel="ge" version="4.2"/>
+      <dep type="pkg" rel="ge" version="1.6">DB</dep>
+      <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
+      <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
+    </deps>
+    <filelist>
+      <file role="php" baseinstalldir="DB" name="DataObject.php">
+        <replace from="@version@" to="version" type="package-info"/>
+      </file>
+      <file role="php" baseinstalldir="DB" name="DataObject/Cast.php"/>
+      <file role="php" baseinstalldir="DB" name="DataObject/Generator.php"/>
+      <file role="php" baseinstalldir="DB" name="DataObject/createTables.php"/>
+      <file role="php" baseinstalldir="DB" name="DataObject/Error.php"/>
+      <file role="doc" baseinstalldir="DB" name="docs/example.ini"/>
+      <file role="script" baseinstalldir="DB" name="scripts/DB_DataObject_createTables.bat"/>
+    </filelist>
+  </release>
+  <changelog>
+    <release>
+      <version>1.6.0</version>
+      <date>2004-04-24</date>
+      <state>stable</state>
+      <notes>Minor Feature Release and many bug fixes..
 
 * DB_DataObject_Error added to enable testing for dataobject errors
 * Date fixes - needs latest date package.
@@ -58,26 +84,9 @@
 * use PEAR::getStaticProperty(&quot;DB&quot;,&quot;options&quot;) for oracle portablity settings.
 * null checked against not null spec.
 
-And probably a few more - as it's been quite a while since the last release..</notes>
-    <deps>
-      <dep type="php" rel="ge" version="4.2"/>
-      <dep type="pkg" rel="ge" version="1.6">DB</dep>
-      <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
-      <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
-    </deps>
-    <filelist>
-      <file role="php" baseinstalldir="DB" name="DataObject.php">
-        <replace from="@version@" to="version" type="package-info"/>
-      </file>
-      <file role="php" baseinstalldir="DB" name="DataObject/Cast.php"/>
-      <file role="php" baseinstalldir="DB" name="DataObject/Generator.php"/>
-      <file role="php" baseinstalldir="DB" name="DataObject/createTables.php"/>
-      <file role="php" baseinstalldir="DB" name="DataObject/Error.php"/>
-      <file role="doc" baseinstalldir="DB" name="docs/example.ini"/>
-      <file role="script" baseinstalldir="DB" name="scripts/DB_DataObject_createTables.bat"/>
-    </filelist>
-  </release>
-  <changelog>
+And probably a few more - as it's been quite a while since the last release..
+</notes>
+    </release>
     <release>
       <version>1.5.3</version>
       <date>2004-01-29</date>

@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.260 2004/06/02 14:58:21 alan_k Exp $
+ * $Id: DataObject.php,v 1.261 2004/06/03 05:41:24 alan_k Exp $
  */
 
 /* =========================================================================== 
@@ -1346,8 +1346,8 @@ class DB_DataObject extends DB_DataObject_Overload
             return false;
             
         }
+        $table   = ($quoteIdentifiers ? $DB->quoteIdentifier($this->__table) : $this->__table);
         if (!is_string($countWhat)) {
-            $table   = ($quoteIdentifiers ? $DB->quoteIdentifier($this->__table) : $this->__table);
             $key_col = ($quoteIdentifiers ? $DB->quoteIdentifier($keys[0]) : $keys[0]);
         }
         
