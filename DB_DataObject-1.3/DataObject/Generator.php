@@ -14,7 +14,7 @@
 // +----------------------------------------------------------------------+
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
-// $Id: Generator.php,v 1.33 2003/08/14 01:59:51 alan_k Exp $
+// $Id: Generator.php,v 1.36 2003/11/13 01:00:44 alan_k Exp $
 
 /**
  * Generation tools for DB_DataObject
@@ -240,18 +240,24 @@ class DB_DataObject_Generator extends DB_DataObject
                 case "SMALLINT":
                 case "MEDIUMINT":
                 case "BIGINT":
-                    $type= DB_DATAOBJECT_INT;
+                    $type = DB_DATAOBJECT_INT;
                     if ($t->len == 1) {
                         $type +=  DB_DATAOBJECT_BOOL;
                     }
-
+                    break;
+               
                 case "REAL":
                 case "DOUBLE":
                 case "FLOAT":
                 case "DECIMAL":
                 case "NUMERIC":
-                    $type=DB_DATAOBJECT_INT;
+                    $type = DB_DATAOBJECT_INT;
                     break;
+                    
+                 case "BOOL": // postgres needs to quote '0'
+                    $type = DB_DATAOBJECT_STR + DB_DATAOBJECT_BOOL;
+                    break;
+                    
                 case "STRING":
                 case "CHAR":
                 case "VARCHAR":
@@ -260,20 +266,35 @@ class DB_DataObject_Generator extends DB_DataObject
                 case "TEXT":
                 case "MEDIUMTEXT":
                 case "LONGTEXT":
-                case "TINYBLOB":
-                case "BLOB":       /// these should really be ignored!!!???
-                case "MEDIUMBLOB":
-                case "LONGBLOB":
-                case "DATE":
-                case "TIME":
-                case "TIMESTAMP":
-                case "DATETIME":
                 case "ENUM":
                 case "SET": // not really but oh well
                 case "TIMESTAMPTZ": // postgres
                 case "BPCHAR":// postgres
                     $type=DB_DATAOBJECT_STR;
                     break;
+                    
+                case "DATE":    
+                    $type=DB_DATAOBJECT_STR + DB_DATAOBJECT_DATE;
+                    break;
+                    
+                case "TIME":    
+                    $type=DB_DATAOBJECT_STR + DB_DATAOBJECT_TIME;
+                    break;    
+                    
+                case "TIMESTAMP":    
+                case "DATETIME":    
+                    $type=DB_DATAOBJECT_STR + DB_DATAOBJECT_DATE + DB_DATAOBJECT_TIME;
+                    break;    
+                    
+                case "TINYBLOB":
+                case "BLOB":       /// these should really be ignored!!!???
+                case "MEDIUMBLOB":
+                case "LONGBLOB":
+                case "BYTEA":   // postgres blob support..
+                    $type=DB_DATAOBJECT_STR + DB_DATAOBJECT_BLOB;
+                    break;
+                    
+                    
             }
             if (!strlen(trim($t->name))) {
                 continue;
@@ -457,7 +478,7 @@ class DB_DataObject_Generator extends DB_DataObject
             $input);
 
         return preg_replace(
-            '/(\n|\r\n)\s*###START_AUTOCODE\n.*\n\s*###END_AUTOCODE(\n|\r\n)/s',
+            '/(\n|\r\n)\s*###START_AUTOCODE(\n|\r\n).*(\n|\r\n)\s*###END_AUTOCODE(\n|\r\n)/s',
             $body,$input);
     }
 
