@@ -14,7 +14,7 @@
 // +----------------------------------------------------------------------+
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
-// $Id: Generator.php,v 1.47 2004/01/18 02:54:42 alan_k Exp $
+// $Id: Generator.php,v 1.48 2004/01/29 09:53:19 alan_k Exp $
 
 /**
  * Generation tools for DB_DataObject
@@ -274,9 +274,13 @@ class DB_DataObject_Generator extends DB_DataObject
                 case 'FLOAT':
                 case 'DECIMAL':
                 case 'NUMERIC':
-                    $type = DB_DATAOBJECT_INT;
+                    $type = DB_DATAOBJECT_INT; // should really by FLOAT!!! / MONEY...
                     break;
-                
+                    
+                case 'YEAR':
+                    $type = DB_DATAOBJECT_INT; 
+                    break;
+                    
                 case 'BIT':
                 case 'BOOL':   
                 case 'BOOLEAN':   
@@ -312,10 +316,19 @@ class DB_DataObject_Generator extends DB_DataObject
                     $type = DB_DATAOBJECT_STR + DB_DATAOBJECT_TIME;
                     break;    
                     
-                case 'TIMESTAMP':
-                case 'DATETIME':    
+                
+                case 'DATETIME': 
+                     
                     $type = DB_DATAOBJECT_STR + DB_DATAOBJECT_DATE + DB_DATAOBJECT_TIME;
                     break;    
+                    
+                case 'TIMESTAMP': // do other databases use this???
+                    
+                    $type = ($dbtype == 'mysql') ?
+                        DB_DATAOBJECT_MYSQLTIMESTAMP : 
+                        DB_DATAOBJECT_STR + DB_DATAOBJECT_DATE + DB_DATAOBJECT_TIME;
+                    break;    
+                    
                     
                 case 'TINYBLOB':
                 case 'BLOB':       /// these should really be ignored!!!???

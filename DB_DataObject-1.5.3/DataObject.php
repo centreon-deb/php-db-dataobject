@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.205 2004/01/24 08:41:53 alan_k Exp $
+ * $Id: DataObject.php,v 1.208 2004/01/29 09:53:18 alan_k Exp $
  */
 
 /* =====================================================================================
@@ -57,7 +57,7 @@ define('DB_DATAOBJECT_BLOB', 64); // is blob type
 
 
 define('DB_DATAOBJECT_NOTNULL', 128);           // not null col.
-
+define('DB_DATAOBJECT_MYSQLTIMESTAMP'   , 256);           // mysql timestamps (ignored by update/insert)
 /*
  * Define this before you include DataObjects.php to  disable overload - if it segfaults due to Zend optimizer..
  */
@@ -656,8 +656,8 @@ Class DB_DataObject extends DB_DataObject_Overload
            return;
         }
         // check input...= 0 or '    ' == error!
-        if ((!is_int($a) && ((string)((int)$a) !== $a)) 
-            || (($b !== null) && (!is_int($b) && ((string)((int)$b) !== $b)))) {
+        if ((!is_int($a) && ((string)((int)$a) !== (string)$a)) 
+            || (($b !== null) && (!is_int($b) && ((string)((int)$b) !== (string)$b)))) {
             return DB_DataObject::raiseError("limit: No Valid Arguments", DB_DATAOBJECT_ERROR_INVALIDARGS);
         }
 
@@ -838,7 +838,11 @@ Class DB_DataObject extends DB_DataObject_Overload
             if (!isset($this->$k)) {
                 continue;
             }
-            
+            // dont insert data into mysql timestamps 
+            // use query() if you really want to do this!!!!
+            if ($v & DB_DATAOBJECT_MYSQLTIMESTAMP) {
+                continue;
+            }
             
             if ($leftq) {
                 $leftq  .= ', ';
@@ -1002,6 +1006,12 @@ Class DB_DataObject extends DB_DataObject_Overload
             
             // beta testing.. - dont write keys to left.!!!
             if (in_array($k,$keys)) {
+                continue;
+            }
+            
+             // dont insert data into mysql timestamps 
+            // use query() if you really want to do this!!!!
+            if ($v & DB_DATAOBJECT_MYSQLTIMESTAMP) {
                 continue;
             }
             
@@ -2905,7 +2915,7 @@ Class DB_DataObject extends DB_DataObject_Overload
         
         
         if ($type == 'get') {
-            $return = $this->toValue($element,isset($params[1]) ? $params[1] : null);
+            $return = $this->toValue($element,isset($params[0]) ? $params[0] : null);
             return true;
         }
         
@@ -3035,6 +3045,7 @@ Class DB_DataObject extends DB_DataObject_Overload
         if (is_null($format)) {
             return $this->$col;
         }
+        $cols = $this->table();
         switch (true) {
             case (($cols[$col] & DB_DATAOBJECT_DATE) &&  ($cols[$col] & DB_DATAOBJECT_TIME)):
                 $guess = strtotime($this->$col);
@@ -3044,10 +3055,11 @@ Class DB_DataObject extends DB_DataObject_Overload
                 // eak... - no way to validate date time otherwise...
                 return $this->$col;
             case ($cols[$col] & DB_DATAOBJECT_DATE):
+                 
                 $guess = strtotime($this->$col);
-                if ($guess != -1) {
-                    $this->$col = strftime($format,$guess);
-                    return true;
+                if ($guess > -1) {
+                   
+                    return strftime($format,$guess);
                 }
                 // try date!!!!
                 require_once 'Date.php';
@@ -3057,11 +3069,20 @@ Class DB_DataObject extends DB_DataObject_Overload
                 
             case ($cols[$col] & DB_DATAOBJECT_TIME):
                 $guess = strtotime($this->$col);
-                if ($guess != -1) {
+                if ($guess > -1) {
                     return strftime($format, $guess);
                 }
                 // otherwise an error in type...
                 return $this->$col;
+                
+            case ($cols[$col] &  DB_DATAOBJECT_MYSQLTIMESTAMP):
+                require_once 'Date.php';
+                
+                $x = new Date($this->$col);
+                
+                return $x->format($format);
+            
+            
             default:
                 return sprintf($format,$this->col);
         }
