@@ -18,16 +18,18 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>1.7.7</version>
-    <date>2004-03-07</date>
+    <version>1.7.8</version>
+    <date>2004-03-12</date>
     <license>PHP License</license>
     <state>stable</state>
-    <notes>Minor bug fix release - join add with table fixes broke for mysql with last release
-Bug Fixes:
-  #---- - Joins incorrectly prefect database name for mysql/mysqli
-       (Thanks to Mark Mitchenall for spotting this) 
-  #---- used wrong variable for checking prefixes.
-      (Stephane Gully)</notes>
+    <notes>Minor Bugfix release. 
+#3764 - toValue(), and hence toArray() cast booleans to true|false.
+#3763 - createTables.php defines NO_OVERLOAD to prevent warnings on PHP4.3.10.
+
+#3768 - Hopefully last fix to joinAdd() / database prefixing and  quoteIdentifiers
+#3761 - Fixed DB_DataObject::datetime() bad code.
+#3783 - count('distinct') builds the query distinct [primary_key], should help in some situations
+        using joinAdd + group By etc.</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2"/>
       <dep type="pkg" rel="ge" version="1.6">DB</dep>
@@ -35,18 +37,35 @@ Bug Fixes:
       <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
     </deps>
     <filelist>
-      <file role="php" baseinstalldir="DB" md5sum="d574a9fa2b67d96867d0a01e8f9a0d4c" name="DataObject.php">
+      <file role="php" baseinstalldir="DB" md5sum="ad0ff1db897f27d8a10dc17b5f9c9e2e" name="DataObject.php">
         <replace from="@version@" to="version" type="package-info"/>
       </file>
-      <file role="php" baseinstalldir="DB" md5sum="b68e1a7da3dc340f6cd0ea0b5966c0d7" name="DataObject/Cast.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="875d1fe6e260a9d5259dd794b7a9f6f7" name="DataObject/Cast.php"/>
       <file role="php" baseinstalldir="DB" md5sum="234271db1f764e4e337ac77bd5af114d" name="DataObject/Generator.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="388d35c593ffa8543646ed12abb01152" name="DataObject/createTables.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="299f3c798d6d7a50debf5c0b686c3fc8" name="DataObject/createTables.php"/>
       <file role="php" baseinstalldir="DB" md5sum="af02e7575c22b9503d69c4447a4eb0ab" name="DataObject/Error.php"/>
       <file role="doc" baseinstalldir="DB" md5sum="1ff1e928275591a35213a4d941359ade" name="docs/example.ini"/>
       <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
     </filelist>
   </release>
   <changelog>
+    <release>
+      <version>1.7.7</version>
+      <date>2004-03-07</date>
+      <state>stable</state>
+      <notes>
+  Minor bug fix release - join add with table fixes broke for mysql with last release
+  Bug Fixes:
+  #---- - Joins incorrectly prefect database name for mysql/mysqli
+  (Thanks to Mark Mitchenall for spotting this)
+  #---- used wrong variable for checking prefixes.
+  (Stephane Gully)
+  
+ 
+    
+
+</notes>
+    </release>
     <release>
       <version>1.7.6</version>
       <date>2004-03-05</date>

@@ -16,7 +16,7 @@
 // | Authors:  Alan Knowles <alan@akbkhome.com>                           |
 // +----------------------------------------------------------------------+
 //
-// $Id: Cast.php,v 1.8 2005/02/28 09:54:07 alan_k Exp $
+// $Id: Cast.php,v 1.9 2005/03/12 03:19:42 alan_k Exp $
 //
 //  Prototype Castable Object.. for DataObject queries
 //
@@ -53,7 +53,7 @@
 *
 *
 *
-* @version    $Id: Cast.php,v 1.8 2005/02/28 09:54:07 alan_k Exp $
+* @version    $Id: Cast.php,v 1.9 2005/03/12 03:19:42 alan_k Exp $
 */ 
 class DB_DataObject_Cast {
         
@@ -267,7 +267,7 @@ class DB_DataObject_Cast {
             return false;
         }
         
-        $r = DB_DataObject_Cast($bits[0], $bits[1], $bits[2]);
+        $r = DB_DataObject_Cast::date($bits[0], $bits[1], $bits[2]);
         if (!$r) {
             return $r; // pass thru error (False) - doesnt happen at present!
         }
