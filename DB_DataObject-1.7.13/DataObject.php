@@ -944,7 +944,7 @@ class DB_DataObject extends DB_DataObject_Overload
             
             if ($v & DB_DATAOBJECT_STR) {
                 $rightq .= $DB->quoteSmart((string) (
-                        ($v & DB_DATAOBJECT_BOOL) ? (bool)$this->$k : $this->$k
+                        ($v & DB_DATAOBJECT_BOOL) ? (int)(bool)$this->$k : $this->$k
                     )) . " ";
                 continue;
             }
@@ -1161,7 +1161,7 @@ class DB_DataObject extends DB_DataObject_Overload
 
             if ($v & DB_DATAOBJECT_STR) {
                 $settings .= "$kSql = ". $DB->quoteSmart((string) (
-                        ($v & DB_DATAOBJECT_BOOL) ? (bool)$this->$k : $this->$k
+                        ($v & DB_DATAOBJECT_BOOL) ? (int)(bool)$this->$k : $this->$k
                     )) . ' ';
                 continue;
             }
@@ -2244,7 +2244,7 @@ class DB_DataObject extends DB_DataObject_Overload
 
             if ($v & DB_DATAOBJECT_STR) {
                 $this->whereAdd(" $kSql  = " . $DB->quoteSmart((string) (
-                        ($v & DB_DATAOBJECT_BOOL) ? (bool)$this->$k : $this->$k
+                        ($v & DB_DATAOBJECT_BOOL) ? (int)(bool)$this->$k : $this->$k
                     )) );
                 continue;
             }
@@ -2953,7 +2953,7 @@ class DB_DataObject extends DB_DataObject_Overload
             
             if ($v & DB_DATAOBJECT_STR) {
                 $this->whereAdd("{$joinAs}.{$kSql} = " . $DB->quoteSmart((string) (
-                        ($v & DB_DATAOBJECT_BOOL) ? (bool)$obj->$k : $obj->$k
+                        ($v & DB_DATAOBJECT_BOOL) ? (int)(bool)$obj->$k : $obj->$k
                     )));
                 continue;
             }
@@ -3691,3 +3691,4 @@ if (!defined('DB_DATAOBJECT_NO_OVERLOAD')) {
         $GLOBALS['_DB_DATAOBJECT']['OVERLOADED'] = true;
     }
 }
+
