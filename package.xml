@@ -8,8 +8,7 @@
   2. acts as a datastore for a table row.
   The core class is designed to be extended for each of your tables so that you put the
   data logic inside the data classes.
-  included is a Generator to make your configuration files and your base classes.
-  nd</description>
+  included is a Generator to make your configuration files and your base classes.</description>
   <maintainers>
     <maintainer>
       <user>alan_k</user>
@@ -19,11 +18,42 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>1.7.5</version>
-    <date>2004-03-02</date>
+    <version>1.7.6</version>
+    <date>2004-03-05</date>
     <license>PHP License</license>
     <state>stable</state>
-    <notes>A few releases where skipped, this should be the amalgamated upgrade!
+    <notes>Nothing like a big release to create bugs..
+
+Note: the last release also included method creation for setters and getters, 
+  which got missed out from the changelog.
+Bug Fixes:
+  #3708 - Generator did not clear last files contents when generating new files.
+  #3706 - Joins broke on everything except mysql (database prefix now only added to mysql)</notes>
+    <deps>
+      <dep type="php" rel="ge" version="4.2"/>
+      <dep type="pkg" rel="ge" version="1.6">DB</dep>
+      <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
+      <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
+    </deps>
+    <filelist>
+      <file role="php" baseinstalldir="DB" md5sum="4bd35c2f9d37101e0319898f1c617dd9" name="DataObject.php">
+        <replace from="@version@" to="version" type="package-info"/>
+      </file>
+      <file role="php" baseinstalldir="DB" md5sum="b68e1a7da3dc340f6cd0ea0b5966c0d7" name="DataObject/Cast.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="234271db1f764e4e337ac77bd5af114d" name="DataObject/Generator.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="388d35c593ffa8543646ed12abb01152" name="DataObject/createTables.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="af02e7575c22b9503d69c4447a4eb0ab" name="DataObject/Error.php"/>
+      <file role="doc" baseinstalldir="DB" md5sum="1ff1e928275591a35213a4d941359ade" name="docs/example.ini"/>
+      <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
+    </filelist>
+  </release>
+  <changelog>
+    <release>
+      <version>1.7.5</version>
+      <date>2004-03-02</date>
+      <state>stable</state>
+      <notes>
+A few releases where skipped, this should be the amalgamated upgrade!
 
 Note: php4.3.10 will exit with an error if you dont define NO_OVERLOAD, rather 
 than segfaulting..
@@ -52,26 +82,12 @@ Bug Fixes:
   #2319 - joinAdd does not use AS when table and target have same name.
   #---- - Dia diagram generation tools available in CVS (build diagrams from dataobjects)
   
-  #2267 - additional debugging information available at connect time</notes>
-    <deps>
-      <dep type="php" rel="ge" version="4.2"/>
-      <dep type="pkg" rel="ge" version="1.6">DB</dep>
-      <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
-      <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
-    </deps>
-    <filelist>
-      <file role="php" baseinstalldir="DB" name="DataObject.php">
-        <replace from="@version@" to="version" type="package-info"/>
-      </file>
-      <file role="php" baseinstalldir="DB" name="DataObject/Cast.php"/>
-      <file role="php" baseinstalldir="DB" name="DataObject/Generator.php"/>
-      <file role="php" baseinstalldir="DB" name="DataObject/createTables.php"/>
-      <file role="php" baseinstalldir="DB" name="DataObject/Error.php"/>
-      <file role="doc" baseinstalldir="DB" name="docs/example.ini"/>
-      <file role="script" baseinstalldir="DB" name="scripts/DB_DataObject_createTables.bat"/>
-    </filelist>
-  </release>
-  <changelog>
+  #2267 - additional debugging information available at connect time 
+  
+    
+
+</notes>
+    </release>
     <release>
       <version>1.7.2</version>
       <date>2004-08-28</date>

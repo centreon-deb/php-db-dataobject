@@ -14,7 +14,7 @@
 // +----------------------------------------------------------------------+
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
-// $Id: Generator.php,v 1.87 2005/02/24 09:59:11 alan_k Exp $
+// $Id: Generator.php,v 1.88 2005/03/05 02:44:22 alan_k Exp $
 
 /**
  * Generation tools for DB_DataObject
@@ -481,6 +481,7 @@ class DB_DataObject_Generator extends DB_DataObject
             } else { 
                 $outfilename = "{$base}/".preg_replace('/[^A-Z0-9]/i','_',ucfirst($this->table)).".php";
             }
+            $oldcontents = '';
             if (file_exists($outfilename)) {
                 // file_get_contents???
                 $oldcontents = implode('',file($outfilename));

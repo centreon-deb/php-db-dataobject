@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.329 2005/03/02 03:49:53 alan_k Exp $
+ * $Id: DataObject.php,v 1.331 2005/03/05 01:51:18 alan_k Exp $
  */
 
 /* =========================================================================== 
@@ -940,9 +940,12 @@ class DB_DataObject extends DB_DataObject_Overload
                 $rightq .= " NULL ";
                 continue;
             }
+              
             
             if ($v & DB_DATAOBJECT_STR) {
-                $rightq .= $DB->quote($this->$k) . " ";
+                $rightq .= $DB->quote(
+                        ($v & DB_DATAOBJECT_BOOL) ? (bool)$this->$k : $this->$k
+                    ) . " ";
                 continue;
             }
             if (is_numeric($this->$k)) {
@@ -1157,7 +1160,9 @@ class DB_DataObject extends DB_DataObject_Overload
             
 
             if ($v & DB_DATAOBJECT_STR) {
-                $settings .= "$kSql = ". $DB->quote($this->$k) . ' ';
+                $settings .= "$kSql = ". $DB->quote(
+                        ($v & DB_DATAOBJECT_BOOL) ? (bool)$this->$k : $this->$k
+                    ) . ' ';
                 continue;
             }
             if (is_numeric($this->$k)) {
@@ -2230,7 +2235,9 @@ class DB_DataObject extends DB_DataObject_Overload
             
 
             if ($v & DB_DATAOBJECT_STR) {
-                $this->whereAdd(" $kSql  = " . $DB->quote($this->$k) );
+                $this->whereAdd(" $kSql  = " . $DB->quote(
+                        ($v & DB_DATAOBJECT_BOOL) ? (bool)$this->$k : $this->$k
+                    ) );
                 continue;
             }
             if (is_numeric($this->$k)) {
@@ -2826,13 +2833,17 @@ class DB_DataObject extends DB_DataObject_Overload
         
         $quoteIdentifiers = !empty($_DB_DATAOBJECT['CONFIG']['quote_identifiers']);
         
+        $database_prefix = in_array($DB->type,array('mysql','mysqli')) ?
+            $obj->_database . '.' : '';
+        
         // not sure  how portable adding database prefixes is..
         $objTable = $quoteIdentifiers ? 
-                $DB->quoteIdentifier($obj->_database . '.' . $obj->__table) : 
-                $obj->_database . '.' . $obj->__table ;
+                $DB->quoteIdentifier($database_prefix  . '.' . $obj->__table) : 
+                $database_prefix  . '.' . $obj->__table ;
                 
         // add database prefix if they are different databases
-        if (($obj->_database != $this->_database) && strlen($obj->_database )) {
+        if ($database_prefix && ($obj->_database != $this->_database) && strlen($obj->_database )) {
+            // ojbjTable is already quoted????
             $objTable = ($quoteIdentifiers ? $DB->quoteIdentifier($obj->_database) : $obj->_database) . '.' . $objTable;
         }
         
@@ -2861,7 +2872,7 @@ class DB_DataObject extends DB_DataObject_Overload
             $tfield   = $DB->quoteIdentifier($tfield);    
         }
         // add database prefix if they are different databases
-        if (($obj->_database != $this->_database) && strlen($this->_database )) {
+        if ($database_prefix && ($obj->_database != $this->_database) && strlen($this->_database )) {
             $table = ($quoteIdentifiers ? $DB->quoteIdentifier($this->_database) : $this->_database) . '.' . $table;
             
         }
@@ -2871,7 +2882,7 @@ class DB_DataObject extends DB_DataObject_Overload
         if ($addJoinAs) {
             $fullJoinAs = "AS {$joinAs}";
         } else {
-            if (($obj->_database != $this->_database) && strlen($this->_database )) {
+            if ($database_prefix && ($obj->_database != $this->_database) && strlen($this->_database )) {
                 $joinAs = ($quoteIdentifiers ? $DB->quoteIdentifier($obj->_database) : $obj->_database) . '.' . $joinAs;
             }
         }
@@ -2923,7 +2934,9 @@ class DB_DataObject extends DB_DataObject_Overload
             
             
             if ($v & DB_DATAOBJECT_STR) {
-                $this->whereAdd("{$joinAs}.{$kSql} = " . $DB->quote($obj->$k));
+                $this->whereAdd("{$joinAs}.{$kSql} = " . $DB->quote(
+                        ($v & DB_DATAOBJECT_BOOL) ? (bool)$obj->$k : $obj->$k
+                    ));
                 continue;
             }
             if (is_numeric($obj->$k)) {
