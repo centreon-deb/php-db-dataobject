@@ -17,22 +17,27 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.12</version>
-    <date>2003-01-22</date>
+    <version>0.13</version>
+    <date>2003-01-23</date>
     <license>PHP License</license>
     <state>stable</state>
-    <notes>- Usual post release bug fix.
-- fixes *.links.ini incorrectly using *.links (Damian Turner)
-- Adds the ability to get PEAR Connection and result objects
-  getDatabaseConnection() and getDatabaseResult() (jason rust)</notes>
+    <notes>- bug fix release - debug_ignore_updates worked in reverse.. (Alexander Mazurov)</notes>
     <filelist>
-      <file role="php" baseinstalldir="DB" md5sum="54421ffd61993be623a6c3113b88b1ae" name="DataObject.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="3f688c740d3c3593da08f8d7df88c07c" name="DataObject.php"/>
       <file role="php" baseinstalldir="DB" md5sum="976bae790ee24a7a8378b9b9b041b97f" name="DataObject/Generator.php"/>
       <file role="php" baseinstalldir="DB" md5sum="92802927e5cfd951ca06927a48f1d807" name="DataObject/createTables.php"/>
       <file role="php" baseinstalldir="DB" md5sum="c44f9854ec109f99b88d300231b3a08d" name="DataObject/example.ini"/>
     </filelist>
   </release>
   <changelog>
+    <release>
+      <version>0.13</version>
+      <date>2003-01-23</date>
+      <state>stable</state>
+      <notes>- bug fix release - debug_ignore_updates worked in reverse.. (Alexander Mazurov)
+
+</notes>
+    </release>
     <release>
       <version>0.12</version>
       <date>2003-01-22</date>
