@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.339 2005/03/16 01:45:05 alan_k Exp $
+ * $Id: DataObject.php,v 1.340 2005/03/22 03:51:52 alan_k Exp $
  */
 
 /* =========================================================================== 
@@ -1435,7 +1435,7 @@ class DB_DataObject extends DB_DataObject_Overload
         $as      = ($quoteIdentifiers ? $DB->quoteIdentifier('DATAOBJECT_NUM') : 'DATAOBJECT_NUM');
         
         // support distinct on default keys.
-        $countWhat = (false !== strcmp($countWhat,'DISTINCT')) ? 
+        $countWhat = (strtoupper($countWhat) == 'DISTINCT') ? 
             "DISTINCT {$table}.{$key_col}" : $countWhat;
         
         $countWhat = is_string($countWhat) ? $countWhat : "{$table}.{$key_col}";
@@ -2228,8 +2228,9 @@ class DB_DataObject extends DB_DataObject_Overload
                     $this->raiseError($value->getMessage() ,DB_DATAOBJECT_ERROR_INVALIDARG);
                     return false;
                 }
-                if ($value == 'NULL') {
-                    $value = 'IS NULL';
+                if ((strtolower($value) === 'null') && !($v & DB_DATAOBJECT_NOTNULL)) {
+                    $this->whereAdd(" $kSql IS NULL");
+                    continue;
                 }
                 $this->whereAdd(" $kSql = $value");
                 continue;

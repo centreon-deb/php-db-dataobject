@@ -19,12 +19,13 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.7.10</version>
-  <date>2005-03-16</date>
+  <version>1.7.11</version>
+  <date>2005-03-22</date>
   <license>PHP License</license>
   <state>stable</state>
   <notes>Minor Bugfix release. 
-#3829 - joinAdd fix for database prefixing (yet again)
+#3898 - fix count , which got broken by previous distinct argument changes
+#------ support $x IS NOT NULL using $obj-&gt;value = DB_DataObject_Cast::sql(&quot;NOT NULL&quot;);
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2"/>
@@ -48,11 +49,11 @@
   <provides type="function" name="DB_DataObject_Generator::start" />
   <provides type="class" name="DB_DataObject_Error" extends="PEAR_Error" />
   <filelist>
-   <file role="php" baseinstalldir="DB" md5sum="c027d8ac6ebd06c54f6e1b13d7064db3" name="DataObject.php">
+   <file role="php" baseinstalldir="DB" md5sum="5e161991514e5b1f743ddfcb3675c668" name="DataObject.php">
     <replace from="@version@" to="version" type="package-info"/>
    </file>
    <file role="php" baseinstalldir="DB" md5sum="875d1fe6e260a9d5259dd794b7a9f6f7" name="DataObject/Cast.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="234271db1f764e4e337ac77bd5af114d" name="DataObject/Generator.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="df964d5430bb1b1bb19186e79f37a5bb" name="DataObject/Generator.php"/>
    <file role="php" baseinstalldir="DB" md5sum="299f3c798d6d7a50debf5c0b686c3fc8" name="DataObject/createTables.php"/>
    <file role="php" baseinstalldir="DB" md5sum="af02e7575c22b9503d69c4447a4eb0ab" name="DataObject/Error.php"/>
    <file role="doc" baseinstalldir="DB" md5sum="1ff1e928275591a35213a4d941359ade" name="docs/example.ini"/>
@@ -60,6 +61,14 @@
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.7.10</version>
+    <date>2004-03-16</date>
+    <state>stable</state>
+    <notes>Minor Bugfix release. 
+#3829 - joinAdd fix for database prefixing (yet again)
+    </notes>
+   </release>
    <release>
     <version>1.7.9</version>
     <date>2004-03-12</date>
