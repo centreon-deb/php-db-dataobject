@@ -7,7 +7,8 @@
   2. acts as a datastore for a table row.
   The core class is designed to be extended for each of your tables so that you put the 
   data logic inside the data classes.
-  included is a Generator to make your configuration files and your base classes.</description>
+  included is a Generator to make your configuration files and your base classes.
+  nd</description>
   <maintainers>
     <maintainer>
       <user>alan_k</user>
@@ -17,19 +18,22 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>1.1</version>
+    <version>1.2</version>
     <date>2003-08-07</date>
     <license>PHP License</license>
     <state>stable</state>
-    <notes>Bug Fixes
-- limit argument testing now accepts &quot;10&quot; (a string with an integer
-in it, as a valid argument) (Demian Turner)
-New Features
-- JoinAdd has additional Argument $joinCol, so you can specify 
-  multiple targets links of the  same table, eg. user-&gt;friend, 
-  user-&gt;parent both connect to the user table..  (Andy Crain)</notes>
+    <notes>changes:
+   - _get_table()  = table()
+   - _get_keys()   = keys()
+ additions
+   - tableName()  = returns or assign the table name
+   - database()   = returns or assign the database name
+ 
+ changes by Markus Wolff
+ you should rename your methods table() and keys()
+ the autocode markers ### (Andreas Ljunggren)</notes>
     <deps>
-      <dep type="php" rel="ge" version="4.3"/>
+      <dep type="php" rel="ge" version="4.1"/>
       <dep type="pkg" rel="ge" version="1.3">DB</dep>
       <dep type="pkg" rel="ge" version="0.1.1">Validate</dep>
     </deps>
@@ -52,8 +56,13 @@ New Features
     <provides type="function" name="DB_DataObject::count" />
     <provides type="function" name="DB_DataObject::query" />
     <provides type="function" name="DB_DataObject::escape" />
+    <provides type="function" name="DB_DataObject::tableName" />
+    <provides type="function" name="DB_DataObject::database" />
+    <provides type="function" name="DB_DataObject::table" />
+    <provides type="function" name="DB_DataObject::keys" />
     <provides type="function" name="DB_DataObject::staticAutoloadTable" />
     <provides type="function" name="DB_DataObject::factory" />
+    <provides type="function" name="DB_DataObject::links" />
     <provides type="function" name="DB_DataObject::getLinks" />
     <provides type="function" name="DB_DataObject::getLink" />
     <provides type="function" name="DB_DataObject::getLinkArray" />
@@ -73,13 +82,28 @@ New Features
     <provides type="function" name="DB_DataObject_Generator::derivedHookFunctions" />
     <provides type="function" name="DB_DataObject_Generator::derivedHookVar" />
     <filelist>
-      <file role="php" baseinstalldir="DB" md5sum="2b03e9b3683f177411c9672fead6e14e" name="DataObject.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="c053d9ba062db1b4ccd9f916ab3a90ea" name="DataObject/Generator.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="d7b781d3b771816be75534d14e391855" name="DataObject.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="a53d5f41e655fcf15dda283575f2f1f9" name="DataObject/Generator.php"/>
       <file role="php" baseinstalldir="DB" md5sum="92802927e5cfd951ca06927a48f1d807" name="DataObject/createTables.php"/>
       <file role="doc" baseinstalldir="DB" md5sum="7bd888a853360b455e127cecc4058732" name="docs/example.ini"/>
     </filelist>
   </release>
   <changelog>
+    <release>
+      <version>1.1</version>
+      <date>2003-08-07</date>
+      <state>stable</state>
+      <notes>Bug Fixes
+- limit argument testing now accepts &quot;10&quot; (a string with an integer
+in it, as a valid argument) (Demian Turner)
+New Features
+- JoinAdd has additional Argument $joinCol, so you can specify 
+  multiple targets links of the  same table, eg. user-&gt;friend, 
+  user-&gt;parent both connect to the user table..  (Andy Crain)
+
+
+</notes>
+    </release>
     <release>
       <version>1.0.2</version>
       <date>2003-07-31</date>

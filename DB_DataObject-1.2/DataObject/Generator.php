@@ -14,7 +14,7 @@
 // +----------------------------------------------------------------------+
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
-// $Id: Generator.php,v 1.32 2003/06/24 15:27:17 alan_k Exp $
+// $Id: Generator.php,v 1.33 2003/08/14 01:59:51 alan_k Exp $
 
 /**
  * Generation tools for DB_DataObject
@@ -428,9 +428,15 @@ class DB_DataObject_Generator extends DB_DataObject
         $foot .= "}\n?>";
         $full = $head . $body . $foot;
 
-        if (!$input) return $full;
-        if (!preg_match('/(\n|\r\n)\s*###START_AUTOCODE(\n|\r\n)/s',$input))  return $full;
-        if (!preg_match('/(\n|\r\n)\s*###END_AUTOCODE(\n|\r\n)/s',$input))  return $full;
+        if (!$input) {
+            return $full;
+        }
+        if (!preg_match('/(\n|\r\n)\s*###START_AUTOCODE(\n|\r\n)/s',$input))  {
+            return $full;
+        }
+        if (!preg_match('/(\n|\r\n)\s*###END_AUTOCODE(\n|\r\n)/s',$input)) {
+            return $full;
+        }
 
 
         /* this will only replace extends DB_DataObject by default,
@@ -451,7 +457,7 @@ class DB_DataObject_Generator extends DB_DataObject
             $input);
 
         return preg_replace(
-            '/(\n|\r\n)    ###START_AUTOCODE\n.*\n    ###END_AUTOCODE(\n|\r\n)/s',
+            '/(\n|\r\n)\s*###START_AUTOCODE\n.*\n\s*###END_AUTOCODE(\n|\r\n)/s',
             $body,$input);
     }
 
