@@ -14,7 +14,7 @@
 // +----------------------------------------------------------------------+
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
-// $Id: Generator.php,v 1.70 2004/08/09 00:34:42 alan_k Exp $
+// $Id: Generator.php,v 1.71 2004/08/11 06:52:35 alan_k Exp $
 
 /**
  * Generation tools for DB_DataObject
@@ -162,7 +162,11 @@ class DB_DataObject_Generator extends DB_DataObject
         if (is_a($this->tables , 'PEAR_Error')) {
             return PEAR::raiseError($this->tables->toString(), null, PEAR_ERROR_DIE);
         }
-            
+        // build views as well if asked to.
+        if (!empty($options['build_views'])) {
+            $this->tables = array_merge ($this->tables, $__DB->getListOf('views'));
+        }
+        
         
         // declare a temporary table to be filled with matching tables names
         $tmp_table = array();

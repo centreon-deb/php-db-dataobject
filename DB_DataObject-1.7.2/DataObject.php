@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.284 2004/08/08 04:49:56 alan_k Exp $
+ * $Id: DataObject.php,v 1.294 2004/08/28 03:01:05 alan_k Exp $
  */
 
 /* =========================================================================== 
@@ -184,14 +184,18 @@ if ( substr(phpversion(),0,1) == 5) {
     if (!function_exists('clone')) {
         eval('function clone($t) { return $t; }');
     }
-
-    class DB_DataObject_Overload {
-        function __call($method,$args,&$return) {
-            return $this->_call($method,$args,$return);;
+    eval('
+        class DB_DataObject_Overload {
+            function __call($method,$args,&$return) {
+                return $this->_call($method,$args,$return); 
+            }
         }
-    }
-
+    ');
 }
+
+    
+
+
  
 
  /*
@@ -509,7 +513,7 @@ class DB_DataObject extends DB_DataObject_Overload
         if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
             $this->debug("{$this->__table} DONE", "fetchrow",2);
         }
-        if (isset($this->_query) && !empty($_DB_DATAOBJECT['CONFIG']['keep_query_after_fetch'])) {
+        if (isset($this->_query) &&  empty($_DB_DATAOBJECT['CONFIG']['keep_query_after_fetch'])) {
             unset($this->_query);
         }
         return true;
@@ -1141,6 +1145,7 @@ class DB_DataObject extends DB_DataObject_Overload
         }
         
         $this->_build_condition($items,$keys);
+        
         //  echo " $settings, $this->condition ";
         if ($settings && isset($this->_query) && $this->_query['condition']) {
             
@@ -1164,6 +1169,11 @@ class DB_DataObject extends DB_DataObject_Overload
         }
         // restore original query conditions.
         $this->_query = $original_query;
+        
+        // if you manually specified a dataobject, and there where no changes - then it's ok..
+        if ($dataObject !== false) {
+            return false;
+        }
         
         $this->raiseError(
             "update: No Data specifed for query $settings , {$this->_query['condition']}", 
@@ -1205,7 +1215,8 @@ class DB_DataObject extends DB_DataObject_Overload
         $DB = &$_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5];
         $quoteIdentifiers  = !empty($_DB_DATAOBJECT['CONFIG']['quote_identifiers']);
         
-        $extra_cond = " {$this->_query['order_by']} {$this->_query['limit']}";
+        $extra_cond = ' ' . (isset($this->_query['order_by']) ? $this->_query['order_by'] : '') . 
+                      ' ' . (isset($this->_query['limit']) ? $this->_query['limit'] : '');
         
         if (!$useWhere) {
 
@@ -2202,18 +2213,29 @@ class DB_DataObject extends DB_DataObject_Overload
      * (this also helps proxy creation)
      *
      *
-     * @param  string  $table  table
+     * @param  string  $table  tablename (use blank to create a new instance of the same class.)
      * @access private
      * @return DataObject|PEAR_Error 
      */
     
     
 
-    function factory($table) {
+    function factory($table = '') {
         global $_DB_DATAOBJECT;
         if (empty($_DB_DATAOBJECT['CONFIG'])) {
             DB_DataObject::_loadConfig();
         }
+        
+        if ($table === '') {
+            if (is_a($this,'DB_DataObject') && strlen($this->__table)) {
+                $table = $this->__table;
+            } else {
+                return DB_DataObject::raiseError(
+                    "factory did not recieve a table name",
+                    DB_DATAOBJECT_ERROR_INVALIDARGS);
+            }
+        }
+        
         
         $p = isset($_DB_DATAOBJECT['CONFIG']['class_prefix']) ?
             $_DB_DATAOBJECT['CONFIG']['class_prefix'] : '';
@@ -2662,18 +2684,12 @@ class DB_DataObject extends DB_DataObject_Overload
         $DB = &$_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5];
        
 
-        $this->table(); /* make sure the links are loaded */
- 
-        $links = array();
-        if (isset($_DB_DATAOBJECT['LINKS'][$this->_database])) {
-            $links = $_DB_DATAOBJECT['LINKS'][$this->_database];
-        }
-
+        
         
          /* look up the links for obj table */
 
-        if (!$ofield && isset($links[$obj->__table])) {
-            foreach ($links[$obj->__table] as $k => $v) {
+        if (!$ofield && ($olinks = $obj->links())) {
+            foreach ($olinks as $k => $v) {
                 /* link contains {this column} = {linked table}:{linked column} */
                 $ar = explode(':', $v);
                 if ($ar[0] == $this->__table) {
@@ -2701,8 +2717,8 @@ class DB_DataObject extends DB_DataObject_Overload
 
         /* otherwise see if there are any links from this table to the obj. */
 
-        if (($ofield === false) &&isset($links[$this->__table])) {
-            foreach ($links[$this->__table] as $k => $v) {
+        if (($ofield === false) && ($links = $this->links())) {
+            foreach ($links as $k => $v) {
                 /* link contains {this column} = {linked table}:{linked column} */
                 $ar = explode(':', $v);
                 if ($ar[0] == $obj->__table) {
@@ -2757,7 +2773,6 @@ class DB_DataObject extends DB_DataObject_Overload
         
         $table = $this->__table;
         
-
         if ($quoteIdentifiers) {
             $joinAs   = $DB->quoteIdentifier($joinAs);
             $table    = $DB->quoteIdentifier($table);     
@@ -3112,8 +3127,8 @@ class DB_DataObject extends DB_DataObject_Overload
         // deal with naming conflick of setFrom = this is messy ATM!
         
         if (strtolower($method) == 'set_from') {
-            $this->from = $params[0];
-            return $return = true;
+            $return = $this->toValue('from',isset($params[0]) ? $params[0] : null);
+            return  true;
         }
         
         $element = substr($method,3);
@@ -3131,6 +3146,11 @@ class DB_DataObject extends DB_DataObject_Overload
             foreach($array as $k) {
                 $case[strtolower($k)] = $k;
             }
+            if ((substr(phpversion(),0,1) == 5) && isset($case[strtolower($element)])) {
+                trigger_error("PHP5 set/get calls should match the case of the variable",E_USER_WARNING);
+                $element = strtolower($element);
+            }
+            
             // does it really exist?
             if (!isset($case[$element])) {
                 return false;            

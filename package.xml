@@ -19,17 +19,23 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>1.7.1</version>
-    <date>2004-08-09</date>
+    <version>1.7.2</version>
+    <date>2004-08-28</date>
     <license>PHP License</license>
     <state>stable</state>
-    <notes>Minor bug fix release
+    <notes>Minor bug fix / Minor feature addition release
   
   
 Bug Fixes:
-  #2088 - class_prefix may be left out.
-  #------ php4.2 compatibility should work as advertised in last realease
-  #------ Generator didnt have DB loaded due to lazy load changes.</notes>
+  #1835 - more fixes to ensure that joinAdd works correctly.
+  #2106 - Update with old object having no changes does not raise an error
+  #---- - fixed problem of call() code producing parse error on PHP5.0.1 
+  #2205 - fixed case sensitivity of PHP5 call() 
+  #---- - fixed undefined index in delete after a fetch()
+  
+Features Added:
+  #2086 - Support for buliding dataobjects for Views (use option build_view=1)
+  #2240 - factory() called on a dataobject returns a new instance of that object.</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2"/>
       <dep type="pkg" rel="ge" version="1.6">DB</dep>
@@ -37,18 +43,32 @@ Bug Fixes:
       <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
     </deps>
     <filelist>
-      <file role="php" baseinstalldir="DB" md5sum="c9de0a0925181a8b32bbfafcd2c571f0" name="DataObject.php">
+      <file role="php" baseinstalldir="DB" md5sum="8f670d12b8126e3c57eeff43a7d5fa9e" name="DataObject.php">
         <replace from="@version@" to="version" type="package-info"/>
       </file>
       <file role="php" baseinstalldir="DB" md5sum="f3faa3383d83fd95f90454ef3de23d49" name="DataObject/Cast.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="806f3c8f7ce60eb4aa306bf0373eb961" name="DataObject/Generator.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="3028b388a5022e3f0f02179b27ef196b" name="DataObject/Generator.php"/>
       <file role="php" baseinstalldir="DB" md5sum="388d35c593ffa8543646ed12abb01152" name="DataObject/createTables.php"/>
       <file role="php" baseinstalldir="DB" md5sum="af02e7575c22b9503d69c4447a4eb0ab" name="DataObject/Error.php"/>
-      <file role="doc" baseinstalldir="DB" md5sum="47d7d7f2b2d49572b9db4d56c7cb4010" name="docs/example.ini"/>
+      <file role="doc" baseinstalldir="DB" md5sum="076795e2d0f273ee83d6c908b1acab6d" name="docs/example.ini"/>
       <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
     </filelist>
   </release>
   <changelog>
+    <release>
+      <version>1.7.1</version>
+      <date>2004-08-09</date>
+      <state>stable</state>
+      <notes>Minor bug fix release
+  
+  
+Bug Fixes:
+  #2088 - class_prefix may be left out.
+  #------ php4.2 compatibility should work as advertised in last realease
+  #------ Generator didnt have DB loaded due to lazy load changes.
+
+</notes>
+    </release>
     <release>
       <version>1.7.0</version>
       <date>2004-06-03</date>
