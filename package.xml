@@ -17,30 +17,44 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.2</version>
-    <date>2002-07-12</date>
+    <version>0.3</version>
+    <date>2002-08-16</date>
     <license>PHP License</license>
     <state>beta</state>
-    <notes>Removed list method call, First upload as pear package. - Documentation now in PEAR Manual</notes>
+    <notes>- Fixed Globals requirement in createTables,
+- Added Validation Utilities
+- Fixed SetFrom Object
+- Added database.links.ini support (by Tim White)
+- added production option to configuration
+- added DB_DataObject::staticAutoLoadTable($tablename);</notes>
     <filelist>
-      <file role="php" baseinstalldir="DB" md5sum="dd690cd0ecb01e8aa6ed2e94400cb616" name="DataObject.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="1434b4d27c19fec569caff0b09de76ea" name="DataObject/Generator.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="0e77baa3ab894a315f5a21069986c0e1" name="DataObject/createTables.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="81512df305a9234d27e928a833233310" name="DataObject/example.ini"/>
+      <file role="php" baseinstalldir="DB" md5sum="da38ce09a58e31b2497df6be3f8896f1" name="DataObject.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="51199cf5239629cb8230fd9fd9b753b6" name="DataObject/Generator.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="fc51f0315f86327ae33675a80b8dbe23" name="DataObject/createTables.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="3a5ce1c17e1ac0d9684f1fa886b384de" name="DataObject/example.ini"/>
     </filelist>
   </release>
   <changelog>
     <release>
+      <version>0.3</version>
+      <date>2002-08-16</date>
+      <state>beta</state>
+      <notes>- Fixed Globals requirement in createTables,
+</notes>
+    </release>
+    <release>
       <version>0.2</version>
       <date>2002-07-12</date>
       <state>beta</state>
-      <notes>Removed list method, First upload as pear package. - Documentation now in PEAR Manual</notes>
+      <notes>Removed list method, First upload as pear package. - Documentation now in PEAR Manual
+</notes>
     </release>
     <release>
       <version>0.1</version>
       <date>2002-06-25</date>
       <state>beta</state>
-      <notes>PEARified</notes>
+      <notes>PEARified
+</notes>
     </release>
   </changelog>
 </package>
