@@ -17,11 +17,25 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.16</version>
-    <date>2003-03-06</date>
+    <version>0.17</version>
+    <date>2003-03-12</date>
     <license>PHP License</license>
     <state>stable</state>
-    <notes>- replaced config storage  - should improve performance
+    <notes>- Usual post feature bug fix release
+- fix loading of links.ini for joinAdd, getLinks etc. (Geoff Hopson)</notes>
+    <filelist>
+      <file role="php" baseinstalldir="DB" md5sum="7af97b95818d9e1e680404c06078d8a6" name="DataObject.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="976bae790ee24a7a8378b9b9b041b97f" name="DataObject/Generator.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="92802927e5cfd951ca06927a48f1d807" name="DataObject/createTables.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="c44f9854ec109f99b88d300231b3a08d" name="DataObject/example.ini"/>
+    </filelist>
+  </release>
+  <changelog>
+    <release>
+      <version>0.16</version>
+      <date>2003-03-06</date>
+      <state>stable</state>
+      <notes>- replaced config storage  - should improve performance
 - removed production option (not required due to improved config storage)
 - bugfix : added checks for is_array on ignore_sequence_keys (Hermen Heinen)
 - add toArray($format) which supports sprintf to enable easy integration with
@@ -31,15 +45,10 @@
 - add join condition to count() (Daniel Von Fange)
 - modify limit() to work with postgresql and make it emit a fatal error if you 
   try this on databases that do not directly support limit queries. (Geoff Hopson)
-  * I'm open on better ideas for this - probably wrapping the find() select call</notes>
-    <filelist>
-      <file role="php" baseinstalldir="DB" md5sum="e58b9d7cedf618a4c947ff2b9011f76b" name="DataObject.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="976bae790ee24a7a8378b9b9b041b97f" name="DataObject/Generator.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="92802927e5cfd951ca06927a48f1d807" name="DataObject/createTables.php"/>
-      <file role="php" baseinstalldir="DB" md5sum="c44f9854ec109f99b88d300231b3a08d" name="DataObject/example.ini"/>
-    </filelist>
-  </release>
-  <changelog>
+  * I'm open on better ideas for this - probably wrapping the find() select call
+  
+</notes>
+    </release>
     <release>
       <version>0.15</version>
       <date>2003-02-13</date>
