@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP Version 4                                                        |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1997-2002 The PHP Group                                |
+// | Copyright (c) 1997-2003 The PHP Group                                |
 // +----------------------------------------------------------------------+
 // | This source file is subject to version 2.02 of the PHP license,      |
 // | that is bundled with this package in the file LICENSE, and is        |
@@ -15,7 +15,7 @@
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
 //
-// $Id: Generator.php,v 1.19 2002/12/09 03:50:18 alan_k Exp $
+// $Id: Generator.php,v 1.24 2003/01/21 02:07:57 alan_k Exp $
 //
 /* generation tools for DB_DataObject
  *
@@ -94,7 +94,7 @@ class DB_DataObject_Generator extends DB_DataObject
         $databases = array();
         foreach($options as $k=>$v) {
             if (substr($k,0,9) == 'database_') {
-                $databases[] = substr($k,9);
+                $databases[] = $v;
             }
         }
 
@@ -141,9 +141,9 @@ class DB_DataObject_Generator extends DB_DataObject
     function _createTableList()
     {
         $this->_connect();
-        $connections = &PEAR::getStaticProperty('DB_DataObject','connections');
-
-        $__DB= &$connections[$this->_database_dsn_md5];
+        
+        
+        $__DB= &$GLOBALS['_DB_DATAOBJECT']['CONNECTIONS'][$this->_database_dsn_md5];
 
         $this->tables = $__DB->getListOf('tables');
 
@@ -223,12 +223,16 @@ class DB_DataObject_Generator extends DB_DataObject
                 case "INT8";    // postgres
                 case "SERIAL4"; // postgres
                 case "SERIAL8"; // postgres
-                case "REAL":
                 case "INTEGER":
                 case "TINYINT":
                 case "SMALLINT":
                 case "MEDIUMINT":
                 case "BIGINT":
+                    $type= DB_DATAOBJECT_INT;
+                    if ($t->len == 1) {
+                        $type +=  DB_DATAOBJECT_BOOL;
+                    }
+                    
                 case "REAL":
                 case "DOUBLE":
                 case "FLOAT":
