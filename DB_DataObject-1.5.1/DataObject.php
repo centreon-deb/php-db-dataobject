@@ -20,7 +20,7 @@
  * @package  DB_DataObject
  * @category DB
  *
- * $Id: DataObject.php,v 1.196 2004/01/19 07:50:01 alan_k Exp $
+ * $Id: DataObject.php,v 1.198 2004/01/22 02:45:33 alan_k Exp $
  */
 
 /* =====================================================================================
@@ -805,7 +805,7 @@ Class DB_DataObject extends DB_DataObject_Overload
         $leftq     = '';
         $rightq    = '';
      
-        list($key,$useNative) = $this->sequenceKey();
+        @list($key,$useNative,$seq) = $this->sequenceKey();
         $dbtype    = $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->dsn["phptype"];
          
          
@@ -814,10 +814,14 @@ Class DB_DataObject extends DB_DataObject_Overload
         // big check for using sequences
         
         if (($key !== false) && !$useNative) { 
-            if (!($seq = @$options['sequence_'. $this->__table])) {
-                $seq = $this->__table;
+            if (!$seq) {
+                $this->$key = $DB->nextId($this->__table);
+            } else {
+                $f = $DB->getOption('seqname_format');
+                $DB->setOption('seqname_format','%s');
+                $this->$key =  $DB->nextId($seq);
+                $DB->setOption('seqname_format',$f);
             }
-            $this->$key = $DB->nextId($seq);
         }
 
 
@@ -912,8 +916,8 @@ Class DB_DataObject extends DB_DataObject_Overload
                         break; 
                         
                     case 'pgsql':
-                        if (!($seq = @$options['sequence_'. $this->__table])) {
-                            $seq = $this->__table . '_seq';
+                        if (!$seq) {
+                            $seq = $DB->getSequenceName($this->__table );
                         }
                     	$pgsql_key = $DB->getOne("SELECT last_value FROM ".$seq);
                         if (PEAR::isError($pgsql_key)) {
@@ -1583,9 +1587,10 @@ Class DB_DataObject extends DB_DataObject_Overload
      * override this to return array(false,false) if table has no real sequence key.
      *
      * @param  string  optional the key sequence/autoinc. key
-     * @param  boolean optional use native increment. default false
+     * @param  boolean optional use native increment. default false 
+     * @param  false|string optional native sequence name
      * @access private
-     * @return array (column,use_native)
+     * @return array (column,use_native,sequence_name)
      */
     function sequenceKey()
     {
@@ -1595,6 +1600,7 @@ Class DB_DataObject extends DB_DataObject_Overload
         $args = func_get_args();
         if (count($args)) {
             $args[1] = isset($args[1]) ? $args[1] : false;
+            $args[2] = isset($args[2]) ? $args[2] : false;
             $this->_databaseSequenceKeys = $args;
         }
         if (isset($this->_databaseSequenceKeys )) {
@@ -1603,7 +1609,7 @@ Class DB_DataObject extends DB_DataObject_Overload
         
         $keys = $this->keys();
         if (!$keys) {
-            return array(false,false);;
+            return array(false,false,false);;
         }
         $table = $this->table();
         $dbtype    = $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->dsn['phptype'];
@@ -1612,27 +1618,31 @@ Class DB_DataObject extends DB_DataObject_Overload
         
         
         
+        $seqname = false;
         
         if (@$_DB_DATAOBJECT['CONFIG']['sequence_'.$this->__table]) {
             $usekey = $_DB_DATAOBJECT['CONFIG']['sequence_'.$this->__table];
+            if (strpos($usekey,':') !== false) {
+                list($usekey,$seqname) = explode(':',$usekey);
+            }
         }  
         
         
         // if the key is not an integer - then it's not a sequence or native
         if (!($table[$usekey] & DB_DATAOBJECT_INT)) {
-                return array(false,false);
+                return array(false,false,false);
         }
 
         if (@$_DB_DATAOBJECT['CONFIG']['ignore_sequence_keys']) {
             $ignore =  $_DB_DATAOBJECT['CONFIG']['ignore_sequence_keys'];
             if (is_string($ignore) && (strtoupper($ignore) == 'ALL')) {
-                return array(false,false);
+                return array(false,false,$seqname);
             }
             if (is_string($ignore)) {
                 $ignore = $_DB_DATAOBJECT['CONFIG']['ignore_sequence_keys'] = explode(',',$ignore);
             }
             if (in_array($this->__table,$ignore)) {
-                return array(false,false);
+                return array(false,false,$seqname);
             }
         }
         
@@ -1651,7 +1661,7 @@ Class DB_DataObject extends DB_DataObject_Overload
         
         // multiple unique primary keys without a native sequence...
         if (($realkeys[$usekey] == 'K') && (count($keys) > 1)) {
-            return array(false,false);
+            return array(false,false,$seqname);
         }
         // use native sequence keys...
         // technically postgres native here...
@@ -1661,11 +1671,11 @@ Class DB_DataObject extends DB_DataObject_Overload
                 ($table[$usekey] & DB_DATAOBJECT_INT) && 
                 (@$realkeys[$usekey] == 'N')
                 ) {
-            return array($usekey,true);
+            return array($usekey,true,$seqname);
         }
         // I assume it's going to try and be a nextval DB sequence.. (not native)
         
-        return array($usekey,false);
+        return array($usekey,false,$seqname);
     }
     
     
@@ -2927,13 +2937,27 @@ Class DB_DataObject extends DB_DataObject_Overload
             $this->$col = $value;
             return true;
         }
-        
+        //echo "FROM VALUE $col, {$cols[$col]}, $value\n";
         switch (true) {
+        
+            case ((strtolower($value) == 'null') && (!($cols[$col] & DB_DATAOBJECT_NOTNULL))):
+            case (is_object($value) && is_a($value,'DB_DataObject_Cast')): 
+            
+                $this->$col = $value;
+                return true;
+                
+            // fail on setting null on a not null field..
+            case ((strtolower($value) == 'null') && ($cols[$col] & DB_DATAOBJECT_NOTNULL)):
+                return false;
+        
             case (($cols[$col] & DB_DATAOBJECT_DATE) &&  ($cols[$col] & DB_DATAOBJECT_TIME)):
                 $guess = strtotime($value);
+                
                 if ($guess != -1) {
                     $this->$col = date('Y-m-d H:i:s', $guess);
+                    return true;
                 }
+              
                 // eak... - no way to validate date time otherwise...
                 $this->$col = (string) $value;
                 return true;
@@ -2962,6 +2986,7 @@ Class DB_DataObject extends DB_DataObject_Overload
            
             
             case ($cols[$col] & DB_DATAOBJECT_STR):
+                
                 $this->$col = (string) $value;
                 return true;
                 
@@ -3051,12 +3076,15 @@ Class DB_DataObject extends DB_DataObject_Overload
             return;
         }
         $class = isset($this) ? get_class($this) : __CLASS__;
+        if (!is_string($message)) {
+            $message = print_r($message,true);
+        }
         if (!ini_get('html_errors')) {
             echo "$class   : $logtype       : $message\n";
             flush();
             return;
         }
-        if (is_array($message)) {
+        if (!is_string($message)) {
             $message = print_r($message,true);
         }
         echo "<code><B>$class: $logtype:</B> $message</code><BR>\n";
