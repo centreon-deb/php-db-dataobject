@@ -14,7 +14,7 @@
 // +----------------------------------------------------------------------+
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
-// $Id: Generator.php,v 1.64 2004/06/02 15:10:39 alan_k Exp $
+// $Id: Generator.php,v 1.68 2004/08/07 01:51:51 alan_k Exp $
 
 /**
  * Generation tools for DB_DataObjectp
@@ -157,6 +157,15 @@ class DB_DataObject_Generator extends DB_DataObject
         $__DB= &$GLOBALS['_DB_DATAOBJECT']['CONNECTIONS'][$this->_database_dsn_md5];
 
         $this->tables = $__DB->getListOf('tables');
+        
+        if (is_a($this->tables , 'PEAR_Error')) {
+            return PEAR::raiseError($this->tables->toString(), null, PEAR_ERROR_DIE);
+        }
+            
+        
+        // declare a temporary table to be filled with matching tables names
+        $tmp_table = array();
+
 
         foreach($this->tables as $table) {
             if (isset($options['generator_include_regex']) &&
@@ -166,6 +175,10 @@ class DB_DataObject_Generator extends DB_DataObject
                 preg_match($options['generator_exclude_regex'],$table)) {
                     continue;
             }
+            
+            // we find a matching table, just  store it into a temporary array
+            $tmp_table[] = $table;            
+ 
             $defs =  $__DB->tableInfo($table);
             if (is_a($defs,'PEAR_Error')) {
                 echo $defs->toString();
@@ -178,6 +191,9 @@ class DB_DataObject_Generator extends DB_DataObject
                 }
             }
         }
+        // the temporary table array is now the right one (tables names matching 
+        // with regex expressions have been removed)
+        $this->tables = $tmp_table;         
         //print_r($this->_definitions);
     }
 
@@ -384,7 +400,7 @@ class DB_DataObject_Generator extends DB_DataObject
             // only use primary key or nextval(), cause the setFrom blocks you setting all key items...
             // if no keys exist fall back to using unique
             //echo "\n{$t->name} => {$t->flags}\n";
-            if (preg_match("/(auto_increment|nextval\()/i",$t->flags)) {
+            if (preg_match("/(auto_increment|nextval\()/i",rawurldecode($t->flags))) {
                 // native sequences = 2
                 $keys_out_primary .= "{$t->name} = N\n";
                 $ret_keys_primary[$t->name] = 'N';
@@ -420,8 +436,10 @@ class DB_DataObject_Generator extends DB_DataObject
         //echo "Generating Class files:        \n";
         $options = &PEAR::getStaticProperty('DB_DataObject','options');
         $base = $options['class_location'];
-        if (!file_exists($base))
-            mkdir($base,0755);
+        if (!file_exists($base)) {
+            require_once 'System.php';
+            System::mkdir(array('-p',$base));
+        }
         $class_prefix  = $options['class_prefix'];
         if ($extends = @$options['extends']) {
             $this->_extends = $extends;
@@ -483,7 +501,7 @@ class DB_DataObject_Generator extends DB_DataObject
         $head .= "require_once '{$this->_extendsFile}';\n\n";
         // add dummy class header in...
         // class
-        $head .= "class {$this->classname} extends {$this->_extends} \n{\n";
+        $head .= "class {$this->classname} extends {$this->_extends} \n{";
 
         $body =  "\n    ###START_AUTOCODE\n";
         $body .= "    /* the code below is auto generated do not remove the above tag */\n\n";

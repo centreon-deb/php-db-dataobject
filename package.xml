@@ -19,13 +19,38 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>1.6.1</version>
+    <version>1.7.0</version>
     <date>2004-06-03</date>
     <license>PHP License</license>
     <state>stable</state>
-    <notes>Minor Bug Fix
-
-* fixed count() breaks when countWhat used.</notes>
+    <notes>Major bug fix release, Minor features added.  
+  
+  
+Bug Fixes:
+  #1559 - __FUNCTION__ remove, so dependancy on php 4.2 may still be valid.
+  #1595 - regex include/exclude working correctly (Thanks to Stephane Gully)
+  #1664 - configuration line links_{databasename} now available 
+  #1726 - enable orderby and limit can be used with delete()   
+  #1697 - prevent generator from adding an extra line created after definition.
+  #1704 - update only adds null when the column is not marked 'not null'
+  #1778 - toArray() returns a merge of defined table and actual results
+  #1828 - Generator will die, if tableinfo is not supported.      
+  #1833 - links() now returns an empty array (no links) or null (no links.ini)
+      so it can be used generically with : $ar = (array) $do-&gt;links();
+  #1835 - getLinks, getLink etc. now use -&gt;links(), so you can define your
+      own links() to return table links, rather than use links.ini files.
+  #1923 - removed all @ silencers, and replace with empty/isset.
+  #1935 - selectAs() - removed double quoteIdentifiers
+  #2068 - workaround for DB bug, postgres nextval() being rawurlencoded
+  #1980 - logic error when using quoteIdentifiers
+  
+Changes:
+  * DebugLevel(1) now displays native errors from database when queries fail.
+  * Result Field names now stored seperately from Result Object
+  * free() method added, to clean up memory instantly, if you are doing alot of queries.
+      = Cleans Result Fields, Result Object, NumRows returned in Connection object.
+  * include path is used to do file hunting if factory fails to find file.
+  * DB is lazy loaded on connection.b</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2"/>
       <dep type="pkg" rel="ge" version="1.6">DB</dep>
@@ -33,18 +58,27 @@
       <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
     </deps>
     <filelist>
-      <file role="php" baseinstalldir="DB" name="DataObject.php">
+      <file role="php" baseinstalldir="DB" md5sum="445d989ddb1a41569a490ae8186d1918" name="DataObject.php">
         <replace from="@version@" to="version" type="package-info"/>
       </file>
-      <file role="php" baseinstalldir="DB" name="DataObject/Cast.php"/>
-      <file role="php" baseinstalldir="DB" name="DataObject/Generator.php"/>
-      <file role="php" baseinstalldir="DB" name="DataObject/createTables.php"/>
-      <file role="php" baseinstalldir="DB" name="DataObject/Error.php"/>
-      <file role="doc" baseinstalldir="DB" name="docs/example.ini"/>
-      <file role="script" baseinstalldir="DB" name="scripts/DB_DataObject_createTables.bat"/>
+      <file role="php" baseinstalldir="DB" md5sum="f3faa3383d83fd95f90454ef3de23d49" name="DataObject/Cast.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="aec7343a51e0434765ea601bf1637e78" name="DataObject/Generator.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="388d35c593ffa8543646ed12abb01152" name="DataObject/createTables.php"/>
+      <file role="php" baseinstalldir="DB" md5sum="af02e7575c22b9503d69c4447a4eb0ab" name="DataObject/Error.php"/>
+      <file role="doc" baseinstalldir="DB" md5sum="47d7d7f2b2d49572b9db4d56c7cb4010" name="docs/example.ini"/>
+      <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
     </filelist>
   </release>
   <changelog>
+    <release>
+      <version>1.6.1</version>
+      <date>2004-06-03</date>
+      <state>stable</state>
+      <notes>Minor Bug Fix
+
+* fixed count() breaks when countWhat used.
+</notes>
+    </release>
     <release>
       <version>1.6.0</version>
       <date>2004-04-24</date>
