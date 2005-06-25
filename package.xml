@@ -19,16 +19,56 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.7.13</version>
-  <date>2005-03-24</date>
+  <version>1.7.14</version>
+  <date>2005-06-25</date>
   <license>PHP License</license>
   <state>stable</state>
-  <notes>Minor Bugfix release
-#3943 - postgres booleans broke again due to last fix for mysqli.
+  <notes>Bugfix release (Mostly)
+Special thanks to Dan Rossi for the MDB Backend work on this release.
+
+Key changes:
+  - SQLlite support for files.
+  - MDB Backend support (experimental) use:  
+      db_driver = MDB
+      as a config option.
+      NOTE: the generator will probably not work.
+     
+  - toArray() has an extra argument (bool)hideEmpty, 
+    which prevents it returning key/value pair when the value is empty 
+  - DB_DataObject_Cast object was redesigned to enable better quoting of 
+    blobs
+  - PostgresSQL schema  for tablenames can be removed with the 
+      generator_strip_schema = 1
+  - Fetch return value and  object-&gt;N are now &quot;true&quot;, rather than 1 
+    when numRows is not supported, (also document it on find())
+ 
+ 
+Bugs Fixed. 
+  * fix bug #4672 - query(COMMIT) relays return value from DB-&gt;commit()
+  * fix bug #4535 - fix update/select etc. for postgres with boolean values.
+  * fix bug #4601 - wrong method used to test if file for sqlite
+  * fix bug #4193 - sqlite names causing invalid .ini files
+  * fix bug #4518 - escape and transactions fixed for MDB backend
+  * fix bug #4431 - add hideEmpty to toArray() - not sure if I really
+                    like this.. - adding args to methods, the root of all evil ;)
+  * fix bug #4383 - generator getListOf() call now expects pear errors
+  * fix bug #4235
+            #4203 - schema mess with postgres.
+                    generator_strip_schema=1
+                    will strip the schema part from the name of the table.
+  * fix bug #4168 - if connection test is sucessfull, dont try and
+                    connect.. (performance improvement)
+  * fix bug #4040 - prevent toArray from calling getLink and getLinks
+  * fix bug #4019 - createTables uses sets up options for DB
+                    compatibility mode 
+  * fix bug #4000 - better checking for php 4.3.10
+  * fix bug #3944 - support for informix autoincrements
+  * fix bug #4182 - better string and blob support on mysql in cast
+  * fix bug #4135 - boolean values borked in condition building..
   </notes>
   <deps>
-   <dep type="php" rel="ge" version="4.2"/>
-   <dep type="pkg" rel="ge" version="1.6">DB</dep>
+   <dep type="php" rel="ge" version="4.3"/>
+   <dep type="pkg" rel="ge" version="1.7.0">DB</dep>
    <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
    <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
   </deps>
@@ -48,18 +88,26 @@
   <provides type="function" name="DB_DataObject_Generator::start" />
   <provides type="class" name="DB_DataObject_Error" extends="PEAR_Error" />
   <filelist>
-   <file role="php" baseinstalldir="DB" md5sum="0a594d0c37fcd72bf1d1800e64025a6c" name="DataObject.php">
+   <file role="php" baseinstalldir="DB" md5sum="2dbd90eeecf120a739473106da8f3aaa" name="DataObject.php">
     <replace from="@version@" to="version" type="package-info"/>
    </file>
-   <file role="php" baseinstalldir="DB" md5sum="4ab48302d2bab98e63aa4110954b4baa" name="DataObject/Cast.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="d06c86608717b8f6e85547497b7db6ff" name="DataObject/Generator.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="299f3c798d6d7a50debf5c0b686c3fc8" name="DataObject/createTables.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="1222a25af6548278ff47028ba4e67171" name="DataObject/Cast.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="85916696388f96765795c58b414c5aae" name="DataObject/Generator.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="38e1ad7a7d0df05dadc1d56a613b83b2" name="DataObject/createTables.php"/>
    <file role="php" baseinstalldir="DB" md5sum="c2cf7df5af0f1954ccb8b759204fd0e1" name="DataObject/Error.php"/>
-   <file role="doc" baseinstalldir="DB" md5sum="1ff1e928275591a35213a4d941359ade" name="docs/example.ini"/>
+   <file role="doc" baseinstalldir="DB" md5sum="be0a72118ae66741e27cbadafbc57008" name="docs/example.ini"/>
    <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.7.13</version>
+    <date>2004-03-24</date>
+    <state>stable</state>
+    <notes>Minor Bugfix release
+#3943 - postgres booleans broke again due to last fix for mysqli.
+    </notes>
+   </release>
    <release>
     <version>1.7.12</version>
     <date>2004-03-23</date>
