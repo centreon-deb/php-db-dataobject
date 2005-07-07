@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.0a4">
+<package version="1.0" packagerversion="1.4.0a12">
  <name>DB_DataObject</name>
  <summary>An SQL Builder, Object Interface to Database Tables</summary>
  <description>DataObject performs 2 tasks:
@@ -19,11 +19,52 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.7.14</version>
-  <date>2005-06-25</date>
+  <version>1.7.15</version>
+  <date>2005-07-07</date>
   <license>PHP License</license>
   <state>stable</state>
-  <notes>Bugfix release (Mostly)
+  <notes>Minor Bugfix release 
+* fix bug #4760 - DB_DataObject_Cast blobs broke in last release
+  </notes>
+  <deps>
+   <dep type="php" rel="ge" version="4.3"/>
+   <dep type="pkg" rel="ge" version="1.7.0">DB</dep>
+   <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
+   <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
+  </deps>
+  <provides type="class" name="DB_DataObject_Overload" />
+  <provides type="class" name="DB_DataObject" extends="DB_DataObject_Overload" />
+  <provides type="function" name="DB_DataObject::get" />
+  <provides type="class" name="DB_DataObject_Cast" />
+  <provides type="function" name="DB_DataObject_Cast::blob" />
+  <provides type="function" name="DB_DataObject_Cast::string" />
+  <provides type="function" name="DB_DataObject_Cast::sql" />
+  <provides type="function" name="DB_DataObject_Cast::date" />
+  <provides type="function" name="DB_DataObject_Cast::dateTime" />
+  <provides type="function" name="DB_DataObject_Cast::time" />
+  <provides type="function" name="DB_DataObject_Cast::toString" />
+  <provides type="function" name="DB_DataObject_Cast::toStringFromBlob" />
+  <provides type="class" name="DB_DataObject_Generator" extends="DB_DataObject" />
+  <provides type="function" name="DB_DataObject_Generator::start" />
+  <provides type="class" name="DB_DataObject_Error" extends="PEAR_Error" />
+  <filelist>
+   <file role="php" baseinstalldir="DB" md5sum="c032e126afea440edc3d46af1a78abb5" name="DataObject.php">
+    <replace from="@version@" to="version" type="package-info"/>
+   </file>
+   <file role="php" baseinstalldir="DB" md5sum="e0b76d26843a4c29854b12e191ecffea" name="DataObject/Cast.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="85916696388f96765795c58b414c5aae" name="DataObject/Generator.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="38e1ad7a7d0df05dadc1d56a613b83b2" name="DataObject/createTables.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="c2cf7df5af0f1954ccb8b759204fd0e1" name="DataObject/Error.php"/>
+   <file role="doc" baseinstalldir="DB" md5sum="be0a72118ae66741e27cbadafbc57008" name="docs/example.ini"/>
+   <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
+  </filelist>
+ </release>
+ <changelog>
+   <release>
+    <version>1.7.14</version>
+    <date>2004-06-25</date>
+    <state>stable</state>
+    <notes>Bugfix release (Mostly)
 Special thanks to Dan Rossi for the MDB Backend work on this release.
 
 Key changes:
@@ -65,41 +106,8 @@ Bugs Fixed.
   * fix bug #3944 - support for informix autoincrements
   * fix bug #4182 - better string and blob support on mysql in cast
   * fix bug #4135 - boolean values borked in condition building..
-  </notes>
-  <deps>
-   <dep type="php" rel="ge" version="4.3"/>
-   <dep type="pkg" rel="ge" version="1.7.0">DB</dep>
-   <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
-   <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
-  </deps>
-  <provides type="class" name="DB_DataObject_Overload" />
-  <provides type="class" name="DB_DataObject" extends="DB_DataObject_Overload" />
-  <provides type="function" name="DB_DataObject::get" />
-  <provides type="class" name="DB_DataObject_Cast" />
-  <provides type="function" name="DB_DataObject_Cast::blob" />
-  <provides type="function" name="DB_DataObject_Cast::string" />
-  <provides type="function" name="DB_DataObject_Cast::sql" />
-  <provides type="function" name="DB_DataObject_Cast::date" />
-  <provides type="function" name="DB_DataObject_Cast::dateTime" />
-  <provides type="function" name="DB_DataObject_Cast::time" />
-  <provides type="function" name="DB_DataObject_Cast::toString" />
-  <provides type="function" name="DB_DataObject_Cast::toStringFromBlob" />
-  <provides type="class" name="DB_DataObject_Generator" extends="DB_DataObject" />
-  <provides type="function" name="DB_DataObject_Generator::start" />
-  <provides type="class" name="DB_DataObject_Error" extends="PEAR_Error" />
-  <filelist>
-   <file role="php" baseinstalldir="DB" md5sum="2dbd90eeecf120a739473106da8f3aaa" name="DataObject.php">
-    <replace from="@version@" to="version" type="package-info"/>
-   </file>
-   <file role="php" baseinstalldir="DB" md5sum="1222a25af6548278ff47028ba4e67171" name="DataObject/Cast.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="85916696388f96765795c58b414c5aae" name="DataObject/Generator.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="38e1ad7a7d0df05dadc1d56a613b83b2" name="DataObject/createTables.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="c2cf7df5af0f1954ccb8b759204fd0e1" name="DataObject/Error.php"/>
-   <file role="doc" baseinstalldir="DB" md5sum="be0a72118ae66741e27cbadafbc57008" name="docs/example.ini"/>
-   <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
-  </filelist>
- </release>
- <changelog>
+    </notes>
+   </release>
    <release>
     <version>1.7.13</version>
     <date>2004-03-24</date>
