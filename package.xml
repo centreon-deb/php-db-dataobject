@@ -19,16 +19,70 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.7.15</version>
-  <date>2005-07-07</date>
+  <version>1.8.0</version>
+  <date>2005-12-28</date>
   <license>PHP License</license>
   <state>stable</state>
-  <notes>Minor Bugfix release 
-* fix bug #4760 - DB_DataObject_Cast blobs broke in last release
+  <notes>Major Bug Fix &amp; Feature release.
+
+Bugs:
+
+#4871 - remove warning when value is not found in table
+#4834 - case sensitive checks for db_dataobject_cast fail
+#4894 - Validate methods can return PEAR Errors, or even
+        messages now.. - only true indicates success
+#4938 - support MONEY type for MSSQL
+#4968 - count() will not be affected by changing default
+        db fetchmode
+#5036 - make sure DB is loaded before using it
+#5264 - add optional dep on MDB
+#5416 - use tablea AS tableb only for postgress/mysql -
+        oracle doesnt need the AS bit - and I guess a few others too..
+        available and first fetch fails
+        conditions
+#5614 - joinAdd check to see if object being joined is
+        really a dataobject
+#5065 - count returns number cast to an integer (even
+        though database may return a string)
+#5800 - generator will continue creating other tables if we find one
+        that fails...
+#5881 - wrap conditions with extra brackets
+        remaining checks in validate
+#5393 - flag up unique only keys as &quot;U&quot;, rather than &quot;K&quot;
+        (or &quot;N&quot; for native) to allow anything calling keys() to find more
+        detailed information - should have no effect on the dataobject
+        class, as only sequence keys looks for &quot;K&quot;
+
+Feature Requests:
+
+#5146 - option: generator_var_keyword,
+        to specify if you want to use var or public
+
+Other Changes
+
+    default behaviour.. so it shouldnt really have affected anyone..
+    amazed no one picked this up before..
+* make WHERE stripping better  = well spotted Justin
+* catch errors returned from nextID - like permission denied etc.,
+    add warnings in debug mode if we are using objects  or arrays for
+    some reason, fix error messages
+* correct the dependancy on packages
+* the dont die here causes a recursive error and segfaults
+    everything if it doesnt return..
+* use is_a, rather than PEAR, as one day we may remove that dep...
+* fix PHP4.4* issues with returning by reference..
+* make debugging schema loading errors a bit easier
+* test for bug #5931 added to test 91
+* update($dataobject), change check for changes to strict checking,
+    so that 0001 -&gt; 00001 works, along with many other situations..,
+    remove extra ; from code
+* fix null detection on postgres, - patch by Alistair MacDonald
+* free result columns as well as results after fetching all rows.
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3"/>
    <dep type="pkg" rel="ge" version="1.7.0">DB</dep>
+   <dep type="pkg" rel="ge" version="2.0.0RC1" optional="yes">MDB2</dep>
    <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
    <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
   </deps>
@@ -48,18 +102,26 @@
   <provides type="function" name="DB_DataObject_Generator::start" />
   <provides type="class" name="DB_DataObject_Error" extends="PEAR_Error" />
   <filelist>
-   <file role="php" baseinstalldir="DB" md5sum="c032e126afea440edc3d46af1a78abb5" name="DataObject.php">
+   <file role="php" baseinstalldir="DB" md5sum="0d3f2d7506cd5f0f8795dab551f9b20c" name="DataObject.php">
     <replace from="@version@" to="version" type="package-info"/>
    </file>
    <file role="php" baseinstalldir="DB" md5sum="e0b76d26843a4c29854b12e191ecffea" name="DataObject/Cast.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="85916696388f96765795c58b414c5aae" name="DataObject/Generator.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="dfd76437c908438ee21901a52e92c0ee" name="DataObject/Generator.php"/>
    <file role="php" baseinstalldir="DB" md5sum="38e1ad7a7d0df05dadc1d56a613b83b2" name="DataObject/createTables.php"/>
    <file role="php" baseinstalldir="DB" md5sum="c2cf7df5af0f1954ccb8b759204fd0e1" name="DataObject/Error.php"/>
-   <file role="doc" baseinstalldir="DB" md5sum="be0a72118ae66741e27cbadafbc57008" name="docs/example.ini"/>
+   <file role="doc" baseinstalldir="DB" md5sum="87d5c9c927c556c166fca8da7ae4e257" name="docs/example.ini"/>
    <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.7.15</version>
+    <date>2004-07-07</date>
+    <state>stable</state>
+    <notes>Minor Bugfix release 
+* fix bug #4760 - DB_DataObject_Cast blobs broke in last release
+    </notes>
+   </release>
    <release>
     <version>1.7.14</version>
     <date>2004-06-25</date>
