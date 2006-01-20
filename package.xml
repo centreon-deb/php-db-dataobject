@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.0a12">
+<package version="1.0" packagerversion="1.4.2">
  <name>DB_DataObject</name>
  <summary>An SQL Builder, Object Interface to Database Tables</summary>
  <description>DataObject performs 2 tasks:
@@ -19,11 +19,61 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.8.0</version>
-  <date>2005-12-28</date>
+  <version>1.8.1</version>
+  <date>2006-01-20</date>
   <license>PHP License</license>
   <state>stable</state>
-  <notes>Major Bug Fix &amp; Feature release.
+  <notes>Bugs
+----
+#6153 - dont call autoload on PHP5 - kludgy wrapper around class_exists()
+#6458 - clear staticGet cache when calling free()        
+#6442 - validation not working correctly on DB_DataObject_Cast Objects
+Changes/New Features
+--------------------
+* fix warning if setFrom called with object.. 
+* make createTables honour debug level in ini file.
+* Added support in generator, for MDB2 backend to generate the class files (bate)
+  </notes>
+  <deps>
+   <dep type="php" rel="ge" version="4.3"/>
+   <dep type="pkg" rel="ge" version="1.7.0">DB</dep>
+   <dep type="pkg" rel="ge" version="2.0.0RC1" optional="yes">MDB2</dep>
+   <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
+   <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
+  </deps>
+  <provides type="class" name="DB_DataObject_Overload" />
+  <provides type="class" name="DB_DataObject" extends="DB_DataObject_Overload" />
+  <provides type="function" name="DB_DataObject::get" />
+  <provides type="class" name="DB_DataObject_Cast" />
+  <provides type="function" name="DB_DataObject_Cast::blob" />
+  <provides type="function" name="DB_DataObject_Cast::string" />
+  <provides type="function" name="DB_DataObject_Cast::sql" />
+  <provides type="function" name="DB_DataObject_Cast::date" />
+  <provides type="function" name="DB_DataObject_Cast::dateTime" />
+  <provides type="function" name="DB_DataObject_Cast::time" />
+  <provides type="function" name="DB_DataObject_Cast::toString" />
+  <provides type="function" name="DB_DataObject_Cast::toStringFromBlob" />
+  <provides type="class" name="DB_DataObject_Generator" extends="DB_DataObject" />
+  <provides type="function" name="DB_DataObject_Generator::start" />
+  <provides type="class" name="DB_DataObject_Error" extends="PEAR_Error" />
+  <filelist>
+   <file role="php" baseinstalldir="DB" md5sum="fa373f206c025f0234d7ff17250ab0c3" name="DataObject.php">
+    <replace from="@version@" to="version" type="package-info"/>
+   </file>
+   <file role="php" baseinstalldir="DB" md5sum="e0b76d26843a4c29854b12e191ecffea" name="DataObject/Cast.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="91515fd8396ec85d272d21ca539ef285" name="DataObject/Generator.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="79b528f9746f4946d115f39a6f19edca" name="DataObject/createTables.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="c2cf7df5af0f1954ccb8b759204fd0e1" name="DataObject/Error.php"/>
+   <file role="doc" baseinstalldir="DB" md5sum="87d5c9c927c556c166fca8da7ae4e257" name="docs/example.ini"/>
+   <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
+  </filelist>
+ </release>
+ <changelog>
+   <release>
+    <version>1.8.0</version>
+    <date>2004-12-28</date>
+    <state>stable</state>
+    <notes>Major Bug Fix &amp; Feature release.
 
 Bugs:
 
@@ -78,42 +128,8 @@ Other Changes
     remove extra ; from code
 * fix null detection on postgres, - patch by Alistair MacDonald
 * free result columns as well as results after fetching all rows.
-  </notes>
-  <deps>
-   <dep type="php" rel="ge" version="4.3"/>
-   <dep type="pkg" rel="ge" version="1.7.0">DB</dep>
-   <dep type="pkg" rel="ge" version="2.0.0RC1" optional="yes">MDB2</dep>
-   <dep type="pkg" rel="ge" version="0.1.1" optional="yes">Validate</dep>
-   <dep type="pkg" rel="ge" version="1.4.3">Date</dep>
-  </deps>
-  <provides type="class" name="DB_DataObject_Overload" />
-  <provides type="class" name="DB_DataObject" extends="DB_DataObject_Overload" />
-  <provides type="function" name="DB_DataObject::get" />
-  <provides type="class" name="DB_DataObject_Cast" />
-  <provides type="function" name="DB_DataObject_Cast::blob" />
-  <provides type="function" name="DB_DataObject_Cast::string" />
-  <provides type="function" name="DB_DataObject_Cast::sql" />
-  <provides type="function" name="DB_DataObject_Cast::date" />
-  <provides type="function" name="DB_DataObject_Cast::dateTime" />
-  <provides type="function" name="DB_DataObject_Cast::time" />
-  <provides type="function" name="DB_DataObject_Cast::toString" />
-  <provides type="function" name="DB_DataObject_Cast::toStringFromBlob" />
-  <provides type="class" name="DB_DataObject_Generator" extends="DB_DataObject" />
-  <provides type="function" name="DB_DataObject_Generator::start" />
-  <provides type="class" name="DB_DataObject_Error" extends="PEAR_Error" />
-  <filelist>
-   <file role="php" baseinstalldir="DB" md5sum="0d3f2d7506cd5f0f8795dab551f9b20c" name="DataObject.php">
-    <replace from="@version@" to="version" type="package-info"/>
-   </file>
-   <file role="php" baseinstalldir="DB" md5sum="e0b76d26843a4c29854b12e191ecffea" name="DataObject/Cast.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="dfd76437c908438ee21901a52e92c0ee" name="DataObject/Generator.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="38e1ad7a7d0df05dadc1d56a613b83b2" name="DataObject/createTables.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="c2cf7df5af0f1954ccb8b759204fd0e1" name="DataObject/Error.php"/>
-   <file role="doc" baseinstalldir="DB" md5sum="87d5c9c927c556c166fca8da7ae4e257" name="docs/example.ini"/>
-   <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
-  </filelist>
- </release>
- <changelog>
+    </notes>
+   </release>
    <release>
     <version>1.7.15</version>
     <date>2004-07-07</date>
@@ -222,7 +238,7 @@ Bugs Fixed.
 
 #3768 - Hopefully last fix to joinAdd() / database prefixing and  quoteIdentifiers
 #3761 - Fixed DB_DataObject::datetime() bad code.
-#3783 - count('distinct') builds the query distinct [primary_key], should help in some situations
+#3783 - count(&apos;distinct&apos;) builds the query distinct [primary_key], should help in some situations
         using joinAdd + group By etc.
     </notes>
    </release>
@@ -332,7 +348,7 @@ Bug Fixes:
   #1664 - configuration line links_{databasename} now available 
   #1726 - enable orderby and limit can be used with delete()   
   #1697 - prevent generator from adding an extra line created after definition.
-  #1704 - update only adds null when the column is not marked 'not null'
+  #1704 - update only adds null when the column is not marked &apos;not null&apos;
   #1778 - toArray() returns a merge of defined table and actual results
   #1828 - Generator will die, if tableinfo is not supported.      
   #1833 - links() now returns an empty array (no links) or null (no links.ini)
@@ -382,7 +398,7 @@ Changes:
 * Updating without changing things, no longer raises a pear error,
   it just returns 0 (eg. no rows affected)
 * now Depends on 1.4 DB - escapeSimple is now used
-* extra option to disable assumtions to use pear db's nextID
+* extra option to disable assumtions to use pear db&apos;s nextID
   dont_use_pear_sequences = true
 * DebugLevel($val) if $val is not an integer - it is assumed to be a callback.
 * fixed clearing of data results after last fetch (reduces memory consumption 
@@ -401,7 +417,7 @@ Changes:
 * use PEAR::getStaticProperty(&quot;DB&quot;,&quot;options&quot;) for oracle portablity settings.
 * null checked against not null spec.
 
-And probably a few more - as it's been quite a while since the last release..
+And probably a few more - as it&apos;s been quite a while since the last release..
     </notes>
    </release>
    <release>
@@ -417,7 +433,7 @@ Changes:
      for formats, depending on column type.
   
 Fixes
-* fix bug #630 - correct handling of YEAR (it's an int)
+* fix bug #630 - correct handling of YEAR (it&apos;s an int)
 * fix bug #630 - mysql timestamps are ingored for updated and insert (use query() if you want to change
   them manually.
 * fix bug #620 - limit accepts floats and doubles, as long as they are really integers..
@@ -434,13 +450,13 @@ Changes:
    ** this is closer to the previous behaviour (it caused too many problems with strange dates
    ** if you set a date/time column with a number, it assumes it is a unixtimestamp
    -- enables you to write setters like 
-    function setSome_Date($value) { $this-&gt;fromValue('some_date',strtotime($value)); }
+    function setSome_Date($value) { $this-&gt;fromValue(&apos;some_date&apos;,strtotime($value)); }
   
 Fixes
 * $DB_DataObject-&gt;getDatabaseConnection() will return a pear error if dont_die is set,
 so it can be used to test connections.
 * note changed on databaseStructure, it can be called statically and dynamically.
-* fix bug #612 databaseStructure('databasename') will output the ini file structure array , with __keys
+* fix bug #612 databaseStructure(&apos;databasename&apos;) will output the ini file structure array , with __keys
 * fix bug #611 corrected comment about NO_OVERLOAD
 * fix bug #603 to prevent clearing of queries after fetch, use the option keep_query_after_fetch = 1
 * fix bug #359 (again) - _link_loaded array should only contain links that where sucessfully loaded
@@ -472,7 +488,7 @@ Fixes
     represent the tables.
 * toValue and fromValue added as getter and setter providers
   - they include date formating tools - eg.
-  $do-&gt;getBirthDay('%d/%m/%Y') will work with overload and PEAR::Date 
+  $do-&gt;getBirthDay(&apos;%d/%m/%Y&apos;) will work with overload and PEAR::Date 
   to provide formated dates. (works with date/time and datetime)
   - set*() will also call strtotime and PEAR::Date to try and read dates.\
   setFrom will relay into fromValue() - hence auto fixing date entries
@@ -482,7 +498,7 @@ Fixes
 * allow multiple updates on the same object - without adding lots
   of id=.... on the end..
 * transactions support works transparently by sending
-  $do-&gt;query('BEGIN'), $do-&gt;query('COMMIT'),$do-&gt;query('ROLLBACK')
+  $do-&gt;query(&apos;BEGIN&apos;), $do-&gt;query(&apos;COMMIT&apos;),$do-&gt;query(&apos;ROLLBACK&apos;)
   will automatically relay into the DB methods.
 * re-add support for sequence_{tablename} - prefered method is still
   overriding sequenceKey, and returning correct values.
@@ -513,19 +529,19 @@ Bug Fixes
 
 - MsSQL native get_last_insert ID using SELECT @@IDENTITY
   ** you may want to consider using this with transactions eg.
-  $dataobject-&gt;query('BEGIN') and $dataobject-&gt;query('COMMIT')
+  $dataobject-&gt;query(&apos;BEGIN&apos;) and $dataobject-&gt;query(&apos;COMMIT&apos;)
   to ensure thread safety. (Markus Wolff)
   
 - DB_DataObject_Cast - a experimental generic casting feature for assigning variables
   * Common usages:
     // blobs
-    $dataObject-&gt;someblobfield = DB_DataObject_Cast::blob(file_get_contents('xxx.jpg'));
-    $dataObject-&gt;someblobfield = DB_DataObject_Cast::string('xxxxx');
+    $dataObject-&gt;someblobfield = DB_DataObject_Cast::blob(file_get_contents(&apos;xxx.jpg&apos;));
+    $dataObject-&gt;someblobfield = DB_DataObject_Cast::string(&apos;xxxxx&apos;);
     
   
      // dates?
-    $dataObject-&gt;at_date = DB_DataObject_Cast::date('12/12/2000'); //Human
-    $dataObject-&gt;at_date = DB_DataObject_Cast::date('2000-12-12'); //ISO
+    $dataObject-&gt;at_date = DB_DataObject_Cast::date(&apos;12/12/2000&apos;); //Human
+    $dataObject-&gt;at_date = DB_DataObject_Cast::date(&apos;2000-12-12&apos;); //ISO
     $dataObject-&gt;at_date = DB_DataObject_Cast::date(2000,12,12); //YYYY,dd,mm
     $d2 = DB_DataObject_Cast::date(); // today!
     // some addition
@@ -533,8 +549,8 @@ Bug Fixes
      
   
     // raw sql????
-    $dataObject-&gt;maxids = DB_DataObject_Cast::sql('max(id) &gt; 12');
-    $dataObject-&gt;emptyfield = DB_DataObject_Cast::sql('NULL');
+    $dataObject-&gt;maxids = DB_DataObject_Cast::sql(&apos;max(id) &gt; 12&apos;);
+    $dataObject-&gt;emptyfield = DB_DataObject_Cast::sql(&apos;NULL&apos;);
     
     You can extend this object to provide your own datatypes..
      
@@ -621,13 +637,13 @@ New Features
 - fix bug #23983 - argument checking on whereAdd, orderBy, limit and a few others
   (Mike Carter)
 - fix bug with cache clearing not working with staticGet and update/insert
-- null comparison for $object-&gt;var = 'null' will generate IS NULL query
-- null insert/update  works when using 'null' as a value.
+- null comparison for $object-&gt;var = &apos;null&apos; will generate IS NULL query
+- null insert/update  works when using &apos;null&apos; as a value.
 - getLinks returns true on success
-- getLinks now has a formatter eg. '_%s' is default to allow user to define the
+- getLinks now has a formatter eg. &apos;_%s&apos; is default to allow user to define the
   format of variables to assign child objects to.
 - generator uses UNIQUE only if no primary/autoincrement type field is found.
-- added support for $object-&gt;having('sum(value) &gt; 10');
+- added support for $object-&gt;having(&apos;sum(value) &gt; 10&apos;);
 - fetch will remove some query lines (so if you want to see how the query was built
   you will have to print_r() the object after find(), and before fetch(), or just use
   debugLevel(1)
@@ -650,24 +666,24 @@ New Features
   getXXX = returns $object-&gt;XXX
   setXXX($V) = returns true (or an error string if you create your own)
   (only affects php-4.3.2RC2 or later..)
-- selectAs($dataobject,'prefix_%s') to help control the way join queries return
+- selectAs($dataobject,&apos;prefix_%s&apos;) to help control the way join queries return
   their data * doing selectAs() - clears the select and sets it to table.id as id ... etc.
 - joinAdd has 2 extra optional arguments
   $dataObject-&gt;joinAdd($otherDataObject, $joinType, $joinAs)
   existing behaviour (INNER Joins) is default (eg. no value)
   $joinType can be:
     INNER,LEFT,RIGHT = eg. INNER JOIN ... etc.
-    '' = just added with a , and the link conditions are added with a WHERE statement.
+    &apos;&apos; = just added with a , and the link conditions are added with a WHERE statement.
   $joinAs can be used to name the table differently in the join eg.
     SELECT .. FROM person INNER JOIN address as homeaddress ......
 - setFrom has an extra optional parameter for formating: eg.
-  $object-&gt;setFrom($_POST,'prefix_%s') would map prefix_name to $object-&gt;name
-  the default is '%s' which is the same as the previous behaviour
+  $object-&gt;setFrom($_POST,&apos;prefix_%s&apos;) would map prefix_name to $object-&gt;name
+  the default is &apos;%s&apos; which is the same as the previous behaviour
 - added option dont_die (default no) to ini file
   default (no) means that DataObjects will emit a PEAR_ERROR_DIE on configuration and
   programming errors
   true or 1 means that you can write a PEAR::error handler to catch the errors and
-  display a nice it's not working message
+  display a nice it&apos;s not working message
     </notes>
    </release>
    <release>
@@ -678,7 +694,7 @@ New Features
   (Daniel Von Fange)
 - change update and delete to return the number of rows affected or false on failure
 - various code tidy ups - standards etc. (Arnaud Limbourg)
-- fix generator for postgres and mdb - use unique keys and look for 'nextval' as keys.
+- fix generator for postgres and mdb - use unique keys and look for &apos;nextval&apos; as keys.
 - fix no key insert bug (G Moxley Kempster)
 - fix empty table bug in generator (Robert Janeczek)
 - staticAutoloadTable(), now handles parse errors in included files alot cleaner
@@ -708,7 +724,7 @@ New Features
 - add join condition to count() (Daniel Von Fange)
 - modify limit() to work with postgresql and make it emit a fatal error if you
   try this on databases that do not directly support limit queries. (Geoff Hopson)
-  * I'm open on better ideas for this - probably wrapping the find() select call
+  * I&apos;m open on better ideas for this - probably wrapping the find() select call
     </notes>
    </release>
    <release>
@@ -762,7 +778,7 @@ New Features
 - bug fix - Checks that primary keys are integers (Anthony Juou)
 - typo on No data returned warning
 - unit tests in CVS
-- new configuration option for whether to use insert id's and sequences.
+- new configuration option for whether to use insert id&apos;s and sequences.
 - Generator no creates boolean bit (mitchell perilstein)
     </notes>
    </release>
