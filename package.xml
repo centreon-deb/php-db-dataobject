@@ -19,20 +19,15 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.8.1</version>
-  <date>2006-01-20</date>
+  <version>1.8.2</version>
+  <date>2006-01-21</date>
   <license>PHP License</license>
   <state>stable</state>
-  <notes>Bugs
+  <notes>Minor Bugfix release
+
+Bugs
 ----
-#6153 - dont call autoload on PHP5 - kludgy wrapper around class_exists()
-#6458 - clear staticGet cache when calling free()        
-#6442 - validation not working correctly on DB_DataObject_Cast Objects
-Changes/New Features
---------------------
-* fix warning if setFrom called with object.. 
-* make createTables honour debug level in ini file.
-* Added support in generator, for MDB2 backend to generate the class files (bate)
+#6543 - Generator broke due to MDB changes.
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3"/>
@@ -61,7 +56,7 @@ Changes/New Features
     <replace from="@version@" to="version" type="package-info"/>
    </file>
    <file role="php" baseinstalldir="DB" md5sum="e0b76d26843a4c29854b12e191ecffea" name="DataObject/Cast.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="91515fd8396ec85d272d21ca539ef285" name="DataObject/Generator.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="e64f60aa55506cf3533601f047cbf919" name="DataObject/Generator.php"/>
    <file role="php" baseinstalldir="DB" md5sum="79b528f9746f4946d115f39a6f19edca" name="DataObject/createTables.php"/>
    <file role="php" baseinstalldir="DB" md5sum="c2cf7df5af0f1954ccb8b759204fd0e1" name="DataObject/Error.php"/>
    <file role="doc" baseinstalldir="DB" md5sum="87d5c9c927c556c166fca8da7ae4e257" name="docs/example.ini"/>
@@ -69,6 +64,22 @@ Changes/New Features
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.8.1</version>
+    <date>2004-01-20</date>
+    <state>stable</state>
+    <notes>Bugs
+----
+#6153 - dont call autoload on PHP5 - kludgy wrapper around class_exists()
+#6458 - clear staticGet cache when calling free()        
+#6442 - validation not working correctly on DB_DataObject_Cast Objects
+Changes/New Features
+--------------------
+* fix warning if setFrom called with object.. 
+* make createTables honour debug level in ini file.
+* Added support in generator, for MDB2 backend to generate the class files (bate)
+    </notes>
+   </release>
    <release>
     <version>1.8.0</version>
     <date>2004-12-28</date>
