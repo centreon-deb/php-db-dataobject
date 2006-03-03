@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.2">
+<package version="1.0" packagerversion="1.4.6">
  <name>DB_DataObject</name>
  <summary>An SQL Builder, Object Interface to Database Tables</summary>
  <description>DataObject performs 2 tasks:
@@ -19,15 +19,34 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.8.2</version>
-  <date>2006-01-21</date>
+  <version>1.8.3</version>
+  <date>2006-03-03</date>
   <license>PHP License</license>
   <state>stable</state>
-  <notes>Minor Bugfix release
+  <notes>Minor Bugfix and Minor Feature addition release
 
 Bugs
 ----
-#6543 - Generator broke due to MDB changes.
+      - Remove Warning if class_prefix is not set, and allow it not to be set.
+      - joinAdd() support for DB_DataObject::cast() objects (Daniel Braga)
+      - MDB2 fixes for undefined constants (bate)
+      - 
+#6772 - Support for FLOAT4 type in postgres
+#6953 - Changed memory allocation of stored column values for SQL return when
+        Fetching last item of an object. Fixing problem of missing columns on
+        Last fetch from Join being broken when used with toArray().
+#6928 - Defaulting to prefixing database name in joins for Mysql and Mysqli
+        backends, so multiple joins across multiple databases work.
+      
+    
+Features
+--------
+      - Add support for option &apos;generator_no_ini =&gt; true&apos;, which generates class 
+        files with schema defined inside the table(), keys() and sequenceKeys()
+        (based on work and suggestions by Didler Galland and Justin Patrin)
+      - SQL output for debugging now has line breaks to make it easier to read.
+      
+      - SelectAs uses quote itendifiers for target format.
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3"/>
@@ -39,6 +58,47 @@ Bugs
   <provides type="class" name="DB_DataObject_Overload" />
   <provides type="class" name="DB_DataObject" extends="DB_DataObject_Overload" />
   <provides type="function" name="DB_DataObject::get" />
+  <provides type="function" name="DB_DataObject::staticGet" />
+  <provides type="function" name="DB_DataObject::find" />
+  <provides type="function" name="DB_DataObject::fetch" />
+  <provides type="function" name="DB_DataObject::whereAdd" />
+  <provides type="function" name="DB_DataObject::orderBy" />
+  <provides type="function" name="DB_DataObject::groupBy" />
+  <provides type="function" name="DB_DataObject::having" />
+  <provides type="function" name="DB_DataObject::limit" />
+  <provides type="function" name="DB_DataObject::selectAdd" />
+  <provides type="function" name="DB_DataObject::selectAs" />
+  <provides type="function" name="DB_DataObject::insert" />
+  <provides type="function" name="DB_DataObject::update" />
+  <provides type="function" name="DB_DataObject::delete" />
+  <provides type="function" name="DB_DataObject::fetchRow" />
+  <provides type="function" name="DB_DataObject::count" />
+  <provides type="function" name="DB_DataObject::query" />
+  <provides type="function" name="DB_DataObject::escape" />
+  <provides type="function" name="DB_DataObject::databaseStructure" />
+  <provides type="function" name="DB_DataObject::tableName" />
+  <provides type="function" name="DB_DataObject::database" />
+  <provides type="function" name="DB_DataObject::table" />
+  <provides type="function" name="DB_DataObject::keys" />
+  <provides type="function" name="DB_DataObject::sequenceKey" />
+  <provides type="function" name="DB_DataObject::staticAutoloadTable" />
+  <provides type="function" name="DB_DataObject::factory" />
+  <provides type="function" name="DB_DataObject::links" />
+  <provides type="function" name="DB_DataObject::getLinks" />
+  <provides type="function" name="DB_DataObject::getLink" />
+  <provides type="function" name="DB_DataObject::getLinkArray" />
+  <provides type="function" name="DB_DataObject::joinAdd" />
+  <provides type="function" name="DB_DataObject::setFrom" />
+  <provides type="function" name="DB_DataObject::toArray" />
+  <provides type="function" name="DB_DataObject::validate" />
+  <provides type="function" name="DB_DataObject::getDatabaseConnection" />
+  <provides type="function" name="DB_DataObject::getDatabaseResult" />
+  <provides type="function" name="DB_DataObject::fromValue" />
+  <provides type="function" name="DB_DataObject::toValue" />
+  <provides type="function" name="DB_DataObject::debug" />
+  <provides type="function" name="DB_DataObject::debugLevel" />
+  <provides type="function" name="DB_DataObject::raiseError" />
+  <provides type="function" name="DB_DataObject::free" />
   <provides type="class" name="DB_DataObject_Cast" />
   <provides type="function" name="DB_DataObject_Cast::blob" />
   <provides type="function" name="DB_DataObject_Cast::string" />
@@ -48,25 +108,47 @@ Bugs
   <provides type="function" name="DB_DataObject_Cast::time" />
   <provides type="function" name="DB_DataObject_Cast::toString" />
   <provides type="function" name="DB_DataObject_Cast::toStringFromBlob" />
+  <provides type="function" name="DB_DataObject_Cast::toStringFromString" />
+  <provides type="function" name="DB_DataObject_Cast::toStringFromDate" />
+  <provides type="function" name="DB_DataObject_Cast::toStringFromDateTime" />
+  <provides type="function" name="DB_DataObject_Cast::toStringFromTime" />
+  <provides type="function" name="DB_DataObject_Cast::toStringFromSql" />
   <provides type="class" name="DB_DataObject_Generator" extends="DB_DataObject" />
   <provides type="function" name="DB_DataObject_Generator::start" />
+  <provides type="function" name="DB_DataObject_Generator::generateDefinitions" />
+  <provides type="function" name="DB_DataObject_Generator::generateClasses" />
+  <provides type="function" name="DB_DataObject_Generator::derivedHookFunctions" />
+  <provides type="function" name="DB_DataObject_Generator::derivedHookVar" />
+  <provides type="function" name="DB_DataObject_Generator::getProxyFull" />
+  <provides type="function" name="DB_DataObject_Generator::fillTableSchema" />
   <provides type="class" name="DB_DataObject_Error" extends="PEAR_Error" />
   <filelist>
-   <file role="php" baseinstalldir="DB" md5sum="fa373f206c025f0234d7ff17250ab0c3" name="DataObject.php">
+   <file role="php" baseinstalldir="DB" md5sum="52cd76260cd14cdef3cfde2082ef5530" name="DataObject.php">
     <replace from="@version@" to="version" type="package-info"/>
    </file>
-   <file role="php" baseinstalldir="DB" md5sum="e0b76d26843a4c29854b12e191ecffea" name="DataObject/Cast.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="e64f60aa55506cf3533601f047cbf919" name="DataObject/Generator.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="40178b1484d30842a9ee92e6fe46dd2e" name="DataObject/Cast.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="2a26ea17268c87106346691775b911b9" name="DataObject/Generator.php"/>
    <file role="php" baseinstalldir="DB" md5sum="79b528f9746f4946d115f39a6f19edca" name="DataObject/createTables.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="c2cf7df5af0f1954ccb8b759204fd0e1" name="DataObject/Error.php"/>
-   <file role="doc" baseinstalldir="DB" md5sum="87d5c9c927c556c166fca8da7ae4e257" name="docs/example.ini"/>
+   <file role="php" baseinstalldir="DB" md5sum="78f91fc6fbea5e93224dbf22deff4b84" name="DataObject/Error.php"/>
+   <file role="doc" baseinstalldir="DB" md5sum="565d88785b5086465a64367f547ce0b0" name="docs/example.ini"/>
    <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
   </filelist>
  </release>
  <changelog>
    <release>
+    <version>1.8.2</version>
+    <date>2004-01-21</date>
+    <state>stable</state>
+    <notes>Minor Bugfix release
+
+Bugs
+----
+#6543 - Generator broke due to MDB changes.
+    </notes>
+   </release>
+   <release>
     <version>1.8.1</version>
-    <date>2004-01-20</date>
+    <date>2006-01-20</date>
     <state>stable</state>
     <notes>Bugs
 ----
@@ -82,7 +164,7 @@ Changes/New Features
    </release>
    <release>
     <version>1.8.0</version>
-    <date>2004-12-28</date>
+    <date>2005-12-28</date>
     <state>stable</state>
     <notes>Major Bug Fix &amp; Feature release.
 
@@ -143,7 +225,7 @@ Other Changes
    </release>
    <release>
     <version>1.7.15</version>
-    <date>2004-07-07</date>
+    <date>2005-07-07</date>
     <state>stable</state>
     <notes>Minor Bugfix release 
 * fix bug #4760 - DB_DataObject_Cast blobs broke in last release
@@ -199,7 +281,7 @@ Bugs Fixed.
    </release>
    <release>
     <version>1.7.13</version>
-    <date>2004-03-24</date>
+    <date>2005-03-24</date>
     <state>stable</state>
     <notes>Minor Bugfix release
 #3943 - postgres booleans broke again due to last fix for mysqli.
@@ -216,7 +298,7 @@ Bugs Fixed.
    </release>
    <release>
     <version>1.7.11</version>
-    <date>2004-03-22</date>
+    <date>2005-03-22</date>
     <state>stable</state>
     <notes>Minor Bugfix release. 
 #3898 - fix count , which got broken by previous distinct argument changes
@@ -225,7 +307,7 @@ Bugs Fixed.
    </release>
    <release>
     <version>1.7.10</version>
-    <date>2004-03-16</date>
+    <date>2005-03-16</date>
     <state>stable</state>
     <notes>Minor Bugfix release. 
 #3829 - joinAdd fix for database prefixing (yet again)
@@ -233,7 +315,7 @@ Bugs Fixed.
    </release>
    <release>
     <version>1.7.9</version>
-    <date>2004-03-12</date>
+    <date>2005-03-12</date>
     <state>stable</state>
     <notes>Minor Bugfix release. 
 #3764 - toValue(), and hence toArray() cast booleans to true|false. (previous fix was buggy)
@@ -241,7 +323,7 @@ Bugs Fixed.
    </release>
    <release>
     <version>1.7.8</version>
-    <date>2004-03-12</date>
+    <date>2005-03-12</date>
     <state>stable</state>
     <notes>Minor Bugfix release. 
 #3764 - toValue(), and hence toArray() cast booleans to true|false.
@@ -255,7 +337,7 @@ Bugs Fixed.
    </release>
    <release>
     <version>1.7.7</version>
-    <date>2004-03-07</date>
+    <date>2005-03-07</date>
     <state>stable</state>
     <notes>Minor bug fix release - join add with table fixes broke for mysql with last release
   Bug Fixes:
@@ -267,7 +349,7 @@ Bugs Fixed.
    </release>
    <release>
     <version>1.7.6</version>
-    <date>2004-03-05</date>
+    <date>2005-03-05</date>
     <state>stable</state>
     <notes>Nothing like a big release to create bugs..
 
@@ -280,7 +362,7 @@ Bug Fixes:
    </release>
    <release>
     <version>1.7.5</version>
-    <date>2004-03-02</date>
+    <date>2005-03-02</date>
     <state>stable</state>
     <notes>A few releases where skipped, this should be the amalgamated upgrade!
 
