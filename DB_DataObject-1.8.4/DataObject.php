@@ -15,7 +15,7 @@
  * @author     Alan Knowles <alan@akbkhome.com>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: DataObject.php,v 1.408 2006/03/02 02:41:37 alan_k Exp $
+ * @version    CVS: $Id: DataObject.php,v 1.410 2006/03/06 01:31:40 alan_k Exp $
  * @link       http://pear.php.net/package/DB_DataObject
  */
   
@@ -2658,7 +2658,8 @@ class DB_DataObject extends DB_DataObject_Overload
         if (empty($_DB_DATAOBJECT['CONFIG'])) {
             $this->_loadConfig();
         }
-        
+        // have to connect.. -> otherwise things break later.
+        $this->_connect();
         
         if (isset($_DB_DATAOBJECT['LINKS'][$this->_database][$this->__table])) {
             return $_DB_DATAOBJECT['LINKS'][$this->_database][$this->__table];
@@ -3174,8 +3175,7 @@ class DB_DataObject extends DB_DataObject_Overload
             // if 
             if (
                     in_array($DB->dsn['phptype'],array('mysql','mysqli')) &&
-                    ($obj->_database != $this->_database) &&
-                    strlen($this->_database)
+                    strlen($obj->_database)
                 ) 
             {
                 $joinAs = ($quoteIdentifiers ? $DB->quoteIdentifier($obj->_database) : $obj->_database) . '.' . $joinAs;
