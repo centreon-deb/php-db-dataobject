@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.6">
+<package version="1.0" packagerversion="1.4.9">
  <name>DB_DataObject</name>
  <summary>An SQL Builder, Object Interface to Database Tables</summary>
  <description>DataObject performs 2 tasks:
@@ -19,27 +19,47 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.8.4</version>
-  <date>2006-03-06</date>
+  <version>1.8.5</version>
+  <date>2006-12-15</date>
   <license>PHP License</license>
   <state>stable</state>
   <notes>Minor Bugfix and Minor Feature addition release
-
-Bugs
-----
-#7006 - fix links due to removal of databaseStructure call in 1.8.3, added call
-        to connect();
-#7012 - joinAdd fixed due to checking of wrong variable when buidling query on 
-        mysql.
-             
+    * #8876 - call free() after count - hopefully this will not break anything!
+    * #8736 - auto_increment check for MDB2 backend
+    * #8628 - tableInfo fix for MDB2
+    * #7792 - add integer[] and boolean[] support
+    * #7702 - memory leaks on getLinks() , free() is called
+        within    getLinks(), - you still need to call free() after doing a
+        getLink() - as I suspect automagically doing that would cause
+        problems..
+    * #7409 - ibase support for filename based database names - not sure if this works, but 
+         will ask reporter to test it..
+    * #7353 - postgres incorrect testing of t/f for booleans
+    * #7114 = generator of sequence keys and defaults using generator_no_ini
+    * #3773 - change last_value to currval - need to confirm this is the correct fix.
+    * #3152 -  joinAdd requires join column to be in links.ini file
     
-Features
---------
-      - Add support for defaults() generation in createTables/Generator,
-        when using the flag generator_add_defaults = yes or generator_no_ini = yes
-        a method defaults() is created in the table class, which contains
-        the default values for the table generated from the database.
-        Note: EXPERIMENTAL and only works with Mysql[i] at present.
+    Feature Requests:
+    * Feature Request #4266 - Allow joins with multiple keys
+    
+    Minor Changes:
+    * dont flush on debugging html output
+    * links.ini code generation based on schema (mysql[i] only) -
+        option:generate_links=true - thanks to Pacal Schoni    
+    * add warning about unknown types in generator.
+    * only prefix database name, in joins when the two objects are of different databases
+    * nicer error message for !isreadable - thx to Euan Maxwell
+    * use class exists loader, so that relative test relative paths in
+        tests work, (also means that autoload may work...)
+    * remove pass by reference - why on earth that was there in the first place is totally beyond me...    
+    * give derivedHookFunctions the ability to use the original input data
+    * add methods 
+        getClassNameFromTableName(),
+        getFileNameFromTableName(), 
+        getMethodNameFromColumnName(), 
+        which allow you to set up your own mapping system by overriding them in
+        your extended generator.. it however needs some support in dataobjects so currently 
+        flagged as EXPERIMENTAL
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3"/>
@@ -109,6 +129,10 @@ Features
   <provides type="class" name="DB_DataObject_Generator" extends="DB_DataObject" />
   <provides type="function" name="DB_DataObject_Generator::start" />
   <provides type="function" name="DB_DataObject_Generator::generateDefinitions" />
+  <provides type="function" name="DB_DataObject_Generator::generateForeignKeys" />
+  <provides type="function" name="DB_DataObject_Generator::getClassNameFromTableName" />
+  <provides type="function" name="DB_DataObject_Generator::getFileNameFromTableName" />
+  <provides type="function" name="DB_DataObject_Generator::getMethodNameFromColumnName" />
   <provides type="function" name="DB_DataObject_Generator::generateClasses" />
   <provides type="function" name="DB_DataObject_Generator::derivedHookFunctions" />
   <provides type="function" name="DB_DataObject_Generator::derivedHookVar" />
@@ -116,18 +140,41 @@ Features
   <provides type="function" name="DB_DataObject_Generator::fillTableSchema" />
   <provides type="class" name="DB_DataObject_Error" extends="PEAR_Error" />
   <filelist>
-   <file role="php" baseinstalldir="DB" md5sum="e991f850787491029435f94fa281a208" name="DataObject.php">
+   <file role="php" baseinstalldir="DB" md5sum="28d8536bbf4e6627794df177e86d98b6" name="DataObject.php">
     <replace from="@version@" to="version" type="package-info"/>
    </file>
    <file role="php" baseinstalldir="DB" md5sum="40178b1484d30842a9ee92e6fe46dd2e" name="DataObject/Cast.php"/>
-   <file role="php" baseinstalldir="DB" md5sum="e3ce1e7da991eaac50b8ce92aa8d4a4a" name="DataObject/Generator.php"/>
+   <file role="php" baseinstalldir="DB" md5sum="6a44dd828a21ae98ae12befe6d8c69b2" name="DataObject/Generator.php"/>
    <file role="php" baseinstalldir="DB" md5sum="ff8c9ccc1fc81319e31a68b21655a2f4" name="DataObject/createTables.php"/>
    <file role="php" baseinstalldir="DB" md5sum="78f91fc6fbea5e93224dbf22deff4b84" name="DataObject/Error.php"/>
-   <file role="doc" baseinstalldir="DB" md5sum="ed8c753c46a2da254d1d93bc7c8a0927" name="docs/example.ini"/>
+   <file role="doc" baseinstalldir="DB" md5sum="fb230fbab9e93928e6f48a0964399d40" name="docs/example.ini"/>
    <file role="script" baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat"/>
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.8.4</version>
+    <date>2006-03-06</date>
+    <state>stable</state>
+    <notes>Minor Bugfix and Minor Feature addition release
+
+Bugs
+----
+#7006 - fix links due to removal of databaseStructure call in 1.8.3, added call
+        to connect();
+#7012 - joinAdd fixed due to checking of wrong variable when buidling query on 
+        mysql.
+             
+    
+Features
+--------
+      - Add support for defaults() generation in createTables/Generator,
+        when using the flag generator_add_defaults = yes or generator_no_ini = yes
+        a method defaults() is created in the table class, which contains
+        the default values for the table generated from the database.
+        Note: EXPERIMENTAL and only works with Mysql[i] at present.
+    </notes>
+   </release>
    <release>
     <version>1.8.3</version>
     <date>2006-03-03</date>
