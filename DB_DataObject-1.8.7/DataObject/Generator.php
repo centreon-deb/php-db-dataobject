@@ -15,7 +15,7 @@
  * @author     Alan Knowles <alan@akbkhome.com>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: Generator.php,v 1.134 2007/07/10 04:35:42 alan_k Exp $
+ * @version    CVS: $Id: Generator.php,v 1.136 2007/07/12 02:57:04 alan_k Exp $
  * @link       http://pear.php.net/package/DB_DataObject
  */
  
@@ -354,7 +354,7 @@ class DB_DataObject_Generator extends DB_DataObject
         fclose($fh);
         $perms = file_exists($file) ? fileperms($file) : 0755;
         rename($tmpname, $file);
-        chmod($file,$prems);
+        chmod($file,$perms);
         //$ret = $this->_newConfig->writeInput($file,false);
 
         //if (PEAR::isError($ret) ) {
@@ -689,7 +689,7 @@ class DB_DataObject_Generator extends DB_DataObject
     function getClassNameFromTableName($table)
     {
         $options = &PEAR::getStaticProperty('DB_DataObject','options');
-        $class_prefix  = $options['class_prefix'];
+        $class_prefix  = empty($options['class_prefix']) ? '' : $options['class_prefix'];
         return  $class_prefix.preg_replace('/[^A-Z0-9]/i','_',ucfirst(trim($this->table)));
     }
     
@@ -1104,7 +1104,7 @@ class DB_DataObject_Generator extends DB_DataObject
         
         
         $options = &PEAR::getStaticProperty('DB_DataObject','options');
-        $class_prefix  = $options['class_prefix'];
+        $class_prefix  = empty($options['class_prefix']) ? '' : $options['class_prefix'];
         
         if ($extends = @$options['extends']) {
             $this->_extends = $extends;

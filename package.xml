@@ -15,10 +15,10 @@
   <email>alan@akbkhome.com</email>
   <active>yes</active>
  </lead>
- <date>2007-07-10</date>
- <time>12:44:03</time>
+ <date>2007-07-12</date>
+ <time>11:01:19</time>
  <version>
-  <release>1.8.6</release>
+  <release>1.8.7</release>
   <api>1.8.6</api>
  </version>
  <stability>
@@ -26,40 +26,20 @@
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP License</license>
- <notes>Minor Bugfix and Minor Feature addition release
+ <notes>Minor Bugfix Release 
  
 Bug Fixes:
-    #11483 - show an error if pcre limits are not correctly set and generator tries to generate empty files
-    #11528 - sending like queries to escape does not escape % and _ - added additional parameter to
-            escape : [bool $likeEscape] is optional and can be used to force escaping of these characters
-    #10573 - fix permissions on generated files
-    #10573 - write Generated files to temp directory, then rename into place. - fixing locking issues
-    #10531 - correct fix for bug #9628 (support MDB2 for defaults())
-    #10454 - mssql uses wrong variable name for options.
-    #10175 - MDB2 does not return length value 
-    #9573 - enable disable_null_strings to turn of &quot;null&quot;-&gt; NULL replacements
-    #9625 - MDB2 support for MSSQL sequencies
-    #9644 - incorrect constant in foriegn key generation.
-    #9628 - support MDB2 for defaults()
-    #9839 - Invalid column names can not be supported, so warning is generated
-    #9834 - SQL2003 standards on Joins - adds brackets around ON()
-    #4266 - minor fix to appendJoin code
-    #9755 - generator showed php error if connection failed
-    #9730 - quote identifiers on composite joins
-
-* feature request 
-    #4266 - joins with multiple keys
-    #2216 - JOIN ON conversion of Where condition into ON arguments - patch by David Sanders
-    #----   add in docbook hooks to generator - as requested/coded by Vyacheslav Iutin</notes>
+    #11586 - missing default value in Generator for class_prefix caused warning
+    #11584 - typo in Generator caused permissions to be incorrectly set on ini file.</notes>
  <contents>
   <dir name="/">
    <file baseinstalldir="DB" md5sum="40178b1484d30842a9ee92e6fe46dd2e" name="DataObject/Cast.php" role="php" />
    <file baseinstalldir="DB" md5sum="ff8c9ccc1fc81319e31a68b21655a2f4" name="DataObject/createTables.php" role="php" />
    <file baseinstalldir="DB" md5sum="78f91fc6fbea5e93224dbf22deff4b84" name="DataObject/Error.php" role="php" />
-   <file baseinstalldir="DB" md5sum="2852a7977ba3c8e259dbb9c832b166dc" name="DataObject/Generator.php" role="php" />
+   <file baseinstalldir="DB" md5sum="1c09895270ef63a0054be1df6722cd09" name="DataObject/Generator.php" role="php" />
    <file baseinstalldir="DB" md5sum="2eb4b8961c0e8adccdae37f243d58472" name="docs/example.ini" role="doc" />
    <file baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat" role="script" />
-   <file baseinstalldir="DB" md5sum="94c4583c1d844876bdbcc6a7da1e7882" name="DataObject.php" role="php">
+   <file baseinstalldir="DB" md5sum="041bfb456562bb181b2b5e3e992e46d1" name="DataObject.php" role="php">
     <tasks:replace from="@version@" to="version" type="package-info" />
    </file>
   </dir>
@@ -98,6 +78,43 @@ Bug Fixes:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <date>2007-07-10</date>
+   <version>
+    <release>1.8.6</release>
+    <api>1.8.6</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP License</license>
+   <notes>Minor Bugfix and Minor Feature addition release
+ 
+Bug Fixes:
+    #11483 - show an error if pcre limits are not correctly set and generator tries to generate empty files
+    #11528 - sending like queries to escape does not escape % and _ - added additional parameter to
+            escape : [bool $likeEscape] is optional and can be used to force escaping of these characters
+    #10573 - fix permissions on generated files
+    #10573 - write Generated files to temp directory, then rename into place. - fixing locking issues
+    #10531 - correct fix for bug #9628 (support MDB2 for defaults())
+    #10454 - mssql uses wrong variable name for options.
+    #10175 - MDB2 does not return length value 
+    #9573 - enable disable_null_strings to turn of &quot;null&quot;-&gt; NULL replacements
+    #9625 - MDB2 support for MSSQL sequencies
+    #9644 - incorrect constant in foriegn key generation.
+    #9628 - support MDB2 for defaults()
+    #9839 - Invalid column names can not be supported, so warning is generated
+    #9834 - SQL2003 standards on Joins - adds brackets around ON()
+    #4266 - minor fix to appendJoin code
+    #9755 - generator showed php error if connection failed
+    #9730 - quote identifiers on composite joins
+
+* feature request 
+    #4266 - joins with multiple keys
+    #2216 - JOIN ON conversion of Where condition into ON arguments - patch by David Sanders
+    #----   add in docbook hooks to generator - as requested/coded by Vyacheslav Iutin</notes>
+  </release>
   <release>
    <date>2006-12-15</date>
    <version>
