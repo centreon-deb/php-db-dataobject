@@ -15,7 +15,7 @@
  * @author     Alan Knowles <alan@akbkhome.com>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: Generator.php,v 1.136 2007/07/12 02:57:04 alan_k Exp $
+ * @version    CVS: $Id: Generator.php,v 1.141 2008/01/30 02:29:39 alan_k Exp $
  * @link       http://pear.php.net/package/DB_DataObject
  */
  
@@ -256,7 +256,7 @@ class DB_DataObject_Generator extends DB_DataObject
                     $table = $bits[1];
                 }
             }
-            $quotedTable = !empty($options['quote_identifiers']) ? 
+            $quotedTable = !empty($options['quote_identifiers_tableinfo']) ? 
                 $__DB->quoteIdentifier($table) : $table;
                 
             if (!$is_MDB2) {
@@ -353,7 +353,12 @@ class DB_DataObject_Generator extends DB_DataObject
         fwrite($fh,$this->_newConfig);
         fclose($fh);
         $perms = file_exists($file) ? fileperms($file) : 0755;
-        rename($tmpname, $file);
+        // windows can fail doing this. - not a perfect solution but otherwise it's getting really kludgy..
+        
+        if (!@rename($tmpname, $file)) { 
+            unlink($file); 
+            rename($tmpname, $file);
+        }
         chmod($file,$perms);
         //$ret = $this->_newConfig->writeInput($file,false);
 
@@ -444,7 +449,11 @@ class DB_DataObject_Generator extends DB_DataObject
         fwrite($fh,$links_ini);
         fclose($fh);
         $perms = file_exists($file) ? fileperms($file) : 0755;
-        rename($tmpname, $file);
+        // windows can fail doing this. - not a perfect solution but otherwise it's getting really kludgy..
+        if (!@rename($tmpname, $file)) { 
+            unlink($file); 
+            rename($tmpname, $file);
+        }
         chmod($file, $perms);
     }
 
@@ -599,6 +608,9 @@ class DB_DataObject_Generator extends DB_DataObject
                          "** Found column '{$t->name}', of type  '{$t->type}'            **\n".
                          "** Please submit a bug, describe what type you expect this     **\n".
                          "** column  to be                                               **\n".
+                         "** ---------POSSIBLE FIX / WORKAROUND -------------------------**\n".
+                         "** Try using MDB2 as the backend - eg set the config option    **\n".
+                         "** db_driver = MDB2                                            **\n".
                          "*****************************************************************\n";
                     $write_ini = false;
                     break;
@@ -775,7 +787,13 @@ class DB_DataObject_Generator extends DB_DataObject
             fputs($fh,$out);
             fclose($fh);
             $perms = file_exists($outfilename) ? fileperms($outfilename) : 0755;
-            rename($tmpname, $outfilename);
+            
+            // windows can fail doing this. - not a perfect solution but otherwise it's getting really kludgy..
+            if (!@rename($tmpname, $outfilename)) {
+                unlink($outfilename); 
+                rename($tmpname, $outfilename);
+            }
+            
             chmod($outfilename, $perms);
         }
         //echo $out;
@@ -984,7 +1002,7 @@ class DB_DataObject_Generator extends DB_DataObject
 
         $class_rewrite = 'DB_DataObject';
         $options = &PEAR::getStaticProperty('DB_DataObject','options');
-        if (!($class_rewrite = @$options['generator_class_rewrite'])) {
+        if (empty($options['generator_class_rewrite']) || !($class_rewrite = $options['generator_class_rewrite'])) {
             $class_rewrite = 'DB_DataObject';
         }
         if ($class_rewrite == 'ANY') {
@@ -992,7 +1010,7 @@ class DB_DataObject_Generator extends DB_DataObject
         }
 
         $input = preg_replace(
-            '/(\n|\r\n)class\s*[a-z0-9_]+\s*extends\s*' .$class_rewrite . '\s*\{(\n|\r\n)/si',
+            '/(\n|\r\n)class\s*[a-z0-9_]+\s*extends\s*' .$class_rewrite . '\s*(\n|\r\n)\{(\n|\r\n)/si',
             "\nclass {$this->classname} extends {$this->_extends} \n{\n",
             $input);
 

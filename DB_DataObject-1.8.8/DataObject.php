@@ -15,7 +15,7 @@
  * @author     Alan Knowles <alan@akbkhome.com>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: DataObject.php,v 1.432 2007/07/09 08:55:50 alan_k Exp $
+ * @version    CVS: $Id: DataObject.php,v 1.439 2008/01/30 02:14:06 alan_k Exp $
  * @link       http://pear.php.net/package/DB_DataObject
  */
   
@@ -235,7 +235,7 @@ class DB_DataObject extends DB_DataObject_Overload
     * @access   private
     * @var      string
     */
-    var $_DB_DataObject_version = "1.8.7";
+    var $_DB_DataObject_version = "1.8.8";
 
     /**
      * The Database table (used by table extends)
@@ -388,7 +388,7 @@ class DB_DataObject extends DB_DataObject_Overload
     function find($n = false)
     {
         global $_DB_DATAOBJECT;
-        if (!isset($this->_query)) {
+        if ($this->_query === false) {
             $this->raiseError(
                 "You cannot do two queries on the same object (copy it before finding)", 
                 DB_DATAOBJECT_ERROR_INVALIDARGS);
@@ -571,8 +571,8 @@ class DB_DataObject extends DB_DataObject_Overload
         if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
             $this->debug("{$this->__table} DONE", "fetchrow",2);
         }
-        if (isset($this->_query) &&  empty($_DB_DATAOBJECT['CONFIG']['keep_query_after_fetch'])) {
-            unset($this->_query);
+        if (($this->_query !== false) &&  empty($_DB_DATAOBJECT['CONFIG']['keep_query_after_fetch'])) {
+            $this->_query = false;
         }
         return true;
     }
@@ -591,8 +591,10 @@ class DB_DataObject extends DB_DataObject_Overload
      */
     function whereAdd($cond = false, $logic = 'AND')
     {
-        
-	if (!isset($this->_query)) {
+        // for PHP5.2.3 - there is a bug with setting array properties of an object.
+        $_query = $this->_query;
+         
+        if (!isset($this->_query) || ($_query === false)) {
             return $this->raiseError(
                 "You cannot do two queries on the same object (clone it before finding)", 
                 DB_DATAOBJECT_ERROR_INVALIDARGS);
@@ -600,19 +602,22 @@ class DB_DataObject extends DB_DataObject_Overload
         
         if ($cond === false) {
             $r = $this->_query['condition'];
-            $this->_query['condition'] = '';
+            $_query['condition'] = '';
+            $this->_query = $_query;
             return preg_replace('/^\s+WHERE\s+/','',$r);
         }
         // check input...= 0 or '   ' == error!
         if (!trim($cond)) {
             return $this->raiseError("WhereAdd: No Valid Arguments", DB_DATAOBJECT_ERROR_INVALIDARGS);
         }
-        $r = $this->_query['condition'];
-        if ($this->_query['condition']) {
-            $this->_query['condition'] .= " {$logic} ( {$cond} )";
+        $r = $_query['condition'];
+        if ($_query['condition']) {
+            $_query['condition'] .= " {$logic} ( {$cond} )";
+            $this->_query = $_query;
             return $r;
         }
-        $this->_query['condition'] = " WHERE ( {$cond} ) ";
+        $_query['condition'] = " WHERE ( {$cond} ) ";
+        $this->_query = $_query;
         return $r;
     }
 
@@ -629,7 +634,7 @@ class DB_DataObject extends DB_DataObject_Overload
      */
     function orderBy($order = false)
     {
-        if (!isset($this->_query)) {
+        if ($this->_query === false) {
             $this->raiseError(
                 "You cannot do two queries on the same object (copy it before finding)", 
                 DB_DATAOBJECT_ERROR_INVALIDARGS);
@@ -664,7 +669,7 @@ class DB_DataObject extends DB_DataObject_Overload
      */
     function groupBy($group = false)
     {
-        if (!isset($this->_query)) {
+        if ($this->_query === false) {
             $this->raiseError(
                 "You cannot do two queries on the same object (copy it before finding)", 
                 DB_DATAOBJECT_ERROR_INVALIDARGS);
@@ -699,7 +704,7 @@ class DB_DataObject extends DB_DataObject_Overload
      */
     function having($having = false)
     {
-        if (!isset($this->_query)) {
+        if ($this->_query === false) {
             $this->raiseError(
                 "You cannot do two queries on the same object (copy it before finding)", 
                 DB_DATAOBJECT_ERROR_INVALIDARGS);
@@ -740,7 +745,7 @@ class DB_DataObject extends DB_DataObject_Overload
      */
     function limit($a = null, $b = null)
     {
-        if (!isset($this->_query)) {
+        if ($this->_query === false) {
             $this->raiseError(
                 "You cannot do two queries on the same object (copy it before finding)", 
                 DB_DATAOBJECT_ERROR_INVALIDARGS);
@@ -783,7 +788,7 @@ class DB_DataObject extends DB_DataObject_Overload
      */
     function selectAdd($k = null)
     {
-        if (!isset($this->_query)) {
+        if ($this->_query === false) {
             $this->raiseError(
                 "You cannot do two queries on the same object (copy it before finding)", 
                 DB_DATAOBJECT_ERROR_INVALIDARGS);
@@ -825,7 +830,7 @@ class DB_DataObject extends DB_DataObject_Overload
     {
         global $_DB_DATAOBJECT;
         
-        if (!isset($this->_query)) {
+        if ($this->_query === false) {
             $this->raiseError(
                 "You cannot do two queries on the same object (copy it before finding)", 
                 DB_DATAOBJECT_ERROR_INVALIDARGS);
@@ -1058,7 +1063,7 @@ class DB_DataObject extends DB_DataObject_Overload
                         $method = ($db_driver  == 'DB') ? 'getOne' : 'queryOne';
                         $mssql_key = $DB->$method("SELECT @@IDENTITY");
                         if (PEAR::isError($mssql_key)) {
-                            $this->raiseError($r);
+                            $this->raiseError($mssql_key);
                             return false;
                         }
                         $this->$key = $mssql_key;
@@ -1066,12 +1071,15 @@ class DB_DataObject extends DB_DataObject_Overload
                         
                     case 'pgsql':
                         if (!$seq) {
-                            $seq = $DB->getSequenceName($this->__table );
+                            $seq = $DB->getSequenceName(strtolower($this->__table));
                         }
-                        $pgsql_key = $DB->getOne("SELECT currval('".$seq . "')"); 
+                        $db_driver = empty($options['db_driver']) ? 'DB' : $options['db_driver'];
+                        $method = ($db_driver  == 'DB') ? 'getOne' : 'queryOne';
+                        $pgsql_key = $DB->$method("SELECT currval('".$seq . "')"); 
+
 
                         if (PEAR::isError($pgsql_key)) {
-                            $this->raiseError($r);
+                            $this->raiseError($pgsql_key);
                             return false;
                         }
                         $this->$key = $pgsql_key;
@@ -1144,7 +1152,7 @@ class DB_DataObject extends DB_DataObject_Overload
         $this->_connect();
         
         
-        $original_query = isset($this->_query) ? $this->_query : null;
+        $original_query =  $this->_query;
         
         $items =  isset($_DB_DATAOBJECT['INI'][$this->_database][$this->__table]) ?   
             $_DB_DATAOBJECT['INI'][$this->_database][$this->__table] : $this->table();
@@ -1358,7 +1366,7 @@ class DB_DataObject extends DB_DataObject_Overload
             
 
         // don't delete without a condition
-        if (isset($this->_query) && $this->_query['condition']) {
+        if (($this->_query !== false) && $this->_query['condition']) {
         
             $table = ($quoteIdentifiers ? $DB->quoteIdentifier($this->__table) : $this->__table);
             $sql = "DELETE FROM {$table} {$this->_query['condition']}{$extra_cond}";
@@ -1493,10 +1501,11 @@ class DB_DataObject extends DB_DataObject_Overload
         }
         
         $t = clone($this);
+        $items   = $t->table();
         
         $quoteIdentifiers = !empty($_DB_DATAOBJECT['CONFIG']['quote_identifiers']);
         
-        $items   = $t->table();
+        
         if (!isset($t->_query)) {
             $this->raiseError(
                 "You cannot do run count after you have run fetch()", 
@@ -2035,7 +2044,7 @@ class DB_DataObject extends DB_DataObject_Overload
         // technically postgres native here...
         // we need to get the new improved tabledata sorted out first.
         
-        if (    in_array($dbtype , array( 'mysql', 'mysqli', 'mssql', 'ifx')) && 
+        if (    in_array($dbtype , array('psql', 'mysql', 'mysqli', 'mssql', 'ifx')) && 
                 ($table[$usekey] & DB_DATAOBJECT_INT) && 
                 isset($realkeys[$usekey]) && ($realkeys[$usekey] == 'N')
                 ) {
@@ -2227,9 +2236,9 @@ class DB_DataObject extends DB_DataObject_Overload
             $db_options = PEAR::getStaticProperty('DB','options');
             require_once 'DB.php';
             if ($db_options) {
-                $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5] = DB::connect($dsn,$db_options);
+                $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5] = &DB::connect($dsn,$db_options);
             } else {
-                $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5] = DB::connect($dsn);
+                $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5] = &DB::connect($dsn);
             }
             
         } else {
@@ -2237,7 +2246,10 @@ class DB_DataObject extends DB_DataObject_Overload
             require_once 'MDB2.php';
             // this allows the setings of compatibility on MDB2 
             $db_options = PEAR::getStaticProperty('MDB2','options');
-            $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5] = MDB2::connect($dsn,$db_options);
+            $db_options = is_array($db_options) ? $db_options : array();
+            $db_options['portability'] = isset($db_options['portability'] )
+                ? $db_options['portability']  : MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_FIX_CASE;
+            $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5] = &MDB2::connect($dsn,$db_options);
             
         }
         
@@ -2430,7 +2442,7 @@ class DB_DataObject extends DB_DataObject_Overload
         $options = $_DB_DATAOBJECT['CONFIG'];
         
         // if we dont have query vars.. - reset them.
-        if (!isset($this->_query)) {
+        if ($this->_query === false) {
             $x = new DB_DataObject;
             $this->_query= $x->_query;
         }
@@ -3285,7 +3297,7 @@ class DB_DataObject extends DB_DataObject_Overload
                 /* this is probably an error condition! */
                 $obj->whereAdd("{$joinAs}.{$kSql} = 0");
             }
-            if (!isset($this->_query)) {
+            if ($this->_query === false) {
                 $this->raiseError(
                     "joinAdd can not be run from a object that has had a query run on it,
                     clone the object or create a new one and use setFrom()", 

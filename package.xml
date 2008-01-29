@@ -15,10 +15,10 @@
   <email>alan@akbkhome.com</email>
   <active>yes</active>
  </lead>
- <date>2007-07-12</date>
- <time>11:01:19</time>
+ <date>2008-01-30</date>
+ <time>10:57:02</time>
  <version>
-  <release>1.8.7</release>
+  <release>1.8.8</release>
   <api>1.8.6</api>
  </version>
  <stability>
@@ -26,20 +26,36 @@
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP License</license>
- <notes>Minor Bugfix Release 
+ <notes>Minor Bugfix / Feature Release 
  
-Bug Fixes:
-    #11586 - missing default value in Generator for class_prefix caused warning
-    #11584 - typo in Generator caused permissions to be incorrectly set on ini file.</notes>
+Pre-chinese new year release (with lots of 8&apos;s...)
+
+Bug Fixes
+    #12556 - Generator - pregmatch appears broken for replacing class name on updating files
+    #10112 - additional config option quote_identifiers_tableinfo for use with tableinfo on generator
+             Fixes issues with Oracle and quoting identifiers.
+    #11773 - problems with object-&gt;array[prop] setting on PHP5.2.3
+            ** this may also have been fixed twice by fix for #11775
+    #12858 - MDB2 and postgres missing db_driver variable
+    #9902 - default portability options for MDB2 to not fix case.
+    #9658 - postgres DECIMAL using DB backend incorrectly
+            flagged as unknown - changed warning to suggest using MDB2
+    #11091 - count attempted to read quote identifiers before config was loaded
+    #11804 - insert with postgres/msql return wrong error message
+    #9364  - fix postgres native sequences with MDB
+    #11775 - unsetting of $this-&gt;_query causes overload setters/getters to  
+             handle later uses of _query and break due to lack of array accessor support
+    #11634 - Windows fails to rename files if they exist - affecting Generator  
+            (try and fix it so unix is still atomic)</notes>
  <contents>
   <dir name="/">
    <file baseinstalldir="DB" md5sum="40178b1484d30842a9ee92e6fe46dd2e" name="DataObject/Cast.php" role="php" />
    <file baseinstalldir="DB" md5sum="ff8c9ccc1fc81319e31a68b21655a2f4" name="DataObject/createTables.php" role="php" />
    <file baseinstalldir="DB" md5sum="78f91fc6fbea5e93224dbf22deff4b84" name="DataObject/Error.php" role="php" />
-   <file baseinstalldir="DB" md5sum="1c09895270ef63a0054be1df6722cd09" name="DataObject/Generator.php" role="php" />
-   <file baseinstalldir="DB" md5sum="2eb4b8961c0e8adccdae37f243d58472" name="docs/example.ini" role="doc" />
+   <file baseinstalldir="DB" md5sum="6dcbe31f4a25f11ab90538966c6bf1ad" name="DataObject/Generator.php" role="php" />
+   <file baseinstalldir="DB" md5sum="4d54f50d4a73bd3ae2b971feebb75e9c" name="docs/example.ini" role="doc" />
    <file baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat" role="script" />
-   <file baseinstalldir="DB" md5sum="041bfb456562bb181b2b5e3e992e46d1" name="DataObject.php" role="php">
+   <file baseinstalldir="DB" md5sum="aee4d2e72bc5b7b5abdb7f26961cb348" name="DataObject.php" role="php">
     <tasks:replace from="@version@" to="version" type="package-info" />
    </file>
   </dir>
@@ -79,6 +95,23 @@ Bug Fixes:
  <phprelease />
  <changelog>
   <release>
+   <date>2007-07-12</date>
+   <version>
+    <release>1.8.7</release>
+    <api>1.8.6</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP License</license>
+   <notes>Minor Bugfix Release 
+     
+Bug Fixes:
+    #11586 - missing default value in Generator for class_prefix caused warning
+    #11584 - typo in Generator caused permissions to be incorrectly set on ini file.</notes>
+  </release>
+  <release>
    <date>2007-07-10</date>
    <version>
     <release>1.8.6</release>
@@ -90,7 +123,7 @@ Bug Fixes:
    </stability>
    <license uri="http://www.php.net/license">PHP License</license>
    <notes>Minor Bugfix and Minor Feature addition release
- 
+     
 Bug Fixes:
     #11483 - show an error if pcre limits are not correctly set and generator tries to generate empty files
     #11528 - sending like queries to escape does not escape % and _ - added additional parameter to
@@ -110,7 +143,7 @@ Bug Fixes:
     #9755 - generator showed php error if connection failed
     #9730 - quote identifiers on composite joins
 
-* feature request 
+    * feature request 
     #4266 - joins with multiple keys
     #2216 - JOIN ON conversion of Where condition into ON arguments - patch by David Sanders
     #----   add in docbook hooks to generator - as requested/coded by Vyacheslav Iutin</notes>
