@@ -16,7 +16,7 @@
 // | Author:  Alan Knowles <alan@akbkhome.com>
 // +----------------------------------------------------------------------+
 //
-// $Id: createTables.php,v 1.24 2006/01/13 01:27:55 alan_k Exp $
+// $Id: createTables.php,v 1.25 2009/03/12 05:51:03 alan_k Exp $
 //
 
 // since this version doesnt use overload, 
