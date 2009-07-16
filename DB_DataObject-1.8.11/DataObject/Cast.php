@@ -17,7 +17,7 @@
  * @author     Alan Knowles <alan@akbkhome.com>
  * @copyright  1997-2008 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: Cast.php,v 1.16 2008/08/04 03:44:59 alan_k Exp $
+ * @version    CVS: $Id: Cast.php 264148 2008-08-04 03:44:59Z alan_k $
  * @link       http://pear.php.net/package/DB_DataObject
  */
   

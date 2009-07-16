@@ -15,31 +15,32 @@
   <email>alan@akbkhome.com</email>
   <active>yes</active>
  </lead>
- <date>2009-03-19</date>
- <time>16:15:00</time>
+ <date>2009-07-16</date>
+ <time>07:43:01</time>
  <version>
-  <release>1.8.10</release>
+  <release>1.8.11</release>
   <api>1.8.6</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
- <license uri="http://www.php.net/license">PHP License</license>
- <notes>Annual Release - Minor Bugfixs / Extra Features
- 
-	#----- - Fix factory error with database name not found
-#----- - Change factory multi-database call to use &apos;/&apos; rather than &apos;.&apos; so 
-         that it can work with postgres (also syncs with what the original notes said)</notes>
+ <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
+ <notes>Licence upgrade Release
+#----- - Licence changed to 3.01 to keep Debian/Ubuntu happy.
+#----- - Change order of preference for links in JoinAdd - prefer called table links over jointo table.
+#----- - Retry support for connection failure on queries
+#----- - Factory now uses &apos;/&apos; for database/table seperator (experimental)
+#----- - Fix INSERT on Postresql with empty data.</notes>
  <contents>
   <dir name="/">
-   <file baseinstalldir="DB" md5sum="73c88d42bbb92831e5d1863de0f07863" name="DataObject/Cast.php" role="php" />
-   <file baseinstalldir="DB" md5sum="8f17a61d6a7211628eb7324774ce523f" name="DataObject/createTables.php" role="php" />
-   <file baseinstalldir="DB" md5sum="e3f8daad4308317ff04b5e0b21eb2fce" name="DataObject/Error.php" role="php" />
-   <file baseinstalldir="DB" md5sum="49347f9f8ec4f087ee70a55eea44ba67" name="DataObject/Generator.php" role="php" />
+   <file baseinstalldir="DB" md5sum="2cd155bb9e7656282278297356aeccfc" name="DataObject/Cast.php" role="php" />
+   <file baseinstalldir="DB" md5sum="8f7382a61580d5be68e31a7544d454d7" name="DataObject/createTables.php" role="php" />
+   <file baseinstalldir="DB" md5sum="cc5ea65e3572966574b99cd3b5b518cf" name="DataObject/Error.php" role="php" />
+   <file baseinstalldir="DB" md5sum="ef739b7f1a662039f3f6fe64e579a0fb" name="DataObject/Generator.php" role="php" />
    <file baseinstalldir="DB" md5sum="4c00a370a034c011f31087653ec55ff2" name="docs/example.ini" role="doc" />
-   <file baseinstalldir="DB" md5sum="ef88826fadc5e821f0973e30a82ea877" name="scripts/DB_DataObject_createTables.bat" role="script" />
-   <file baseinstalldir="DB" md5sum="03f24326ca0fc7eaa94de3685a3df9a8" name="DataObject.php" role="php">
+   <file baseinstalldir="DB" md5sum="cdcc4ead8ef5e06df4381ca0976dcdad" name="scripts/DB_DataObject_createTables.bat" role="script" />
+   <file baseinstalldir="DB" md5sum="bb28447b5f179dcaa9d31bd62d638f37" name="DataObject.php" role="php">
     <tasks:replace from="@version@" to="version" type="package-info" />
    </file>
   </dir>
@@ -78,6 +79,23 @@
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <date>2009-03-19</date>
+   <version>
+    <release>1.8.10</release>
+    <api>1.8.6</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
+   <notes>Annual Release - Minor Bugfixs / Extra Features
+ 
+	#----- - Fix factory error with database name not found
+#----- - Change factory multi-database call to use &apos;/&apos; rather than &apos;.&apos; so 
+         that it can work with postgres (also syncs with what the original notes said)</notes>
+  </release>
   <release>
    <date>2009-03-12</date>
    <version>

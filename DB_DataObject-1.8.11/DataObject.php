@@ -2,11 +2,11 @@
 /**
  * Object Based Database Query Builder and data store
  *
- * PHP versions 4 and 5
+ * For PHP versions 4,5 and 6
  *
- * LICENSE: This source file is subject to version 3.0 of the PHP license
+ * LICENSE: This source file is subject to version 3.01 of the PHP license
  * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_0.txt.  If you did not receive a copy of
+ * http://www.php.net/license/3_01.txt.  If you did not receive a copy of
  * the PHP License and are unable to obtain it through the web, please
  * send a note to license@php.net so we can mail you a copy immediately.
  *
@@ -14,8 +14,8 @@
  * @package    DB_DataObject
  * @author     Alan Knowles <alan@akbkhome.com>
  * @copyright  1997-2006 The PHP Group
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: DataObject.php,v 1.446 2009/03/19 08:11:18 alan_k Exp $
+ * @license    http://www.php.net/license/3_01.txt  PHP License 3.01
+ * @version    CVS: $Id: DataObject.php 284150 2009-07-15 23:27:59Z alan_k $
  * @link       http://pear.php.net/package/DB_DataObject
  */
   
@@ -235,7 +235,7 @@ class DB_DataObject extends DB_DataObject_Overload
     * @access   private
     * @var      string
     */
-    var $_DB_DataObject_version = "1.8.10";
+    var $_DB_DataObject_version = "1.8.11";
 
     /**
      * The Database table (used by table extends)
@@ -1027,7 +1027,13 @@ class DB_DataObject extends DB_DataObject_Overload
         if ($leftq || $useNative) {
             $table = ($quoteIdentifiers ? $DB->quoteIdentifier($this->__table)    : $this->__table);
             
-            $r = $this->_query("INSERT INTO {$table} ($leftq) VALUES ($rightq) ");
+            
+            if (($dbtype == 'pgsql') && empty($leftq)) {
+                $r = $this->_query("INSERT INTO {$table} DEFAULT VALUES");
+            } else {
+               $r = $this->_query("INSERT INTO {$table} ($leftq) VALUES ($rightq) ");
+            }
+            
  
             
             
@@ -2371,23 +2377,36 @@ class DB_DataObject extends DB_DataObject_Overload
         $_DB_DATAOBJECT['QUERYENDTIME'] = $time = $t[0]+$t[1];
          
         
-        if ($_DB_driver == 'DB') {
-            $result = $DB->query($string);
-        } else {
-            switch (strtolower(substr(trim($string),0,6))) {
+        for ($tries = 0;$tries < 3;$tries++) {
             
-                case 'insert':
-                case 'update':
-                case 'delete':
-                    $result = $DB->exec($string);
-                    break;
-                    
-                default:
-                    $result = $DB->query($string);
-                    break;
+            if ($_DB_driver == 'DB') {
+                
+                $result = $DB->query($string);
+            } else {
+                switch (strtolower(substr(trim($string),0,6))) {
+                
+                    case 'insert':
+                    case 'update':
+                    case 'delete':
+                        $result = $DB->exec($string);
+                        break;
+                        
+                    default:
+                        $result = $DB->query($string);
+                        break;
+                }
             }
+            
+            // see if we got a failure.. - try again a few times..
+            if (!is_a($result,'PEAR_Error')) {
+                break;
+            }
+            if ($result->getCode() != -14) {  // *DB_ERROR_NODBSELECTED
+                break; // not a connection error..
+            }
+            sleep(1); // wait before retyring..
+            $DB->connect($DB->dsn);
         }
-        
        
 
         if (is_a($result,'PEAR_Error')) {
@@ -3108,7 +3127,7 @@ class DB_DataObject extends DB_DataObject_Overload
             return;
         }
          
-
+        //echo '<PRE>'; print_r(func_get_args());
         $useWhereAsOn = false;
         // support for 2nd argument as an array of options
         if (is_array($joinType)) {
@@ -3148,8 +3167,39 @@ class DB_DataObject extends DB_DataObject_Overload
         $DB = &$_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5];
        
 
+        /// CHANGED 26 JUN 2009 - we prefer links from our local table over the remote one.
         
-        
+        /* otherwise see if there are any links from this table to the obj. */
+        //print_r($this->links());
+        if (($ofield === false) && ($links = $this->links())) {
+            foreach ($links as $k => $v) {
+                /* link contains {this column} = {linked table}:{linked column} */
+                $ar = explode(':', $v);
+                // Feature Request #4266 - Allow joins with multiple keys
+                if (strpos($k, ',') !== false) {
+                    $k = explode(',', $k);
+                }
+                if (strpos($ar[1], ',') !== false) {
+                    $ar[1] = explode(',', $ar[1]);
+                }
+
+                if ($ar[0] == $obj->__table) {
+                    if ($joinCol !== false) {
+                        if ($k == $joinCol) {
+                            $tfield = $k;
+                            $ofield = $ar[1];
+                            break;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        $tfield = $k;
+                        $ofield = $ar[1];
+                        break;
+                    }
+                }
+            }
+        }
          /* look up the links for obj table */
         //print_r($obj->links());
         if (!$ofield && ($olinks = $obj->links())) {
@@ -3193,37 +3243,6 @@ class DB_DataObject extends DB_DataObject_Overload
             }
         }
 
-        /* otherwise see if there are any links from this table to the obj. */
-        //print_r($this->links());
-        if (($ofield === false) && ($links = $this->links())) {
-            foreach ($links as $k => $v) {
-                /* link contains {this column} = {linked table}:{linked column} */
-                $ar = explode(':', $v);
-                // Feature Request #4266 - Allow joins with multiple keys
-                if (strpos($k, ',') !== false) {
-                    $k = explode(',', $k);
-                }
-                if (strpos($ar[1], ',') !== false) {
-                    $ar[1] = explode(',', $ar[1]);
-                }
-
-                if ($ar[0] == $obj->__table) {
-                    if ($joinCol !== false) {
-                        if ($k == $joinCol) {
-                            $tfield = $k;
-                            $ofield = $ar[1];
-                            break;
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        $tfield = $k;
-                        $ofield = $ar[1];
-                        break;
-                    }
-                }
-            }
-        }
         // finally if these two table have column names that match do a join by default on them
 
         if (($ofield === false) && $joinCol) {
@@ -3412,22 +3431,25 @@ class DB_DataObject extends DB_DataObject_Overload
             case 'RIGHT': // others??? .. cross, left outer, right outer, natural..?
                 
                 // Feature Request #4266 - Allow joins with multiple keys
-                $this->_join .= "\n {$joinType} JOIN {$objTable} {$fullJoinAs}";
+                $jadd = "\n {$joinType} JOIN {$objTable} {$fullJoinAs}";
+                //$this->_join .= "\n {$joinType} JOIN {$objTable} {$fullJoinAs}";
                 if (is_array($ofield)) {
                 	$key_count = count($ofield);
                     for($i = 0; $i < $key_count; $i++) {
                     	if ($i == 0) {
-                    		$this->_join .= " ON ({$joinAs}.{$ofield[$i]}={$table}.{$tfield[$i]}) ";
+                    		$jadd .= " ON ({$joinAs}.{$ofield[$i]}={$table}.{$tfield[$i]}) ";
                     	}
                     	else {
-                    		$this->_join .= " AND {$joinAs}.{$ofield[$i]}={$table}.{$tfield[$i]} ";
+                    		$jadd .= " AND {$joinAs}.{$ofield[$i]}={$table}.{$tfield[$i]} ";
                     	}
                     }
-                    $this->_join .= ' ' . $appendJoin . ' ';
+                    $jadd .= ' ' . $appendJoin . ' ';
                 } else {
-	                $this->_join .= " ON ({$joinAs}.{$ofield}={$table}.{$tfield}) {$appendJoin} ";
+	                $jadd .= " ON ({$joinAs}.{$ofield}={$table}.{$tfield}) {$appendJoin} ";
                 }
-
+                // jadd avaliable for debugging join build.
+                //echo $jadd ."\n";
+                $this->_join .= $jadd;
                 break;
                 
             case '': // this is just a standard multitable select..
