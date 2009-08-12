@@ -15,10 +15,10 @@
   <email>alan@akbkhome.com</email>
   <active>yes</active>
  </lead>
- <date>2009-07-16</date>
- <time>07:43:01</time>
+ <date>2009-08-12</date>
+ <time>22:00:34</time>
  <version>
-  <release>1.8.11</release>
+  <release>1.8.12</release>
   <api>1.8.6</api>
  </version>
  <stability>
@@ -27,20 +27,16 @@
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
  <notes>Licence upgrade Release
-#----- - Licence changed to 3.01 to keep Debian/Ubuntu happy.
-#----- - Change order of preference for links in JoinAdd - prefer called table links over jointo table.
-#----- - Retry support for connection failure on queries
-#----- - Factory now uses &apos;/&apos; for database/table seperator (experimental)
-#----- - Fix INSERT on Postresql with empty data.</notes>
+#----- - Changed Error and Cast Licence to 3.01 to keep Debian/Ubuntu happy.</notes>
  <contents>
   <dir name="/">
-   <file baseinstalldir="DB" md5sum="2cd155bb9e7656282278297356aeccfc" name="DataObject/Cast.php" role="php" />
+   <file baseinstalldir="DB" md5sum="b50c79d3a19d9e156c7bfd9a221fab55" name="DataObject/Cast.php" role="php" />
    <file baseinstalldir="DB" md5sum="8f7382a61580d5be68e31a7544d454d7" name="DataObject/createTables.php" role="php" />
-   <file baseinstalldir="DB" md5sum="cc5ea65e3572966574b99cd3b5b518cf" name="DataObject/Error.php" role="php" />
+   <file baseinstalldir="DB" md5sum="06e890beb94da0cfd9782b220989f25f" name="DataObject/Error.php" role="php" />
    <file baseinstalldir="DB" md5sum="ef739b7f1a662039f3f6fe64e579a0fb" name="DataObject/Generator.php" role="php" />
    <file baseinstalldir="DB" md5sum="4c00a370a034c011f31087653ec55ff2" name="docs/example.ini" role="doc" />
    <file baseinstalldir="DB" md5sum="cdcc4ead8ef5e06df4381ca0976dcdad" name="scripts/DB_DataObject_createTables.bat" role="script" />
-   <file baseinstalldir="DB" md5sum="bb28447b5f179dcaa9d31bd62d638f37" name="DataObject.php" role="php">
+   <file baseinstalldir="DB" md5sum="cb644fda015a1d911ef11ca699a39624" name="DataObject.php" role="php">
     <tasks:replace from="@version@" to="version" type="package-info" />
    </file>
   </dir>
@@ -79,6 +75,24 @@
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <date>2009-07-16</date>
+   <version>
+    <release>1.8.11</release>
+    <api>1.8.6</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
+   <notes>Licence upgrade Release
+#----- - Licence changed to 3.01 to keep Debian/Ubuntu happy.
+#----- - Change order of preference for links in JoinAdd - prefer called table links over jointo table.
+#----- - Retry support for connection failure on queries
+#----- - Factory now uses &apos;/&apos; for database/table seperator (experimental)
+#----- - Fix INSERT on Postresql with empty data.</notes>
+  </release>
   <release>
    <date>2009-03-19</date>
    <version>
