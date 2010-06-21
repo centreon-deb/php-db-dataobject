@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.9.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>DB_DataObject</name>
  <channel>pear.php.net</channel>
  <summary>An SQL Builder, Object Interface to Database Tables</summary>
@@ -15,10 +15,10 @@
   <email>alan@akbkhome.com</email>
   <active>yes</active>
  </lead>
- <date>2010-01-15</date>
- <time>15:10:46</time>
+ <date>2010-06-22</date>
+ <time>06:00:44</time>
  <version>
-  <release>1.9.3</release>
+  <release>1.9.4</release>
   <api>1.9.0</api>
  </version>
  <stability>
@@ -26,22 +26,33 @@
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
- <notes>Fix broken release (1.9.1 and 1.9.2)
+ <notes>
+Bug Fixes
+#17508 - whereAddIn used wrong method to quote strings
+#6202  - better docs on getLinkArray - needs documentation as well really..
+#17343 - tidy up padding code, - fix alignnment of comments in generated files (Original Patch
+         by madsliejensen)
+#17289 - fix sequence_&lt;table&gt; = XXXXX (madsliejensen)
+#17157 - use property_exists in newer versions of php.
 
-fetchAll() / whereAddIn() Release version.
 
-This version adds two new utility methods, that can speed up usage,
-fetchAll()  - does the $do-&gt;find() / while($do-&gt;fetch()) $ar[] = clone($do) loop, and more.
-whereAddIn() - allows you to quickly build IN queries, with correct escaping.</notes>
+
+New Features
+#7590  - union support - thanks to Ian Carmichael
+#----- - whereAdd in support for negative (prefix column with &apos;!&apos;) and empty arrays forces 1=0 query.
+#13798 - add hookpostvar for adding things like varchar len data etc.. as per req 
+#16267 - Linking Multiple foreign keys - supports links.ini  id[] = table1:col1   id[] =...
+#17049 - generate links.ini for postgres - by madsliejensen
+ </notes>
  <contents>
   <dir name="/">
    <file baseinstalldir="DB" md5sum="b50c79d3a19d9e156c7bfd9a221fab55" name="DataObject/Cast.php" role="php" />
    <file baseinstalldir="DB" md5sum="8f7382a61580d5be68e31a7544d454d7" name="DataObject/createTables.php" role="php" />
    <file baseinstalldir="DB" md5sum="06e890beb94da0cfd9782b220989f25f" name="DataObject/Error.php" role="php" />
-   <file baseinstalldir="DB" md5sum="b88cad42760b2d12489ebea8e9da47dc" name="DataObject/Generator.php" role="php" />
+   <file baseinstalldir="DB" md5sum="600ea0d57e035969dfe316dde3c8bd5b" name="DataObject/Generator.php" role="php" />
    <file baseinstalldir="DB" md5sum="9d98e006265435a3e6e8a3e08a659c3b" name="docs/example.ini" role="doc" />
    <file baseinstalldir="DB" md5sum="cdcc4ead8ef5e06df4381ca0976dcdad" name="scripts/DB_DataObject_createTables.bat" role="script" />
-   <file baseinstalldir="DB" md5sum="cf030d2f3184d09d99f41fa54d1607b0" name="DataObject.php" role="php">
+   <file baseinstalldir="DB" md5sum="5488b602a0592eae1eb889b1258f21c4" name="DataObject.php" role="php">
     <tasks:replace from="@version@" to="version" type="package-info" />
    </file>
   </dir>
@@ -83,7 +94,7 @@ whereAddIn() - allows you to quickly build IN queries, with correct escaping.</n
   <release>
    <date>2010-01-15</date>
    <version>
-    <release>1.9.1</release>
+    <release>1.9.3</release>
     <api>1.9.0</api>
    </version>
    <stability>
@@ -91,11 +102,15 @@ whereAddIn() - allows you to quickly build IN queries, with correct escaping.</n
     <api>stable</api>
    </stability>
    <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
-   <notes>fetchAll() / whereAddIn() Release version.
+   <notes>
+Fix broken release (1.9.1 and 1.9.2)
+
+fetchAll() / whereAddIn() Release version.
 
 This version adds two new utility methods, that can speed up usage,
 fetchAll()  - does the $do-&gt;find() / while($do-&gt;fetch()) $ar[] = clone($do) loop, and more.
-whereAddIn() - allows you to quickly build IN queries, with correct escaping.</notes>
+whereAddIn() - allows you to quickly build IN queries, with correct escaping.
+   </notes>
   </release>
   <release>
    <date>2009-12-03</date>
@@ -108,7 +123,8 @@ whereAddIn() - allows you to quickly build IN queries, with correct escaping.</n
     <api>stable</api>
    </stability>
    <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
-   <notes>Modular Release version.
+   <notes>
+Modular Release version.
 
 This version was designed to support multiple locations of DataObjects for use with
 modular applications. - NOTE the change to ini_DATABASENAME may fixes the previous behaviour to 
@@ -125,7 +141,8 @@ New Features:
 Notes:
 #-------  staticGet now marked depreciated.
 #-------  links_DATABASENAME does not support multiple paths
-#-------  staticAutoloadTable (depreciated) and staticGet (depreciated) do not support this feature</notes>
+#-------  staticAutoloadTable (depreciated) and staticGet (depreciated) do not support this feature
+   </notes>
   </release>
   <release>
    <date>2009-08-12</date>
@@ -138,8 +155,10 @@ Notes:
     <api>stable</api>
    </stability>
    <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
-   <notes>Licence upgrade Release
-#----- - Changed Error and Cast Licence to 3.01 to keep Debian/Ubuntu happy.</notes>
+   <notes>
+Licence upgrade Release
+#----- - Changed Error and Cast Licence to 3.01 to keep Debian/Ubuntu happy.
+   </notes>
   </release>
   <release>
    <date>2009-07-16</date>
@@ -152,12 +171,14 @@ Notes:
     <api>stable</api>
    </stability>
    <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
-   <notes>Licence upgrade Release
+   <notes>
+Licence upgrade Release
 #----- - Licence changed to 3.01 to keep Debian/Ubuntu happy.
 #----- - Change order of preference for links in JoinAdd - prefer called table links over jointo table.
 #----- - Retry support for connection failure on queries
 #----- - Factory now uses &apos;/&apos; for database/table seperator (experimental)
-#----- - Fix INSERT on Postresql with empty data.</notes>
+#----- - Fix INSERT on Postresql with empty data.
+   </notes>
   </release>
   <release>
    <date>2009-03-19</date>
@@ -170,11 +191,13 @@ Notes:
     <api>stable</api>
    </stability>
    <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
-   <notes>Annual Release - Minor Bugfixs / Extra Features
+   <notes>
+Annual Release - Minor Bugfixs / Extra Features
  
 	#----- - Fix factory error with database name not found
 #----- - Change factory multi-database call to use &apos;/&apos; rather than &apos;.&apos; so 
-         that it can work with postgres (also syncs with what the original notes said)</notes>
+         that it can work with postgres (also syncs with what the original notes said)
+   </notes>
   </release>
   <release>
    <date>2009-03-12</date>
@@ -187,7 +210,8 @@ Notes:
     <api>stable</api>
    </stability>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Annual Release - Minor Bugfixs / Extra Features
+   <notes>
+Annual Release - Minor Bugfixs / Extra Features
  
 	#15066 - limited support for POINT (at least generator creates something)
 	#14976 - add option generator_omit_database_var to prevent creation of
@@ -209,7 +233,8 @@ Notes:
  	#13789 - honour user specified MDB2 options in Generator
 	#13790 - support CLOB oracle
 	#12993 - add new option generator_secondary_key_match - set to false, to
-		  disable key matching for secondary key types</notes>
+		  disable key matching for secondary key types
+   </notes>
   </release>
   <release>
    <date>2008-01-30</date>
@@ -222,7 +247,8 @@ Notes:
     <api>stable</api>
    </stability>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix / Feature Release 
+   <notes>
+Minor Bugfix / Feature Release 
  
 Pre-chinese new year release (with lots of 8&apos;s...)
 
@@ -242,7 +268,8 @@ Bug Fixes
     #11775 - unsetting of $this-&gt;_query causes overload setters/getters to  
              handle later uses of _query and break due to lack of array accessor support
     #11634 - Windows fails to rename files if they exist - affecting Generator  
-            (try and fix it so unix is still atomic)</notes>
+            (try and fix it so unix is still atomic)
+   </notes>
   </release>
   <release>
    <date>2007-07-12</date>
@@ -255,11 +282,13 @@ Bug Fixes
     <api>stable</api>
    </stability>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix Release 
+   <notes>
+Minor Bugfix Release 
      
 Bug Fixes:
     #11586 - missing default value in Generator for class_prefix caused warning
-    #11584 - typo in Generator caused permissions to be incorrectly set on ini file.</notes>
+    #11584 - typo in Generator caused permissions to be incorrectly set on ini file.
+   </notes>
   </release>
   <release>
    <date>2007-07-10</date>
@@ -272,7 +301,8 @@ Bug Fixes:
     <api>stable</api>
    </stability>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix and Minor Feature addition release
+   <notes>
+Minor Bugfix and Minor Feature addition release
      
 Bug Fixes:
     #11483 - show an error if pcre limits are not correctly set and generator tries to generate empty files
@@ -296,7 +326,8 @@ Bug Fixes:
     * feature request 
     #4266 - joins with multiple keys
     #2216 - JOIN ON conversion of Where condition into ON arguments - patch by David Sanders
-    #----   add in docbook hooks to generator - as requested/coded by Vyacheslav Iutin</notes>
+    #----   add in docbook hooks to generator - as requested/coded by Vyacheslav Iutin
+   </notes>
   </release>
   <release>
    <date>2006-12-15</date>
@@ -309,7 +340,8 @@ Bug Fixes:
     <api>stable</api>
    </stability>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix and Minor Feature addition release
+   <notes>
+Minor Bugfix and Minor Feature addition release
     * #8876 - call free() after count - hopefully this will not break anything!
     * #8736 - auto_increment check for MDB2 backend
     * #8628 - tableInfo fix for MDB2
@@ -345,7 +377,8 @@ Bug Fixes:
         getMethodNameFromColumnName(), 
         which allow you to set up your own mapping system by overriding them in
         your extended generator.. it however needs some support in dataobjects so currently 
-        flagged as EXPERIMENTAL</notes>
+        flagged as EXPERIMENTAL
+   </notes>
   </release>
   <release>
    <version>
@@ -358,7 +391,8 @@ Bug Fixes:
    </stability>
    <date>2006-03-06</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix and Minor Feature addition release
+   <notes>
+Minor Bugfix and Minor Feature addition release
 
 Bugs
 ----
@@ -374,7 +408,8 @@ Features
         when using the flag generator_add_defaults = yes or generator_no_ini = yes
         a method defaults() is created in the table class, which contains
         the default values for the table generated from the database.
-        Note: EXPERIMENTAL and only works with Mysql[i] at present.</notes>
+        Note: EXPERIMENTAL and only works with Mysql[i] at present.
+   </notes>
   </release>
   <release>
    <version>
@@ -387,7 +422,8 @@ Features
    </stability>
    <date>2006-03-03</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix and Minor Feature addition release
+   <notes>
+Minor Bugfix and Minor Feature addition release
 
 Bugs
 ----
@@ -410,7 +446,8 @@ Features
         (based on work and suggestions by Didler Galland and Justin Patrin)
       - SQL output for debugging now has line breaks to make it easier to read.
       
-      - SelectAs uses quote itendifiers for target format.</notes>
+      - SelectAs uses quote itendifiers for target format.
+   </notes>
   </release>
   <release>
    <version>
@@ -423,11 +460,13 @@ Features
    </stability>
    <date>2004-01-21</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix release
+   <notes>
+Minor Bugfix release
 
 Bugs
 ----
-#6543 - Generator broke due to MDB changes.</notes>
+#6543 - Generator broke due to MDB changes.
+   </notes>
   </release>
   <release>
    <version>
@@ -440,7 +479,8 @@ Bugs
    </stability>
    <date>2006-01-20</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Bugs
+   <notes>
+Bugs
 ----
 #6153 - dont call autoload on PHP5 - kludgy wrapper around class_exists()
 #6458 - clear staticGet cache when calling free()        
@@ -449,7 +489,8 @@ Changes/New Features
 --------------------
 * fix warning if setFrom called with object.. 
 * make createTables honour debug level in ini file.
-* Added support in generator, for MDB2 backend to generate the class files (bate)</notes>
+* Added support in generator, for MDB2 backend to generate the class files (bate)
+   </notes>
   </release>
   <release>
    <version>
@@ -462,7 +503,8 @@ Changes/New Features
    </stability>
    <date>2005-12-28</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Major Bug Fix &amp; Feature release.
+   <notes>
+Major Bug Fix &amp; Feature release.
 
 Bugs:
 
@@ -516,7 +558,8 @@ Other Changes
     so that 0001 -&gt; 00001 works, along with many other situations..,
     remove extra ; from code
 * fix null detection on postgres, - patch by Alistair MacDonald
-* free result columns as well as results after fetching all rows.</notes>
+* free result columns as well as results after fetching all rows.
+   </notes>
   </release>
   <release>
    <version>
@@ -529,8 +572,10 @@ Other Changes
    </stability>
    <date>2005-07-07</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix release 
-* fix bug #4760 - DB_DataObject_Cast blobs broke in last release</notes>
+   <notes>
+Minor Bugfix release 
+* fix bug #4760 - DB_DataObject_Cast blobs broke in last release
+   </notes>
   </release>
   <release>
    <version>
@@ -543,7 +588,8 @@ Other Changes
    </stability>
    <date>2004-06-25</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Bugfix release (Mostly)
+   <notes>
+Bugfix release (Mostly)
 Special thanks to Dan Rossi for the MDB Backend work on this release.
 
 Key changes:
@@ -584,7 +630,8 @@ Bugs Fixed.
   * fix bug #4000 - better checking for php 4.3.10
   * fix bug #3944 - support for informix autoincrements
   * fix bug #4182 - better string and blob support on mysql in cast
-  * fix bug #4135 - boolean values borked in condition building..</notes>
+  * fix bug #4135 - boolean values borked in condition building..
+   </notes>
   </release>
   <release>
    <version>
@@ -597,8 +644,10 @@ Bugs Fixed.
    </stability>
    <date>2005-03-24</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix release
-#3943 - postgres booleans broke again due to last fix for mysqli.</notes>
+   <notes>
+Minor Bugfix release
+#3943 - postgres booleans broke again due to last fix for mysqli.
+   </notes>
   </release>
   <release>
    <version>
@@ -611,9 +660,11 @@ Bugs Fixed.
    </stability>
    <date>2004-03-23</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Daily Bugfix release. ;)
+   <notes>
+Daily Bugfix release. ;)
 #3898 - mysqli quote bug fixed. (Greg Beaver)
-#------ provisional support for mysql blobs in Cast object (Antony Jankelowitz)</notes>
+#------ provisional support for mysql blobs in Cast object (Antony Jankelowitz)
+   </notes>
   </release>
   <release>
    <version>
@@ -626,9 +677,11 @@ Bugs Fixed.
    </stability>
    <date>2005-03-22</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix release. 
+   <notes>
+Minor Bugfix release. 
 #3898 - fix count , which got broken by previous distinct argument changes
-#------ support $x IS NOT NULL using $obj-&gt;value = DB_DataObject_Cast::sql(&quot;NOT NULL&quot;);</notes>
+#------ support $x IS NOT NULL using $obj-&gt;value = DB_DataObject_Cast::sql(&quot;NOT NULL&quot;);
+   </notes>
   </release>
   <release>
    <version>
@@ -641,8 +694,10 @@ Bugs Fixed.
    </stability>
    <date>2005-03-16</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix release. 
-#3829 - joinAdd fix for database prefixing (yet again)</notes>
+   <notes>
+Minor Bugfix release. 
+#3829 - joinAdd fix for database prefixing (yet again)
+   </notes>
   </release>
   <release>
    <version>
@@ -655,8 +710,10 @@ Bugs Fixed.
    </stability>
    <date>2005-03-12</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix release. 
-#3764 - toValue(), and hence toArray() cast booleans to true|false. (previous fix was buggy)</notes>
+   <notes>
+Minor Bugfix release. 
+#3764 - toValue(), and hence toArray() cast booleans to true|false. (previous fix was buggy)
+   </notes>
   </release>
   <release>
    <version>
@@ -669,14 +726,16 @@ Bugs Fixed.
    </stability>
    <date>2005-03-12</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix release. 
+   <notes>
+Minor Bugfix release. 
 #3764 - toValue(), and hence toArray() cast booleans to true|false.
 #3763 - createTables.php defines NO_OVERLOAD to prevent warnings on PHP4.3.10.
 
 #3768 - Hopefully last fix to joinAdd() / database prefixing and  quoteIdentifiers
 #3761 - Fixed DB_DataObject::datetime() bad code.
 #3783 - count(&apos;distinct&apos;) builds the query distinct [primary_key], should help in some situations
-        using joinAdd + group By etc.</notes>
+        using joinAdd + group By etc.
+   </notes>
   </release>
   <release>
    <version>
@@ -689,12 +748,14 @@ Bugs Fixed.
    </stability>
    <date>2005-03-07</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor bug fix release - join add with table fixes broke for mysql with last release
+   <notes>
+Minor bug fix release - join add with table fixes broke for mysql with last release
 Bug Fixes:
 #---- - Joins incorrectly prefect database name for mysql/mysqli
 (Thanks to Mark Mitchenall for spotting this)
 #---- used wrong variable for checking prefixes.
-(Stephane Gully)</notes>
+(Stephane Gully)
+   </notes>
   </release>
   <release>
    <version>
@@ -707,13 +768,15 @@ Bug Fixes:
    </stability>
    <date>2005-03-05</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Nothing like a big release to create bugs..
+   <notes>
+Nothing like a big release to create bugs..
 
 Note: the last release also included method creation for setters and getters, 
   which got missed out from the changelog.
 Bug Fixes:
   #3708 - Generator did not clear last files contents when generating new files.
-  #3706 - Joins broke on everything except mysql (database prefix now only added to mysql)</notes>
+  #3706 - Joins broke on everything except mysql (database prefix now only added to mysql)
+   </notes>
   </release>
   <release>
    <version>
@@ -726,7 +789,8 @@ Bug Fixes:
    </stability>
    <date>2005-03-02</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>A few releases where skipped, this should be the amalgamated upgrade!
+   <notes>
+A few releases where skipped, this should be the amalgamated upgrade!
 
 Note: php4.3.10 will exit with an error if you dont define NO_OVERLOAD, rather 
 than segfaulting..
@@ -755,7 +819,8 @@ Bug Fixes:
   #2319 - joinAdd does not use AS when table and target have same name.
   #---- - Dia diagram generation tools available in CVS (build diagrams from dataobjects)
   
-  #2267 - additional debugging information available at connect time</notes>
+  #2267 - additional debugging information available at connect time
+   </notes>
   </release>
   <release>
    <version>
@@ -768,7 +833,8 @@ Bug Fixes:
    </stability>
    <date>2004-08-28</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor bug fix / Minor feature addition release
+   <notes>
+Minor bug fix / Minor feature addition release
   
   
 Bug Fixes:
@@ -780,7 +846,8 @@ Bug Fixes:
   
 Features Added:
   #2086 - Support for buliding dataobjects for Views (use option build_view=1)
-  #2240 - factory() called on a dataobject returns a new instance of that object.</notes>
+  #2240 - factory() called on a dataobject returns a new instance of that object.
+   </notes>
   </release>
   <release>
    <version>
@@ -793,13 +860,15 @@ Features Added:
    </stability>
    <date>2004-08-09</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor bug fix release
+   <notes>
+Minor bug fix release
   
   
 Bug Fixes:
   #2088 - class_prefix may be left out.
   #------ php4.2 compatibility should work as advertised in last realease
-  #------ Generator didnt have DB loaded due to lazy load changes.</notes>
+  #------ Generator didnt have DB loaded due to lazy load changes.
+   </notes>
   </release>
   <release>
    <version>
@@ -812,7 +881,8 @@ Bug Fixes:
    </stability>
    <date>2004-06-03</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Major bug fix release, Minor features added.  
+   <notes>
+Major bug fix release, Minor features added.  
   
   
 Bug Fixes:
@@ -839,7 +909,8 @@ Changes:
   * free() method added, to clean up memory instantly, if you are doing alot of queries.
       = Cleans Result Fields, Result Object, NumRows returned in Connection object.
   * include path is used to do file hunting if factory fails to find file.
-  * DB is lazy loaded on connection.b</notes>
+  * DB is lazy loaded on connection.b
+   </notes>
   </release>
   <release>
    <version>
@@ -852,9 +923,11 @@ Changes:
    </stability>
    <date>2004-06-03</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bug Fix
+   <notes>
+Minor Bug Fix
 
-* fixed count() breaks when countWhat used.</notes>
+* fixed count() breaks when countWhat used.
+   </notes>
   </release>
   <release>
    <version>
@@ -867,7 +940,8 @@ Changes:
    </stability>
    <date>2004-04-24</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Feature Release and many bug fixes..
+   <notes>
+Minor Feature Release and many bug fixes..
 
 * DB_DataObject_Error added to enable testing for dataobject errors
 * Date fixes - needs latest date package.
@@ -902,7 +976,8 @@ Changes:
 * use PEAR::getStaticProperty(&quot;DB&quot;,&quot;options&quot;) for oracle portablity settings.
 * null checked against not null spec.
 
-And probably a few more - as it&apos;s been quite a while since the last release..</notes>
+And probably a few more - as it&apos;s been quite a while since the last release..
+   </notes>
   </release>
   <release>
    <version>
@@ -915,7 +990,8 @@ And probably a few more - as it&apos;s been quite a while since the last release
    </stability>
    <date>2004-01-29</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Bug fix release.
+   <notes>
+Bug fix release.
 
 Changes:
   - fixed toValue()
@@ -927,7 +1003,8 @@ Fixes
 * fix bug #630 - correct handling of YEAR (it&apos;s an int)
 * fix bug #630 - mysql timestamps are ingored for updated and insert (use query() if you want to change
   them manually.
-* fix bug #620 - limit accepts floats and doubles, as long as they are really integers..</notes>
+* fix bug #620 - limit accepts floats and doubles, as long as they are really integers..
+   </notes>
   </release>
   <release>
    <version>
@@ -940,7 +1017,8 @@ Fixes
    </stability>
    <date>2004-01-24</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Bug fix release.
+   <notes>
+Bug fix release.
 
 Changes:
   - removed automatic strtotime() in setters and setFrom
@@ -956,7 +1034,8 @@ so it can be used to test connections.
 * fix bug #612 databaseStructure(&apos;databasename&apos;) will output the ini file structure array , with __keys
 * fix bug #611 corrected comment about NO_OVERLOAD
 * fix bug #603 to prevent clearing of queries after fetch, use the option keep_query_after_fetch = 1
-* fix bug #359 (again) - _link_loaded array should only contain links that where sucessfully loaded</notes>
+* fix bug #359 (again) - _link_loaded array should only contain links that where sucessfully loaded
+   </notes>
   </release>
   <release>
    <version>
@@ -969,14 +1048,16 @@ so it can be used to test connections.
    </stability>
    <date>2004-01-22</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Bug fix release.
+   <notes>
+Bug fix release.
 Fixes
 * fixed fromValue had problems with null and DataOBject_Cast objects
 * NOT NULL checking enabled in fromValue (eg. setters)
 * fix bug #605 - ability to specify sequence names
   option sequence_{tablename} = {column} // default {tablename}_seq
   option sequence_{tablename} = {column}:{sequence_name}
-* Dependancy on Date added. (it is used by the setter/getters)</notes>
+* Dependancy on Date added. (it is used by the setter/getters)
+   </notes>
   </release>
   <release>
    <version>
@@ -989,7 +1070,8 @@ Fixes
    </stability>
    <date>2004-01-20</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>New Features / Fixes
+   <notes>
+New Features / Fixes
 * proxy and auto schema building
   - you can use dataobjects wihout running create tables.
   - schema is created on the fly if no schema file exists
@@ -1018,7 +1100,8 @@ Bug Fixes
 * fix bug #528/#476 - typo fix (E_NOTICE error on $valu)
 * fix bug #473 - query can return a DB_Error 
 * fix bug #501 - autoload/factory  now uses full path (not require path)
-* fix bug #507 - sequences broken</notes>
+* fix bug #507 - sequences broken
+   </notes>
   </release>
   <release>
    <version>
@@ -1031,7 +1114,9 @@ Bug Fixes
    </stability>
    <date>2003-12-20</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes />
+   <notes>
+
+   </notes>
   </release>
   <release>
    <version>
@@ -1044,7 +1129,8 @@ Bug Fixes
    </stability>
    <date>2003-11-14</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>New Features
+   <notes>
+New Features
 - Inserts and updates do not use keys in the data creation part of the query
   (Markus Wolff)
 
@@ -1095,7 +1181,8 @@ Fixes:
   just produces a debug warning now
 - Bug #172,Turning of Overload
   If you define DB_DATAOBJECT_NO_OVERLOAD to any value, then dataobjects will not be overloaded,
-  This is usefull when working with ZendOptimizer, that may segfault with certain optimization levels</notes>
+  This is usefull when working with ZendOptimizer, that may segfault with certain optimization levels
+   </notes>
   </release>
   <release>
    <version>
@@ -1108,7 +1195,8 @@ Fixes:
    </stability>
    <date>2003-08-07</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>New Features:
+   <notes>
+New Features:
 - A Number of the private methods have been made Public,
   changes:
     - _get_table()  = table()
@@ -1121,7 +1209,8 @@ POSSIBLE BC IMPLICATIONS: If you define _get_table or _get_keys manually (rather
   you should rename your methods table() and keys()
 Fixes:
 - Generator is now more tollerant of editors that alter the spaces before
-  the autocode markers ### (Andreas Ljunggren)</notes>
+  the autocode markers ### (Andreas Ljunggren)
+   </notes>
   </release>
   <release>
    <version>
@@ -1134,13 +1223,15 @@ Fixes:
    </stability>
    <date>2003-08-07</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Bug Fixes
+   <notes>
+Bug Fixes
 - limit argument testing now accepts &quot;10&quot; (a string with an integer
 in it, as a valid argument) (Demian Turner)
 New Features
 - JoinAdd has additional Argument $joinCol, so you can specify
   multiple targets links of the  same table, eg. user-&gt;friend,
-  user-&gt;parent both connect to the user table..  (Andy Crain)</notes>
+  user-&gt;parent both connect to the user table..  (Andy Crain)
+   </notes>
   </release>
   <release>
    <version>
@@ -1153,8 +1244,10 @@ New Features
    </stability>
    <date>2003-07-31</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix Release
-- Fix static Get call, case sensitivity properly.</notes>
+   <notes>
+Minor Bugfix Release
+- Fix static Get call, case sensitivity properly.
+   </notes>
   </release>
   <release>
    <version>
@@ -1167,9 +1260,11 @@ New Features
    </stability>
    <date>2003-07-18</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Minor Bugfix Release
+   <notes>
+Minor Bugfix Release
 - Fix Select defaults back to * after an fetch
-- Fix Update with NULL values</notes>
+- Fix Update with NULL values
+   </notes>
   </release>
   <release>
    <version>
@@ -1182,7 +1277,8 @@ New Features
    </stability>
    <date>2003-07-16</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- Gold 1.0 Release.. - final stable release in this series. Future versions
+   <notes>
+- Gold 1.0 Release.. - final stable release in this series. Future versions
   (eg. 1.1.*(dev)-&gt;1.2.*(release)) series will be generally API compatible,
   however is likely to use MDB rather than DB.
 - fix bug #23983 - argument checking on whereAdd, orderBy, limit and a few others
@@ -1200,7 +1296,8 @@ New Features
   debugLevel(1)
 - overload calls from setFrom and toArray do method checks, as overload is still proving to
   be a little unstable especially with Zend Encoder. (Note: if DataObjects causes crashes
-  , remove the overload code at the bottom of DataObjects.php)</notes>
+  , remove the overload code at the bottom of DataObjects.php)
+   </notes>
   </release>
   <release>
    <version>
@@ -1213,7 +1310,8 @@ New Features
    </stability>
    <date>2003-05-22</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- fix bug #23712 - deleting (and probably updating as well) an object while
+   <notes>
+- fix bug #23712 - deleting (and probably updating as well) an object while
   being fetched. (Michael McCarthy for spotting this)
 - fix generator overwriting code when file was edited in a Windows editor
   (Robert Janeczek)
@@ -1240,7 +1338,8 @@ New Features
   default (no) means that DataObjects will emit a PEAR_ERROR_DIE on configuration and
   programming errors
   true or 1 means that you can write a PEAR::error handler to catch the errors and
-  display a nice it&apos;s not working message</notes>
+  display a nice it&apos;s not working message
+   </notes>
   </release>
   <release>
    <version>
@@ -1253,7 +1352,8 @@ New Features
    </stability>
    <date>2003-05-17</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- add table prefix to autobuilt queries (assist in ambigous querys for joins)
+   <notes>
+- add table prefix to autobuilt queries (assist in ambigous querys for joins)
   (Daniel Von Fange)
 - change update and delete to return the number of rows affected or false on failure
 - various code tidy ups - standards etc. (Arnaud Limbourg)
@@ -1262,7 +1362,8 @@ New Features
 - fix empty table bug in generator (Robert Janeczek)
 - staticAutoloadTable(), now handles parse errors in included files alot cleaner
 - added dependancies on PHP4.3, DB 1.3 and Validate (although Validate is optional)
-- added table prefix to count query (Richard Wallace)</notes>
+- added table prefix to count query (Richard Wallace)
+   </notes>
   </release>
   <release>
    <version>
@@ -1275,8 +1376,10 @@ New Features
    </stability>
    <date>2003-03-12</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- Usual post feature bug fix release
-- fix loading of links.ini for joinAdd, getLinks etc. (Geoff Hopson)</notes>
+   <notes>
+- Usual post feature bug fix release
+- fix loading of links.ini for joinAdd, getLinks etc. (Geoff Hopson)
+   </notes>
   </release>
   <release>
    <version>
@@ -1289,7 +1392,8 @@ New Features
    </stability>
    <date>2003-03-06</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- replaced config storage  - should improve performance
+   <notes>
+- replaced config storage  - should improve performance
 - removed production option (not required due to improved config storage)
 - bugfix : added checks for is_array on ignore_sequence_keys (Hermen Heinen)
 - add toArray($format) which supports sprintf to enable easy integration with
@@ -1299,7 +1403,8 @@ New Features
 - add join condition to count() (Daniel Von Fange)
 - modify limit() to work with postgresql and make it emit a fatal error if you
   try this on databases that do not directly support limit queries. (Geoff Hopson)
-  * I&apos;m open on better ideas for this - probably wrapping the find() select call</notes>
+  * I&apos;m open on better ideas for this - probably wrapping the find() select call
+   </notes>
   </release>
   <release>
    <version>
@@ -1312,12 +1417,14 @@ New Features
    </stability>
    <date>2003-02-13</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- modified find(true), so that it calls fetch rather than fetchrow
+   <notes>
+- modified find(true), so that it calls fetch rather than fetchrow
   so that overriding fetch will affect get() calls.
   (probably depreciates fetchrow now .. shout if anyone is using it)
 - added escape method as a quasi quote wrapper into pear::DB - useful for
   building your own queries - eg. like requests.. (does not add quotes)
-- fixed bug with delete not using primary key if it was set. (Ian Eure)</notes>
+- fixed bug with delete not using primary key if it was set. (Ian Eure)
+   </notes>
   </release>
   <release>
    <version>
@@ -1330,11 +1437,13 @@ New Features
    </stability>
    <date>2003-02-06</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- added get affected rows to update/insert/delete
+   <notes>
+- added get affected rows to update/insert/delete
   they will return false if no data is affected and set
   the Objects lastError value.
   Note: databases that do not support affectedRows(), will always
-  return false.</notes>
+  return false.
+   </notes>
   </release>
   <release>
    <version>
@@ -1347,7 +1456,9 @@ New Features
    </stability>
    <date>2003-01-23</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- bug fix release - debug_ignore_updates worked in reverse.. (Alexander Mazurov)</notes>
+   <notes>
+- bug fix release - debug_ignore_updates worked in reverse.. (Alexander Mazurov)
+   </notes>
   </release>
   <release>
    <version>
@@ -1360,10 +1471,12 @@ New Features
    </stability>
    <date>2003-01-22</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- Usual post release bug fix.
+   <notes>
+- Usual post release bug fix.
 - fixes *.links.ini incorrectly using *.links (Damian Turner)
 - Adds the ability to get PEAR Connection and result objects
-  getDatabaseConnection() and getDatabaseResult() (jason rust)</notes>
+  getDatabaseConnection() and getDatabaseResult() (jason rust)
+   </notes>
   </release>
   <release>
    <version>
@@ -1376,7 +1489,8 @@ New Features
    </stability>
    <date>2003-01-21</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- changed connecition and result caching to use global private variable, rather
+   <notes>
+- changed connecition and result caching to use global private variable, rather
   than getStaticProperty
 - results objects are not stored on insert/update/delete (speed increase
   on large inserts can be as much as 10x faster)
@@ -1384,7 +1498,8 @@ New Features
 - typo on No data returned warning
 - unit tests in CVS
 - new configuration option for whether to use insert id&apos;s and sequences.
-- Generator no creates boolean bit (mitchell perilstein)</notes>
+- Generator no creates boolean bit (mitchell perilstein)
+   </notes>
   </release>
   <release>
    <version>
@@ -1397,10 +1512,12 @@ New Features
    </stability>
    <date>2002-12-09</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- bug fix - Generator incorrectly set _database, causing generation of database.ini files to fail
+   <notes>
+- bug fix - Generator incorrectly set _database, causing generation of database.ini files to fail
 - change addslashes to PEAR::DB::quote()
 - generator now only replaces DB_DataObjects with extends variable if set,
-  you can use generator_rewrite_class to set what is a valid replacement.</notes>
+  you can use generator_rewrite_class to set what is a valid replacement.
+   </notes>
   </release>
   <release>
    <version>
@@ -1413,7 +1530,9 @@ New Features
    </stability>
    <date>2002-12-06</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- bug fix release - dsn was not set correctly</notes>
+   <notes>
+- bug fix release - dsn was not set correctly
+   </notes>
   </release>
   <release>
    <version>
@@ -1426,7 +1545,8 @@ New Features
    </stability>
    <date>2002-09-21</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- changed to stable status as it appears to be pretty stable now.
+   <notes>
+- changed to stable status as it appears to be pretty stable now.
 - update and insert now return FALSE on error conditions (Peter Gebauer)
   which can be checked using === FALSE, and the error obtained using $object-&gt;_lastError
 - delete will only use primary keys if they are set, otherwise it will use all object
@@ -1436,7 +1556,8 @@ New Features
 - support for INT4, BPCHAR, TIMESTAMPTZ  and postres Primary keys (Xavier)
 - better PEAR CS complience (tabs and TRUE -&gt; true), removed short open tags in generator (Thomas Volkmar Worm)
 - experimental addJoin method (Stijn de Reede)
-- Allow active options array (eg. dynamic changing of database config) (Sergey Lipnevich)</notes>
+- Allow active options array (eg. dynamic changing of database config) (Sergey Lipnevich)
+   </notes>
   </release>
   <release>
    <version>
@@ -1449,7 +1570,9 @@ New Features
    </stability>
    <date>2002-09-10</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- bug fix release on insert (broke due to compatibility fixes)</notes>
+   <notes>
+- bug fix release on insert (broke due to compatibility fixes)
+   </notes>
   </release>
   <release>
    <version>
@@ -1462,10 +1585,12 @@ New Features
    </stability>
    <date>2002-09-07</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- fixed database.links.ini file loading in wrong location (Jens Fischer)
+   <notes>
+- fixed database.links.ini file loading in wrong location (Jens Fischer)
 - fixed type on extends (Jens Fischer)
 - added __clone() support to pre- php5 classes
-- added multiple linked table support</notes>
+- added multiple linked table support
+   </notes>
   </release>
   <release>
    <version>
@@ -1478,7 +1603,9 @@ New Features
    </stability>
    <date>2002-08-21</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- Bug fix release - createTables used wrong argv</notes>
+   <notes>
+- Bug fix release - createTables used wrong argv
+   </notes>
   </release>
   <release>
    <version>
@@ -1491,7 +1618,9 @@ New Features
    </stability>
    <date>2002-08-16</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- Fixed Globals requirement in createTables,</notes>
+   <notes>
+- Fixed Globals requirement in createTables,
+   </notes>
   </release>
   <release>
    <version>
@@ -1504,7 +1633,9 @@ New Features
    </stability>
    <date>2002-07-12</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>Removed list method, First upload as pear package. - Documentation now in PEAR Manual</notes>
+   <notes>
+Removed list method, First upload as pear package. - Documentation now in PEAR Manual
+   </notes>
   </release>
   <release>
    <version>
@@ -1517,7 +1648,9 @@ New Features
    </stability>
    <date>2002-06-25</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>PEARified</notes>
+   <notes>
+PEARified
+   </notes>
   </release>
  </changelog>
 </package>
