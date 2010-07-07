@@ -15,7 +15,7 @@
  * @author     Alan Knowles <alan@akbkhome.com>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_01.txt  PHP License 3.01
- * @version    CVS: $Id: DataObject.php 300638 2010-06-21 21:49:15Z alan_k $
+ * @version    CVS: $Id: DataObject.php 301030 2010-07-07 02:26:31Z alan_k $
  * @link       http://pear.php.net/package/DB_DataObject
  */
   
@@ -235,7 +235,7 @@ class DB_DataObject extends DB_DataObject_Overload
     * @access   private
     * @var      string
     */
-    var $_DB_DataObject_version = "1.9.4";
+    var $_DB_DataObject_version = "1.9.5";
 
     /**
      * The Database table (used by table extends)
@@ -1322,7 +1322,7 @@ class DB_DataObject extends DB_DataObject_Overload
         $seq    = $this->sequenceKey();
         if ($seq[0] !== false) {
             $keys = array($seq[0]);
-            if (empty($this->{$keys[0]}) && $dataObject !== true) {
+            if (!isset($this->{$keys[0]}) && $dataObject !== true) {
                 $this->raiseError("update: trying to perform an update without 
                         the key set, and argument to update is not 
                         DB_DATAOBJECT_WHEREADD_ONLY

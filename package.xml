@@ -15,10 +15,10 @@
   <email>alan@akbkhome.com</email>
   <active>yes</active>
  </lead>
- <date>2010-06-22</date>
- <time>06:00:44</time>
+ <date>2010-07-07</date>
+ <time>10:52:54</time>
  <version>
-  <release>1.9.4</release>
+  <release>1.9.5</release>
   <api>1.9.0</api>
  </version>
  <stability>
@@ -27,22 +27,9 @@
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
  <notes>
-Bug Fixes
-#17508 - whereAddIn used wrong method to quote strings
-#6202  - better docs on getLinkArray - needs documentation as well really..
-#17343 - tidy up padding code, - fix alignnment of comments in generated files (Original Patch
-         by madsliejensen)
-#17289 - fix sequence_&lt;table&gt; = XXXXX (madsliejensen)
-#17157 - use property_exists in newer versions of php.
+Small fix release.
 
-
-
-New Features
-#7590  - union support - thanks to Ian Carmichael
-#----- - whereAdd in support for negative (prefix column with &apos;!&apos;) and empty arrays forces 1=0 query.
-#13798 - add hookpostvar for adding things like varchar len data etc.. as per req 
-#16267 - Linking Multiple foreign keys - supports links.ini  id[] = table1:col1   id[] =...
-#17049 - generate links.ini for postgres - by madsliejensen
+     fix bug #17554 - update when id=0 (or primary key is 0) - thanks to the persistance of Jacek Pawlowski
  </notes>
  <contents>
   <dir name="/">
@@ -52,7 +39,7 @@ New Features
    <file baseinstalldir="DB" md5sum="600ea0d57e035969dfe316dde3c8bd5b" name="DataObject/Generator.php" role="php" />
    <file baseinstalldir="DB" md5sum="9d98e006265435a3e6e8a3e08a659c3b" name="docs/example.ini" role="doc" />
    <file baseinstalldir="DB" md5sum="cdcc4ead8ef5e06df4381ca0976dcdad" name="scripts/DB_DataObject_createTables.bat" role="script" />
-   <file baseinstalldir="DB" md5sum="5488b602a0592eae1eb889b1258f21c4" name="DataObject.php" role="php">
+   <file baseinstalldir="DB" md5sum="5ae40e7b15cce285c2f3a0dcaea91a23" name="DataObject.php" role="php">
     <tasks:replace from="@version@" to="version" type="package-info" />
    </file>
   </dir>
@@ -91,6 +78,36 @@ New Features
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <date>2010-06-21</date>
+   <version>
+    <release>1.9.4</release>
+    <api>1.9.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
+   <notes>
+Bug Fixes
+#17508 - whereAddIn used wrong method to quote strings
+#6202  - better docs on getLinkArray - needs documentation as well really..
+#17343 - tidy up padding code, - fix alignnment of comments in generated files (Original Patch
+         by madsliejensen)
+#17289 - fix sequence_&lt;table&gt; = XXXXX (madsliejensen)
+#17157 - use property_exists in newer versions of php.
+
+
+
+New Features
+#7590  - union support - thanks to Ian Carmichael
+#----- - whereAdd in support for negative (prefix column with &apos;!&apos;) and empty arrays forces 1=0 query.
+#13798 - add hookpostvar for adding things like varchar len data etc.. as per req 
+#16267 - Linking Multiple foreign keys - supports links.ini  id[] = table1:col1   id[] =...
+#17049 - generate links.ini for postgres - by madsliejensen
+   </notes>
+  </release>
   <release>
    <date>2010-01-15</date>
    <version>
