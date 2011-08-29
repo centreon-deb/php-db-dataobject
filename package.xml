@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.9.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.9.4" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>DB_DataObject</name>
  <channel>pear.php.net</channel>
  <summary>An SQL Builder, Object Interface to Database Tables</summary>
@@ -15,10 +15,10 @@
   <email>alan@akbkhome.com</email>
   <active>yes</active>
  </lead>
- <date>2010-07-07</date>
- <time>10:52:54</time>
+ <date>2011-08-29</date>
+ <time>04:19:19</time>
  <version>
-  <release>1.9.5</release>
+  <release>1.9.6</release>
   <api>1.9.0</api>
  </version>
  <stability>
@@ -29,17 +29,26 @@
  <notes>
 Small fix release.
 
-     fix bug #17554 - update when id=0 (or primary key is 0) - thanks to the persistance of Jacek Pawlowski
+  #18749 - Fix is_a() for 5.3.7+ due to php-core stupidity
+  #18602 - optimize fetch - thanks to shadesofgraylin
+  #18605 - optimize sprintf in toArray()
+  #18446 - use table() method rather than accessing static global.
+  #----- - toArray support for only returning returned columns use &quot;0&quot; as the second parameter
+  #----- - allow tableless dataobject connect() call to work
+  #----- - disable overload using DB_DATAOBJECT_NO_OVERLOAD on PHP5 - Im supprised no one ever noticed this - overload is EVIL ;)
+  #----- - Add autoJoin method, which will build a full join with all related tables.
+  #16867 - fix doc comments - change to public methods for the ones that are supposed to be overridden
+  #17637 - fix detection of non-existant links files resulting in defaulting to autolinks
  </notes>
  <contents>
   <dir name="/">
    <file baseinstalldir="DB" md5sum="b50c79d3a19d9e156c7bfd9a221fab55" name="DataObject/Cast.php" role="php" />
    <file baseinstalldir="DB" md5sum="8f7382a61580d5be68e31a7544d454d7" name="DataObject/createTables.php" role="php" />
    <file baseinstalldir="DB" md5sum="06e890beb94da0cfd9782b220989f25f" name="DataObject/Error.php" role="php" />
-   <file baseinstalldir="DB" md5sum="600ea0d57e035969dfe316dde3c8bd5b" name="DataObject/Generator.php" role="php" />
+   <file baseinstalldir="DB" md5sum="3cdc2349086d9fd6bea4a8c09cc38186" name="DataObject/Generator.php" role="php" />
    <file baseinstalldir="DB" md5sum="9d98e006265435a3e6e8a3e08a659c3b" name="docs/example.ini" role="doc" />
    <file baseinstalldir="DB" md5sum="cdcc4ead8ef5e06df4381ca0976dcdad" name="scripts/DB_DataObject_createTables.bat" role="script" />
-   <file baseinstalldir="DB" md5sum="5ae40e7b15cce285c2f3a0dcaea91a23" name="DataObject.php" role="php">
+   <file baseinstalldir="DB" md5sum="b035e6bcb1cbdc4cf4d6eb4bc88dbc41" name="DataObject.php" role="php">
     <tasks:replace from="@version@" to="version" type="package-info" />
    </file>
   </dir>
@@ -78,6 +87,23 @@ Small fix release.
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <date>2010-07-07</date>
+   <version>
+    <release>1.9.5</release>
+    <api>1.9.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
+   <notes>
+Small fix release.
+
+     fix bug #17554 - update when id=0 (or primary key is 0) - thanks to the persistance of Jacek Pawlowski
+   </notes>
+  </release>
   <release>
    <date>2010-06-21</date>
    <version>

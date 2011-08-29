@@ -15,7 +15,7 @@
  * @author     Alan Knowles <alan@akbkhome.com>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_01.txt  PHP License 3.01
- * @version    CVS: $Id: Generator.php 298560 2010-04-25 23:01:51Z alan_k $
+ * @version    CVS: $Id: Generator.php 315531 2011-08-26 02:21:29Z alan_k $
  * @link       http://pear.php.net/package/DB_DataObject
  */
  
@@ -180,7 +180,7 @@ class DB_DataObject_Generator extends DB_DataObject
         $db_driver = empty($options['db_driver']) ? 'DB' : $options['db_driver'];
         $is_MDB2 = ($db_driver != 'DB') ? true : false;
 
-        if (is_a($__DB , 'PEAR_Error')) {
+        if (is_object($__DB) && is_a($__DB , 'PEAR_Error')) {
             return PEAR::raiseError($__DB->toString(), null, PEAR_ERROR_DIE);
         }
         
@@ -202,7 +202,7 @@ class DB_DataObject_Generator extends DB_DataObject
             $__DB->loadModule('Reverse');
         }
 
-        if ((empty($this->tables) || is_a($this->tables , 'PEAR_Error'))) {
+        if ((empty($this->tables) || (is_object($this->tables) && is_a($this->tables , 'PEAR_Error')))) {
             //if that fails fall back to clasic tables list.
             if (!$is_MDB2) {
                 // try getting a list of schema tables first. (postgres)
@@ -218,7 +218,7 @@ class DB_DataObject_Generator extends DB_DataObject
             }
         }
 
-        if (is_a($this->tables , 'PEAR_Error')) {
+        if (is_object($this->tables) && is_a($this->tables , 'PEAR_Error')) {
             return PEAR::raiseError($this->tables->toString(), null, PEAR_ERROR_DIE);
         }
 
@@ -229,7 +229,7 @@ class DB_DataObject_Generator extends DB_DataObject
             } else {
                 $views = $__DB->manager->listViews();
             }
-            if (is_a($views,'PEAR_Error')) {
+            if (is_object($views) && is_a($views,'PEAR_Error')) {
                 return PEAR::raiseError(
                 'Error getting Views (check the PEAR bug database for the fix to DB), ' .
                 $views->toString(),
@@ -272,7 +272,7 @@ class DB_DataObject_Generator extends DB_DataObject
                 
             }
 
-            if (is_a($defs,'PEAR_Error')) {
+            if (is_object($defs) && is_a($defs,'PEAR_Error')) {
                 // running in debug mode should pick this up as a big warning..
                 $this->raiseError('Error reading tableInfo, '. $defs->toString());
                 continue;
