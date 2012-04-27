@@ -15,10 +15,10 @@
   <email>alan@akbkhome.com</email>
   <active>yes</active>
  </lead>
- <date>2011-08-29</date>
- <time>04:19:19</time>
+ <date>2012-04-27</date>
+ <time>09:24:28</time>
  <version>
-  <release>1.9.6</release>
+  <release>1.10.0</release>
   <api>1.9.0</api>
  </version>
  <stability>
@@ -27,30 +27,66 @@
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
  <notes>
-Small fix release.
+Major feature and fix release.
 
-  #18749 - Fix is_a() for 5.3.7+ due to php-core stupidity
-  #18602 - optimize fetch - thanks to shadesofgraylin
-  #18605 - optimize sprintf in toArray()
-  #18446 - use table() method rather than accessing static global.
-  #----- - toArray support for only returning returned columns use &quot;0&quot; as the second parameter
-  #----- - allow tableless dataobject connect() call to work
-  #----- - disable overload using DB_DATAOBJECT_NO_OVERLOAD on PHP5 - Im supprised no one ever noticed this - overload is EVIL ;)
-  #----- - Add autoJoin method, which will build a full join with all related tables.
-  #16867 - fix doc comments - change to public methods for the ones that are supposed to be overridden
-  #17637 - fix detection of non-existant links files resulting in defaulting to autolinks
+
+  #----- - Fix transactions - query(BEGIN) did not actually run when called.
+  #----- - Refactor Link and join code 
+      - link code moved to DB_DataObject_Link, new option generate_link_methods, new method link()
+      - make the links option work with autojoin, add setter feature to links()
+      - support links option on autojoin
+      - add support for excluded columns on autoJoin
+      - more detailed check on assigning numbers in link()
+      - new link syntax in generated methods
+      - make links() support same array syntax as joinAdd(), and change links() to
+          support input as func_get_args() for the second argument, cleans up wrapper code..
+      - support joinAdd(array(&quot;local_col&quot;, $dataObject, &quot;remote_col&quot;), &quot;LEFT&quot;), 
+          extra debugging on count(), and case sensitive checking on numRows (not sure if that was needed..)
+
+  #----- - remove notes relating to MDB as they are not relivant anymore
+  #----- - SVN/git has new directory layout
+ 
+
+  #----- - Add pid() - a quick way to get the value from the primary &quot;id&quot; column of the database
+  #----- - add sqlValue() - a factory method to create a DB_DataObject_Cast Object
+  #----- - nice warning on failed to write to temporary file
+  #----- - fixes to correctly support portability in selectAs()
+  #----- - fixes to correctly support portability in joinAdd
+
+  #----- - lower case links and ini during load, when portability set, fix handling in joinAdd
+
+    
+  #----- - add experimental support for posgresql introspected native keys
+
+  #----- - move assignment to error in raiseError after it actually happens, this should
+             ensure _lastError gets set correctly as the aliased setting does not appear to 
+             work very well..
+  #----- -  find() will return false when an error occurs (rather than 0)
+  #18995 - Remove error_reporting settings from tests (closes bug #18995).
+  #18931 - typos in comments - rasmus would appreciate this one... (depreciated to depricated)
+  #----- - support ini_database in foreign key generation, and regex matching on strip schema
+  #----- - document change to generator_strip_schema which now supports regexp to strip from
+           matching schemas
+  #----- - add support for portability in tableName() - most references to tablename will
+             now call tablename, so that code working on mysql can work on postgres, 
+             where tables are mixed case in mysql.
+  #----- - document build_views change
+  #----- - support _TEXT type (postgres view returns this.)
+  #----- - support build_views=schema.views for building dataobjects from views with schemas
+  #18767 - use argv0 for the usage line, and ensure that is is run from cli sapi
  </notes>
  <contents>
   <dir name="/">
-   <file baseinstalldir="DB" md5sum="b50c79d3a19d9e156c7bfd9a221fab55" name="DataObject/Cast.php" role="php" />
-   <file baseinstalldir="DB" md5sum="8f7382a61580d5be68e31a7544d454d7" name="DataObject/createTables.php" role="php" />
-   <file baseinstalldir="DB" md5sum="06e890beb94da0cfd9782b220989f25f" name="DataObject/Error.php" role="php" />
-   <file baseinstalldir="DB" md5sum="3cdc2349086d9fd6bea4a8c09cc38186" name="DataObject/Generator.php" role="php" />
-   <file baseinstalldir="DB" md5sum="9d98e006265435a3e6e8a3e08a659c3b" name="docs/example.ini" role="doc" />
-   <file baseinstalldir="DB" md5sum="cdcc4ead8ef5e06df4381ca0976dcdad" name="scripts/DB_DataObject_createTables.bat" role="script" />
-   <file baseinstalldir="DB" md5sum="b035e6bcb1cbdc4cf4d6eb4bc88dbc41" name="DataObject.php" role="php">
+   <file md5sum="b50c79d3a19d9e156c7bfd9a221fab55" name="DB/DataObject/Cast.php" role="php" />
+   <file md5sum="64409221d0ca21703bf7cd0dbaf5918e" name="DB/DataObject/createTables.php" role="php" />
+   <file md5sum="06e890beb94da0cfd9782b220989f25f" name="DB/DataObject/Error.php" role="php" />
+   <file md5sum="bc8d7fce9bf99a0c8eb6ece36166fe0f" name="DB/DataObject/Generator.php" role="php" />
+   <file md5sum="e9e91373c01acc4a00bab32f31e7aa87" name="DB/DataObject/Links.php" role="php" />
+   <file md5sum="ec4e5b2497e86bfb875e428996ba50eb" name="DB/DataObject.php" role="php">
     <tasks:replace from="@version@" to="version" type="package-info" />
    </file>
+   <file baseinstalldir="DB" md5sum="6ca7ba11da3c125f78758d740849791b" name="docs/example.ini" role="doc" />
+   <file baseinstalldir="DB" md5sum="cdcc4ead8ef5e06df4381ca0976dcdad" name="scripts/DB_DataObject_createTables.bat" role="script" />
   </dir>
  </contents>
  <dependencies>
@@ -87,6 +123,32 @@ Small fix release.
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <date>2011-08-29</date>
+   <version>
+    <release>1.9.6</release>
+    <api>1.9.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
+   <notes>
+Small fix release.
+
+  #18749 - Fix is_a() for 5.3.7+ due to php-core stupidity
+  #18602 - optimize fetch - thanks to shadesofgraylin
+  #18605 - optimize sprintf in toArray()
+  #18446 - use table() method rather than accessing static global.
+  #----- - toArray support for only returning returned columns use &quot;0&quot; as the second parameter
+  #----- - allow tableless dataobject connect() call to work
+  #----- - disable overload using DB_DATAOBJECT_NO_OVERLOAD on PHP5 - Im supprised no one ever noticed this - overload is EVIL ;)
+  #----- - Add autoJoin method, which will build a full join with all related tables.
+  #16867 - fix doc comments - change to public methods for the ones that are supposed to be overridden
+  #17637 - fix detection of non-existant links files resulting in defaulting to autolinks
+   </notes>
+  </release>
   <release>
    <date>2010-07-07</date>
    <version>
