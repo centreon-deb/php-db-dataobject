@@ -15,10 +15,10 @@
   <email>alan@akbkhome.com</email>
   <active>yes</active>
  </lead>
- <date>2013-04-05</date>
- <time>07:31:58</time>
+ <date>2014-04-22</date>
+ <time>04:01:21</time>
  <version>
-  <release>1.11.2</release>
+  <release>1.11.3</release>
   <api>1.9.0</api>
  </version>
  <stability>
@@ -27,6 +27,74 @@
  </stability>
  <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
  <notes>
+Minor  feature and fix release. (Basically a yearly release now..)
+  #19922 - fix for pear error not being set in static property.
+  #19973 - accept START TRANSACTION as an alias for BEGIN
+  #19962 - Cannot insert or update when part of a reference in multi-key case is NULL by vtamma
+  #20149  - correct free for linked objects / more detailed error reporting on update error
+          - fix building of autojoin when using distinct columns
+ </notes>
+ <contents>
+  <dir name="/">
+   <file md5sum="1d20ae6df7a4eb463fb734c3135c02d9" name="DB/DataObject/Cast.php" role="php" />
+   <file md5sum="de527e4ff5788c74603b57f836b0afee" name="DB/DataObject/createTables.php" role="php" />
+   <file md5sum="06e890beb94da0cfd9782b220989f25f" name="DB/DataObject/Error.php" role="php" />
+   <file md5sum="c54889c4b3c6a2748dc1b00081a68588" name="DB/DataObject/Generator.php" role="php" />
+   <file md5sum="e8996463f2f406e3a7ada0631e57328a" name="DB/DataObject/Links.php" role="php" />
+   <file md5sum="47787bf09e93fc46a9f08668ca3d4702" name="DB/DataObject.php" role="php">
+    <tasks:replace from="@version@" to="version" type="package-info" />
+   </file>
+   <file baseinstalldir="DB_DataObject" md5sum="6ca7ba11da3c125f78758d740849791b" name="docs/example.ini" role="doc" />
+   <file baseinstalldir="DB_DataObject" md5sum="5bb09683f8f09b15b7076f4b4c31d61f" name="docs/LICENCE.txt" role="doc" />
+   <file baseinstalldir="DB" md5sum="cdcc4ead8ef5e06df4381ca0976dcdad" name="scripts/DB_DataObject_createTables.bat" role="script" />
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+   <package>
+    <name>Date</name>
+    <channel>pear.php.net</channel>
+    <min>1.4.3</min>
+   </package>
+  </required>
+  <optional>
+   <package>
+    <name>DB</name>
+    <channel>pear.php.net</channel>
+    <min>1.7.0</min>
+   </package>
+   <package>
+    <name>MDB2</name>
+    <channel>pear.php.net</channel>
+    <min>2.0.0RC1</min>
+   </package>
+   <package>
+    <name>Validate</name>
+    <channel>pear.php.net</channel>
+    <min>0.1.1</min>
+   </package>
+  </optional>
+ </dependencies>
+ <phprelease />
+ <changelog>
+  <release>
+   <date>2013-04-05</date>
+   <version>
+    <release>1.11.2</release>
+    <api>1.9.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
+   <notes>
 (re-release of 1.11.0 - to fix archive tar issue. / fix dependancy)
 
 Minor  feature and fix release. (Basically a yearly release now..)
@@ -69,55 +137,8 @@ Minor  feature and fix release. (Basically a yearly release now..)
       #19479 - simpler test should do the job
       #19479 - link loaded test was incorrect
       #19475 - comment out a few echos that got left in
- </notes>
- <contents>
-  <dir name="/">
-   <file md5sum="835c2be89e366b6274fa5a940035aeda" name="DB/DataObject/Cast.php" role="php" />
-   <file md5sum="64409221d0ca21703bf7cd0dbaf5918e" name="DB/DataObject/createTables.php" role="php" />
-   <file md5sum="06e890beb94da0cfd9782b220989f25f" name="DB/DataObject/Error.php" role="php" />
-   <file md5sum="210646a790ba324b8d2fbac7dfdb2588" name="DB/DataObject/Generator.php" role="php" />
-   <file md5sum="e8996463f2f406e3a7ada0631e57328a" name="DB/DataObject/Links.php" role="php" />
-   <file md5sum="172fb0ac6c84bd958c29be4c3bf9824c" name="DB/DataObject.php" role="php">
-    <tasks:replace from="@version@" to="version" type="package-info" />
-   </file>
-   <file baseinstalldir="DB" md5sum="6ca7ba11da3c125f78758d740849791b" name="docs/example.ini" role="doc" />
-   <file baseinstalldir="DB" md5sum="cdcc4ead8ef5e06df4381ca0976dcdad" name="scripts/DB_DataObject_createTables.bat" role="script" />
-  </dir>
- </contents>
- <dependencies>
-  <required>
-   <php>
-    <min>5.0</min>
-   </php>
-   <pearinstaller>
-    <min>1.4.0b1</min>
-   </pearinstaller>
-   <package>
-    <name>Date</name>
-    <channel>pear.php.net</channel>
-    <min>1.4.3</min>
-   </package>
-  </required>
-  <optional>
-   <package>
-    <name>DB</name>
-    <channel>pear.php.net</channel>
-    <min>1.7.0</min>
-   </package>
-   <package>
-    <name>MDB2</name>
-    <channel>pear.php.net</channel>
-    <min>2.0.0RC1</min>
-   </package>
-   <package>
-    <name>Validate</name>
-    <channel>pear.php.net</channel>
-    <min>0.1.1</min>
-   </package>
-  </optional>
- </dependencies>
- <phprelease />
- <changelog>
+   </notes>
+  </release>
   <release>
    <date>2013-04-03</date>
    <version>
