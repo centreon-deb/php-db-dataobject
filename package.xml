@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.9.4" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.9.5" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>DB_DataObject</name>
  <channel>pear.php.net</channel>
  <summary>An SQL Builder, Object Interface to Database Tables</summary>
@@ -12,13 +12,13 @@
  <lead>
   <name>Alan Knowles</name>
   <user>alan_k</user>
-  <email>alan@akbkhome.com</email>
+  <email>alan@roojs.com</email>
   <active>yes</active>
  </lead>
- <date>2014-04-22</date>
- <time>04:01:21</time>
+ <date>2015-04-08</date>
+ <time>08:43:11</time>
  <version>
-  <release>1.11.3</release>
+  <release>1.11.4</release>
   <api>1.9.0</api>
  </version>
  <stability>
@@ -28,11 +28,16 @@
  <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
  <notes>
 Minor  feature and fix release. (Basically a yearly release now..)
-  #19922 - fix for pear error not being set in static property.
-  #19973 - accept START TRANSACTION as an alias for BEGIN
-  #19962 - Cannot insert or update when part of a reference in multi-key case is NULL by vtamma
+
+  #20291	Ignored in update $dao-&gt;field = 0 (fix bad check for null)
   #20149  - correct free for linked objects / more detailed error reporting on update error
-          - fix building of autojoin when using distinct columns
+  #19962 - Cannot insert or update when part of a reference in multi-key case is NULL by vtamma
+  #19973 - accept START TRANSACTION as an alias for BEGIN
+      -  suuport for useindex (mysql only) and
+  #19922 - pear error not being set in static property.
+      - fix static infront of depricated staticget() method and fix call to PEAR:: static calls.
+      - Fix some static errors that are now fatal unfortunatly...
+      - fix building of autojoin when using distinct columns
  </notes>
  <contents>
   <dir name="/">
@@ -41,7 +46,7 @@ Minor  feature and fix release. (Basically a yearly release now..)
    <file md5sum="06e890beb94da0cfd9782b220989f25f" name="DB/DataObject/Error.php" role="php" />
    <file md5sum="c54889c4b3c6a2748dc1b00081a68588" name="DB/DataObject/Generator.php" role="php" />
    <file md5sum="e8996463f2f406e3a7ada0631e57328a" name="DB/DataObject/Links.php" role="php" />
-   <file md5sum="47787bf09e93fc46a9f08668ca3d4702" name="DB/DataObject.php" role="php">
+   <file md5sum="ce92fd9fb8e9737f63462a9e68b42df0" name="DB/DataObject.php" role="php">
     <tasks:replace from="@version@" to="version" type="package-info" />
    </file>
    <file baseinstalldir="DB_DataObject" md5sum="6ca7ba11da3c125f78758d740849791b" name="docs/example.ini" role="doc" />
@@ -83,6 +88,26 @@ Minor  feature and fix release. (Basically a yearly release now..)
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <date>2014-04-22</date>
+   <version>
+    <release>1.11.3</release>
+    <api>1.9.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license/3_01.txt">PHP License 3.01</license>
+   <notes>
+Minor  feature and fix release. (Basically a yearly release now..)
+  #19922 - fix for pear error not being set in static property.
+  #19973 - accept START TRANSACTION as an alias for BEGIN
+  #19962 - Cannot insert or update when part of a reference in multi-key case is NULL by vtamma
+  #20149  - correct free for linked objects / more detailed error reporting on update error
+          - fix building of autojoin when using distinct columns
+   </notes>
+  </release>
   <release>
    <date>2013-04-05</date>
    <version>
